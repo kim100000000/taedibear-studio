@@ -17,13 +17,13 @@
 
 ## 기술 스택
 
-- 프론트엔드: React (Vite) — Vercel 배포
-- 백엔드: Node.js + Express — Railway 배포
-- DB: MySQL (Sequelize ORM)
+- 프론트엔드: React (Vite, TypeScript) — Vercel 배포
+- 백엔드: Node.js + Express — Railway 배포 (Java/Spring Boot 버전은 `backend-java/` 참고, 동일한 API 명세를 따르는 대체 구현)
+- DB: MySQL (Sequelize ORM / 백엔드-Java는 Spring Data JPA)
 - 인증: JWT + Passport.js (Local / JWT / Google / Kakao 전략, Naver는 axios 기반 수동 구현)
 - AI: Google Gemini API (gemini-2.5-flash)
 - SNS 연동: Meta Graph API (Facebook Page에 연결된 Instagram Business 계정)
-- 예약 업로드: node-cron
+- 예약 업로드: node-cron (Java 버전은 Spring `@Scheduled`)
 
 ## 폴더 구조
 
@@ -42,18 +42,21 @@ taedibear-studio/
 │   ├── package.json
 │   ├── Procfile
 │   └── railway.json
+├── backend-java/             # Spring Boot로 재구현한 백엔드 (backend/와 동일한 API 명세, 참고용 README 포함)
 ├── frontend/
 │   ├── src/
-│   │   ├── api/             # axios 클라이언트 + API 함수
+│   │   ├── api/             # axios 클라이언트 + API 함수 (TypeScript)
 │   │   ├── components/      # NavBar, Spinner, EmptyState, ConfirmModal, Toast 등
 │   │   ├── context/         # AuthContext (로그인 상태)
 │   │   ├── pages/           # 랜딩/로그인/회원가입/대시보드/업로드/캡션/예약/히스토리/설정
+│   │   ├── types/           # 공통 타입 정의 (User, Post, InstagramAccount 등)
 │   │   ├── styles/
-│   │   ├── App.jsx
-│   │   └── main.jsx
+│   │   ├── App.tsx
+│   │   └── main.tsx
 │   ├── .env.example
 │   ├── index.html
 │   ├── package.json
+│   ├── tsconfig.json
 │   └── vercel.json
 ├── docs/                    # 기획서/명세서/설계서/트러블슈팅 문서
 └── .gitignore
