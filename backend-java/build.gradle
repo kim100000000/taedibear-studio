@@ -1,0 +1,69 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.taedibear'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Web
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// Google/Kakao/Naver 소셜 로그인은 spring-oauth2-client 대신 WebClient로 직접 구현한다.
+	// (Node 버전의 naver.service.js 방식과 동일하게 통일 - 콜백 경로를 API 명세서와 정확히 일치시키기 위함)
+
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	// JPA + MySQL
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// AWS S3
+	implementation platform('software.amazon.awssdk:bom:2.26.21')
+	implementation 'software.amazon.awssdk:s3'
+
+	// HTTP client (Meta Graph API, Gemini API 호출용)
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// 예약 발행은 Spring 기본 @Scheduled(@EnableScheduling, spring-context에 포함)로 처리한다.
+	// node-cron(1분 주기 polling)과 동일한 방식.
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Dev
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

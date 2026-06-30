@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: taedibear-studio-backend
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:taedibear_studio}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Seoul
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 개발 환경: update로 엔티티 기준 테이블 4개를 자동 생성/동기화한다 (Node 버전 sequelize.sync({alter:true})와 동일한 역할).
+      # 운영 환경에서는 validate 또는 none + 마이그레이션 도구(Flyway 등) 사용을 권장한다.
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${PORT:4000}
+
+app:
+  client-url: ${CLIENT_URL:http://localhost:5173}
+
+  jwt:
+    secret: ${JWT_SECRET:change_this_secret}
+    expiration-ms: ${JWT_EXPIRATION_MS:604800000} # 7일
+
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+
+  aws:
+    region: ${AWS_REGION:ap-northeast-2}
+    access-key-id: ${AWS_ACCESS_KEY_ID:}
+    secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+    s3-bucket: ${AWS_S3_BUCKET:taedibear-studio-images}
+
+  meta:
+    app-id: ${META_APP_ID:}
+    app-secret: ${META_APP_SECRET:}
+    graph-api-version: ${META_GRAPH_API_VERSION:v19.0}
+    redirect-uri: ${META_REDIRECT_URI:http://localhost:4000/api/instagram/callback}
+
+  oauth:
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect-uri: ${GOOGLE_CALLBACK_URL:http://localhost:4000/api/auth/google/callback}
+    kakao:
+      client-id: ${KAKAO_CLIENT_ID:}
+      redirect-uri: ${KAKAO_CALLBACK_URL:http://localhost:4000/api/auth/kakao/callback}
+    naver:
+      client-id: ${NAVER_CLIENT_ID:}
+      client-secret: ${NAVER_CLIENT_SECRET:}
+      redirect-uri: ${NAVER_CALLBACK_URL:http://localhost:4000/api/auth/naver/callback}
+
+logging:
+  level:
+    com.taedibear.studio: debug
