@@ -1,0 +1,68 @@
+import apiClient from './client';
+import type { ApiResponse, Post, PostListResponse } from '../types';
+
+export interface UploadImageResult {
+  image_url: string;
+}
+
+export interface GenerateCaptionResult {
+  caption: string;
+  hashtags: string[];
+}
+
+export interface CreatePostPayload {
+  instagram_account_id: number;
+  image_url: string;
+  caption: string;
+  hashtags: string[];
+}
+
+export interface UpdatePostPayload {
+  caption?: string;
+  hashtags?: string[];
+}
+
+export interface ListPostsParams {
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
+// POST /api/posts/upload (multipart/form-data)
+export const uploadImage = (file: File) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  return apiClient.post<ApiResponse<UploadImageResult>>('/api/posts/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+// POST /api/posts/caption
+export const generateCaption = (image_url: string, business_type: string, mood: string) =>
+  apiClient.post<ApiResponse<GenerateCaptionResult>>('/api/posts/caption', {
+    image_url,
+    business_type,
+    mood,
+  });
+
+// POST /api/posts — draft 저장
+export const createPost = (payload: CreatePostPayload) =>
+  apiClient.post<ApiResponse<Post>>('/api/posts', payload);
+
+// GET /api/posts?status=&page=&limit=
+export const listPosts = (params?: ListPostsParams) =>
+  apiClient.get<ApiResponse<PostListResponse>>('/api/posts', { params });
+
+// GET /api/posts/:id
+export const getPost = (id: number) => apiClient.get<ApiResponse<Post>>(`/api/posts/${id}`);
+
+// PUT /api/posts/:id
+export const updatePost = (id: number, payload: UpdatePostPayload) =>
+  apiClient.put<ApiResponse<Post>>(`/api/posts/${id}`, payload);
+
+// DELETE /api/posts/:id
+export const deletePost = (id: number) => apiClient.delete<ApiResponse<null>>(`/api/posts/${id}`);
+
+// POST /api/posts/:id/publish — 즉시 업로드
+export const publishPost = (id: number) =>
+  apiClient.post<ApiResponse<Post>>(`/api/posts/${id}/publish`);
