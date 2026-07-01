@@ -284,6 +284,34 @@
     "start": "Get started",
     "skip": "Skip"
   },
+  "editor": {
+    "title": "Edit Image",
+    "cropLabel": "Crop",
+    "filterLabel": "Filter",
+    "adjustLabel": "Adjust",
+    "brightness": "Brightness",
+    "contrast": "Contrast",
+    "saturation": "Saturation",
+    "reset": "Reset",
+    "next": "Next",
+    "uploading": "Uploading...",
+    "crop": {
+      "original": "Original",
+      "square": "1:1",
+      "portrait": "4:5",
+      "landscape": "1.91:1"
+    },
+    "filter": {
+      "emotional": "Emotional",
+      "bright": "Bright",
+      "vintage": "Vintage",
+      "vivid": "Vivid",
+      "warm": "Warm"
+    },
+    "err": {
+      "uploadFailed": "Upload failed."
+    }
+  },
   "calendar": {
     "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     "prev": "Previous month",

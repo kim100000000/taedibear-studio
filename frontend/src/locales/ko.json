@@ -284,6 +284,34 @@
     "start": "시작하기",
     "skip": "건너뛰기"
   },
+  "editor": {
+    "title": "이미지 편집",
+    "cropLabel": "비율 크롭",
+    "filterLabel": "필터",
+    "adjustLabel": "조정",
+    "brightness": "밝기",
+    "contrast": "대비",
+    "saturation": "채도",
+    "reset": "편집 초기화",
+    "next": "다음",
+    "uploading": "업로드 중...",
+    "crop": {
+      "original": "원본",
+      "square": "1:1",
+      "portrait": "4:5",
+      "landscape": "1.91:1"
+    },
+    "filter": {
+      "emotional": "감성",
+      "bright": "밝음",
+      "vintage": "빈티지",
+      "vivid": "선명",
+      "warm": "따뜻함"
+    },
+    "err": {
+      "uploadFailed": "업로드에 실패했어요."
+    }
+  },
   "calendar": {
     "weekdays": ["일", "월", "화", "수", "목", "금", "토"],
     "prev": "이전 달",

@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
-import { uploadImage } from '../api/posts';
 import { listInstagramAccounts } from '../api/instagram';
 import type { InstagramAccount } from '../types';
 
@@ -17,7 +16,6 @@ export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [uploading, setUploading] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +52,7 @@ export default function UploadPage() {
     pickFile(e.dataTransfer.files?.[0]);
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!file) {
       setError(t('upload.err.selectImage'));
       return;
@@ -63,19 +61,10 @@ export default function UploadPage() {
       setError(t('upload.err.selectAccount'));
       return;
     }
-
-    setUploading(true);
-    setError('');
-    try {
-      const { data } = await uploadImage(file);
-      navigate('/upload/caption', {
-        state: { imageUrl: data.data.image_url, instagramAccountId: Number(accountId) },
-      });
-    } catch (err: any) {
-      setError(err.response?.data?.error || t('upload.err.failed'));
-    } finally {
-      setUploading(false);
-    }
+    // 업로드는 ImageEditorPage에서 편집 완료 후 수행
+    navigate('/upload/edit', {
+      state: { fileUrl: previewUrl, accountId: Number(accountId) },
+    });
   };
 
   if (loadingAccounts) return <Spinner label={t('common.loading')} />;
@@ -136,10 +125,10 @@ export default function UploadPage() {
         <button
           type="button"
           className="btn-primary"
-          disabled={uploading || accounts.length === 0}
+          disabled={accounts.length === 0}
           onClick={handleNext}
         >
-          {uploading ? t('upload.uploading') : t('upload.next')}
+          {t('upload.next')}
         </button>
       </div>
     </div>
