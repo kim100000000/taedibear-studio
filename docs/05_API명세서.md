@@ -1,9 +1,9 @@
 # Taedibear Studio — API 명세서
 
-**버전:** v1.1  
+**버전:** v1.2  
 **작성일:** 2026-06-27  
-**수정일:** 2026-06-27 — AI 캡션 생성 모델 ChatGPT → Gemini 변경  
-**Base URL:** `https://api.taedibear.com` (개발: `http://localhost:4000`)  
+**수정일:** 2026-07-01 — 백엔드 Spring Boot 이전 반영  
+**Base URL:** `https://api.taedibear.com` (개발: `http://localhost:8080`)  
 **인증 방식:** JWT Bearer Token
 
 ---
@@ -168,7 +168,7 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 네이버 OAuth 로그인 페이지로 리다이렉트합니다.
 
 **인증:** 불필요  
-**구현 방식:** passport 전략 없이 `naver.service.js`에서 axios로 직접 OAuth 흐름을 처리합니다 (Meta 연동과 동일한 방식).  
+**구현 방식:** `NaverOAuthClient.java`에서 Spring WebClient로 직접 OAuth 흐름을 처리합니다.  
 **Response:** 네이버 로그인 페이지로 302 리다이렉트
 
 ---
@@ -221,7 +221,7 @@ JWT 토큰을 갱신합니다.
 
 Meta OAuth 연동 페이지로 리다이렉트합니다.
 
-**인증:** 필요  
+**인증:** 필요 — 단, 브라우저 전체 페이지 리다이렉트이므로 Authorization 헤더 대신 `?token=<JWT>` 쿼리 파라미터로 JWT를 전달합니다.  
 **Response:** Meta 권한 승인 페이지로 302 리다이렉트
 
 ---
@@ -628,3 +628,13 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 ```json
 { "success": true, "data": { "id": 1, "name": "Taedibear" } }
 ```
+
+---
+
+## 6. 변경 이력
+
+| 버전 | 날짜 | 변경 내용 | 작성자 |
+|------|------|----------|--------|
+| v1.0 | 2026-06-27 | 최초 작성 | @taedibear |
+| v1.1 | 2026-06-27 | AI 캡션 생성 모델 ChatGPT → Gemini 변경 | @taedibear |
+| v1.2 | 2026-07-01 | 개발 서버 포트 4000 → 8080 (Spring Boot) / GET /api/auth/naver 구현 방식 Node.js/passport → Spring NaverOAuthClient.java 수정 / GET /api/instagram/connect 인증 방식 명시 (?token= 쿼리 파라미터) | @taedibear |
