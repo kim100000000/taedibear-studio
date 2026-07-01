@@ -761,6 +761,18 @@ button {
   text-decoration: none;
 }
 
+.banner-warn {
+  background: #fff8e6;
+  border-color: #f5a623;
+  color: #7a4f00;
+}
+
+[data-theme='dark'] .banner-warn {
+  background: #3a2e10;
+  border-color: #c97f20;
+  color: #f5c97a;
+}
+
 /* 대시보드 요약 카드 */
 .summary-cards {
   display: flex;
@@ -1183,6 +1195,18 @@ button {
   text-align: center;
   padding: 64px 0;
   color: var(--text-muted);
+}
+
+.empty-state-emoji {
+  display: block;
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.empty-state p {
+  margin: 0 0 20px;
+  font-size: 15px;
 }
 
 .spinner-wrap {

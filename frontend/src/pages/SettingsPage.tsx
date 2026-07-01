@@ -29,8 +29,14 @@ export default function SettingsPage() {
   useEffect(() => {
     listInstagramAccounts()
       .then((res) => setAccounts(res.data.data))
+      .catch((err: any) => {
+        const msg = err.isNetworkError
+          ? t('error.network')
+          : err.response?.data?.error || t('error.loadFailed');
+        setToast({ type: 'error', message: msg });
+      })
       .finally(() => setLoadingAccounts(false));
-  }, []);
+  }, [t]);
 
   // 결제 완료 후 리다이렉트 (?upgraded=true)
   useEffect(() => {

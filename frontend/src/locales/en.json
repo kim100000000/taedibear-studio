@@ -372,6 +372,8 @@
       "done": "Posted",
       "failed": "Failed"
     },
+    "empty": "No scheduled posts yet.",
+    "emptyAction": "Schedule your first post",
     "dragHint": "Drag scheduled items to reschedule",
     "status": {
       "pending": "Scheduled",
@@ -394,7 +396,10 @@
     "boundary": {
       "message": "Something went wrong. Please try again later.",
       "button": "Back to home"
-    }
+    },
+    "network": "Unable to connect to the server. Please check your internet connection.",
+    "loadFailed": "Failed to load data. Please refresh the page.",
+    "sessionExpired": "Your session has expired. Please log in again."
   },
   "theme": {
     "toDark": "Switch to dark mode",

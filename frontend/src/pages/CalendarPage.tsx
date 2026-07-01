@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
 import Toast from '../components/Toast';
 import ConfirmModal from '../components/ConfirmModal';
 import { listSchedules, updateSchedule, deleteSchedule } from '../api/scheduled';
@@ -34,8 +35,11 @@ export default function CalendarPage() {
     try {
       const res = await listSchedules();
       setItems(res.data.data);
-    } catch {
-      setToast({ type: 'error', message: t('common.loading') });
+    } catch (err: any) {
+      const msg = err.isNetworkError
+        ? t('error.network')
+        : err.response?.data?.error || t('error.loadFailed');
+      setToast({ type: 'error', message: msg });
     } finally {
       setLoading(false);
     }
@@ -161,6 +165,24 @@ export default function CalendarPage() {
     year: 'numeric',
     month: 'long',
   });
+
+  // 전체 예약이 하나도 없을 때 빈 상태 표시
+  if (!loading && items.length === 0) {
+    return (
+      <div className="page-with-nav">
+        <NavBar />
+        <div className="page-content calendar-page">
+          <EmptyState
+            emoji="📅"
+            message={t('calendar.empty')}
+            actionLabel={t('calendar.emptyAction')}
+            onAction={() => { window.location.href = '/upload'; }}
+          />
+        </div>
+        <Toast toast={toast} onClose={() => setToast(null)} />
+      </div>
+    );
+  }
 
   return (
     <div className="page-with-nav">

@@ -15,6 +15,7 @@ import {
 } from 'recharts';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
+import EmptyState from '../components/EmptyState';
 import { getAnalyticsSummary } from '../api/analytics';
 import type { AnalyticsSummary } from '../api/analytics';
 import type { ToastData } from '../types';
@@ -39,7 +40,12 @@ export default function AnalyticsPage() {
   useEffect(() => {
     getAnalyticsSummary()
       .then((res) => setData(res.data.data))
-      .catch(() => setToast({ type: 'error', message: t('common.loading') }))
+      .catch((err: any) => {
+        const msg = err.isNetworkError
+          ? t('error.network')
+          : err.response?.data?.error || t('error.loadFailed');
+        setToast({ type: 'error', message: msg });
+      })
       .finally(() => setLoading(false));
   }, [t]);
 
@@ -74,7 +80,7 @@ export default function AnalyticsPage() {
         {loading ? (
           <Spinner label={t('common.loading')} />
         ) : !data ? (
-          <p className="muted">{t('analytics.noData')}</p>
+          <EmptyState emoji="📊" message={t('analytics.noData')} />
         ) : (
           <div className="analytics-grid">
 

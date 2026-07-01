@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import OnboardingModal from '../components/OnboardingModal';
+import Toast from '../components/Toast';
 import { listPosts } from '../api/posts';
 import { listInstagramAccounts } from '../api/instagram';
 import { getUsage } from '../api/users';
 import { useAuth } from '../context/AuthContext';
-import type { Post, InstagramAccount, PostStatus } from '../types';
+import type { Post, InstagramAccount, PostStatus, ToastData } from '../types';
 import type { UsageInfo } from '../api/payments';
 
 // P-04 대시보드 (docs/03_화면설계서.md)
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -28,8 +30,14 @@ export default function DashboardPage() {
         setAccounts(accountsRes.data.data);
         setUsage(usageRes.data.data);
       })
+      .catch((err: any) => {
+        const msg = err.isNetworkError
+          ? t('error.network')
+          : err.response?.data?.error || t('error.loadFailed');
+        setToast({ type: 'error', message: msg });
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   // 사용자별로 대시보드 첫 방문에만 온보딩을 1회 노출한다.
   useEffect(() => {
@@ -46,6 +54,7 @@ export default function DashboardPage() {
   };
 
   if (loading) return <Spinner label={t('common.loading')} />;
+
 
   const STATUS_LABEL: Record<PostStatus, string> = {
     draft: t('dashboard.status.draft'),
@@ -67,6 +76,7 @@ export default function DashboardPage() {
   return (
     <div className="page-with-nav">
       {showOnboarding && <OnboardingModal onClose={closeOnboarding} />}
+      <Toast toast={toast} onClose={() => setToast(null)} />
       <NavBar />
       <div className="page-content">
         <h1>{t('dashboard.greeting', { name: user?.name })}</h1>

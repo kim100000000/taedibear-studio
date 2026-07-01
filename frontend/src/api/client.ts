@@ -16,10 +16,18 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // 네트워크 오류 (서버 응답 없음 — 오프라인 또는 서버 다운)
+    if (!error.response) {
+      error.isNetworkError = true;
+      return Promise.reject(error);
+    }
+
     const hadToken = Boolean(error.config?.headers?.Authorization);
     if (error.response?.status === 401 && hadToken) {
       localStorage.removeItem('token');
       if (window.location.pathname !== '/login') {
+        // 로그인 페이지에서 만료 안내 배너를 표시하기 위해 플래그 저장
+        sessionStorage.setItem('session_expired', '1');
         window.location.href = '/login';
       }
     }
