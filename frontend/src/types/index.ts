@@ -8,6 +8,10 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  plan?: 'free' | 'pro';
+  // Phase 2-3: 업종/분위기 저장
+  business_type?: string | null;
+  mood?: string | null;
 }
 
 export interface InstagramAccount {

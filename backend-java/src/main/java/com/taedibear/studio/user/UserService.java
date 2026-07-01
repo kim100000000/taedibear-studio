@@ -26,4 +26,16 @@ public class UserService {
 		}
 		return user;
 	}
+
+	// Phase 2-3: 캡션 생성 시 업종/분위기 자동 저장
+	@Transactional
+	public void updateBusinessProfile(Long id, String businessType, String mood) {
+		User user = getById(id);
+		if (businessType != null && !businessType.isBlank()) {
+			user.setBusinessType(businessType);
+		}
+		if (mood != null && !mood.isBlank()) {
+			user.setMood(mood);
+		}
+	}
 }

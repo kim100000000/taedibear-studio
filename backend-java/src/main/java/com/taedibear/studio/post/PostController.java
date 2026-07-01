@@ -6,6 +6,7 @@ import com.taedibear.studio.domain.Post;
 import com.taedibear.studio.instagram.InstagramPublishService;
 import com.taedibear.studio.post.dto.*;
 import com.taedibear.studio.security.UserPrincipal;
+import com.taedibear.studio.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ public class PostController {
 	private final S3Service s3Service;
 	private final GeminiService geminiService;
 	private final InstagramPublishService instagramPublishService;
+	private final UserService userService;
 
 	// POST /api/posts/upload
 	@PostMapping(value = "/upload", consumes = "multipart/form-data")
@@ -34,13 +36,20 @@ public class PostController {
 		return ApiResponse.ok(Map.of("image_url", imageUrl));
 	}
 
-	// POST /api/posts/caption
+	// POST /api/posts/caption — Phase 2-3: 선택 필드 추가, 업종/분위기 저장
 	@PostMapping("/caption")
-	public ApiResponse<CaptionResponse> generateCaption(@RequestBody CaptionRequest request) {
+	public ApiResponse<CaptionResponse> generateCaption(
+			@AuthenticationPrincipal UserPrincipal principal,
+			@RequestBody CaptionRequest request) {
 		if (request.image_url() == null || request.business_type() == null || request.mood() == null) {
 			throw ApiException.badRequest("image_url, business_type, mood는 필수예요.");
 		}
-		var result = geminiService.generateCaption(request.image_url(), request.business_type(), request.mood());
+		// 업종/분위기 선택값을 users 테이블에 저장 → 다음 방문 시 자동 반영
+		userService.updateBusinessProfile(principal.getId(), request.business_type(), request.mood());
+
+		var result = geminiService.generateCaption(
+				request.image_url(), request.business_type(), request.mood(),
+				request.special_menu(), request.event_promotion(), request.keywords());
 		return ApiResponse.ok(new CaptionResponse(result.caption(), result.hashtags()));
 	}
 

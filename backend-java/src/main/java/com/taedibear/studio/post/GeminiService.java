@@ -48,12 +48,27 @@ public class GeminiService {
 	public record CaptionResult(String caption, List<String> hashtags) {
 	}
 
-	public CaptionResult generateCaption(String imageUrl, String businessType, String mood) {
+	public CaptionResult generateCaption(String imageUrl, String businessType, String mood,
+	                                     String specialMenu, String eventPromotion, String keywords) {
 		byte[] imageBytes = downloadImage(imageUrl);
 		String mimeType = guessMimeType(imageUrl);
 		String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 
-		String prompt = "업종: " + businessType + "\n분위기: " + mood + "\n위 정보와 이미지를 참고해서 캡션과 해시태그 10개를 만들어줘.";
+		// Phase 2-3: 선택 입력 필드를 프롬프트에 추가
+		StringBuilder promptBuilder = new StringBuilder();
+		promptBuilder.append("업종: ").append(businessType).append("\n");
+		promptBuilder.append("분위기: ").append(mood).append("\n");
+		if (specialMenu != null && !specialMenu.isBlank()) {
+			promptBuilder.append("오늘의 특별 메뉴: ").append(specialMenu).append("\n");
+		}
+		if (eventPromotion != null && !eventPromotion.isBlank()) {
+			promptBuilder.append("이벤트/프로모션: ").append(eventPromotion).append("\n");
+		}
+		if (keywords != null && !keywords.isBlank()) {
+			promptBuilder.append("강조할 키워드: ").append(keywords).append("\n");
+		}
+		promptBuilder.append("위 정보와 이미지를 참고해서 캡션과 해시태그 10개를 만들어줘.");
+		String prompt = promptBuilder.toString();
 
 		Map<String, Object> requestBody = Map.of(
 				"systemInstruction", Map.of("parts", List.of(Map.of("text", SYSTEM_INSTRUCTION))),

@@ -133,6 +133,13 @@
     "placeholder": "Enter a caption or generate one with AI.",
     "immediate": "Post now",
     "schedule": "Schedule",
+    "optionalToggle": "Add more details (optional)",
+    "specialMenuLabel": "Today's special",
+    "specialMenuPlaceholder": "e.g. Strawberry latte, cream cheese bagel",
+    "eventPromotionLabel": "Event / promotion",
+    "eventPromotionPlaceholder": "e.g. Buy 1 get 1 free Americano for opening week",
+    "keywordsLabel": "Keywords to highlight",
+    "keywordsPlaceholder": "e.g. cozy café, date spot, solo café",
     "err": {
       "generateFailed": "Caption generation failed.",
       "saveFailed": "Save failed."

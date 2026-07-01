@@ -37,13 +37,19 @@ export const uploadImage = (file: File) => {
   });
 };
 
+// Phase 2-3: 선택 입력 필드 추가
+export interface GenerateCaptionPayload {
+  image_url: string;
+  business_type: string;
+  mood: string;
+  special_menu?: string;
+  event_promotion?: string;
+  keywords?: string;
+}
+
 // POST /api/posts/caption
-export const generateCaption = (image_url: string, business_type: string, mood: string) =>
-  apiClient.post<ApiResponse<GenerateCaptionResult>>('/api/posts/caption', {
-    image_url,
-    business_type,
-    mood,
-  });
+export const generateCaption = (payload: GenerateCaptionPayload) =>
+  apiClient.post<ApiResponse<GenerateCaptionResult>>('/api/posts/caption', payload);
 
 // POST /api/posts — draft 저장
 export const createPost = (payload: CreatePostPayload) =>

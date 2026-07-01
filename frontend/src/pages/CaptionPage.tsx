@@ -5,6 +5,7 @@ import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import UpgradeModal from '../components/UpgradeModal';
 import { generateCaption, createPost } from '../api/posts';
+import { getMe } from '../api/users';
 
 // API로 전달되는 값은 한국어 그대로 유지 (Gemini 프롬프트와 맞춰야 함).
 // labelKey만 i18n 키로 매핑해서 UI 표시를 번역한다.
@@ -35,6 +36,10 @@ export default function CaptionPage() {
 
   const [businessType, setBusinessType] = useState(BUSINESS_TYPES[0].value);
   const [mood, setMood] = useState(MOODS[0].value);
+  const [specialMenu, setSpecialMenu] = useState('');
+  const [eventPromotion, setEventPromotion] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [showOptional, setShowOptional] = useState(false);
   const [caption, setCaption] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
@@ -46,7 +51,17 @@ export default function CaptionPage() {
   useEffect(() => {
     if (!state?.imageUrl || !state?.instagramAccountId) {
       navigate('/upload', { replace: true });
+      return;
     }
+    // Phase 2-3: 저장된 업종/분위기 자동 로드
+    getMe().then(({ data }) => {
+      if (data.data.business_type) {
+        setBusinessType(data.data.business_type);
+      }
+      if (data.data.mood) {
+        setMood(data.data.mood);
+      }
+    }).catch(() => { /* 실패해도 기본값 사용 */ });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -58,7 +73,14 @@ export default function CaptionPage() {
     setGenerating(true);
     setError('');
     try {
-      const { data } = await generateCaption(imageUrl, businessType, mood);
+      const { data } = await generateCaption({
+        image_url: imageUrl,
+        business_type: businessType,
+        mood,
+        special_menu: specialMenu || undefined,
+        event_promotion: eventPromotion || undefined,
+        keywords: keywords || undefined,
+      });
       setCaption(data.data.caption);
       setHashtags(data.data.hashtags);
       setHasGenerated(true);
@@ -134,6 +156,46 @@ export default function CaptionPage() {
                 </select>
               </div>
             </div>
+
+            {/* Phase 2-3: 선택 입력 필드 */}
+            <button
+              type="button"
+              className="caption-optional-toggle"
+              onClick={() => setShowOptional((v) => !v)}
+            >
+              {showOptional ? '▲' : '▼'} {t('caption.optionalToggle')}
+            </button>
+            {showOptional && (
+              <div className="caption-optional-fields">
+                <div className="form-field">
+                  <label>{t('caption.specialMenuLabel')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('caption.specialMenuPlaceholder')}
+                    value={specialMenu}
+                    onChange={(e) => setSpecialMenu(e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>{t('caption.eventPromotionLabel')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('caption.eventPromotionPlaceholder')}
+                    value={eventPromotion}
+                    onChange={(e) => setEventPromotion(e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label>{t('caption.keywordsLabel')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('caption.keywordsPlaceholder')}
+                    value={keywords}
+                    onChange={(e) => setKeywords(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             {generating ? (
               <Spinner label={t('caption.generating')} />

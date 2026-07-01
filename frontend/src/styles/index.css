@@ -630,6 +630,44 @@ button {
   box-shadow: 0 2px 12px var(--shadow-card);
 }
 
+/* Phase 2-3: 캡션 선택 입력 */
+.caption-optional-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 4px;
+  text-align: left;
+}
+.caption-optional-toggle:hover {
+  color: var(--accent);
+}
+.caption-optional-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.caption-optional-fields input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.caption-optional-fields input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .hashtag-list {
   display: flex;
   flex-wrap: wrap;

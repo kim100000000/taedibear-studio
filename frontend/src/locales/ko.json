@@ -133,6 +133,13 @@
     "placeholder": "캡션을 입력하거나 AI로 생성해보세요.",
     "immediate": "즉시 업로드",
     "schedule": "예약 설정",
+    "optionalToggle": "추가 정보 입력 (선택)",
+    "specialMenuLabel": "오늘의 특별 메뉴",
+    "specialMenuPlaceholder": "예: 딸기 라떼, 크림 치즈 베이글",
+    "eventPromotionLabel": "이벤트 / 프로모션",
+    "eventPromotionPlaceholder": "예: 오픈 기념 아메리카노 1+1",
+    "keywordsLabel": "강조할 키워드",
+    "keywordsPlaceholder": "예: 분위기 맛집, 데이트 코스, 혼카페",
     "err": {
       "generateFailed": "캡션 생성에 실패했어요.",
       "saveFailed": "저장에 실패했어요."
