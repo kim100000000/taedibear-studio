@@ -12,6 +12,7 @@
   "nav": {
     "upload": "Upload",
     "history": "History",
+    "calendar": "Calendar",
     "settings": "Settings",
     "greeting": "Hi, {{name}}"
   },
@@ -282,6 +283,33 @@
     "prev": "Back",
     "start": "Get started",
     "skip": "Skip"
+  },
+  "calendar": {
+    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "prev": "Previous month",
+    "next": "Next month",
+    "legend": {
+      "pending": "Scheduled",
+      "done": "Posted",
+      "failed": "Failed"
+    },
+    "dragHint": "Drag scheduled items to reschedule",
+    "status": {
+      "pending": "Scheduled",
+      "done": "Posted",
+      "failed": "Failed"
+    },
+    "modal": {
+      "deleteSchedule": "Cancel schedule",
+      "deleteConfirm": "Cancel this scheduled post? This cannot be undone."
+    },
+    "toast": {
+      "rescheduled": "Schedule updated.",
+      "rescheduleFailed": "Failed to update schedule.",
+      "rescheduleTooSoon": "Please schedule at least 10 minutes from now.",
+      "deleted": "Schedule cancelled.",
+      "deleteFailed": "Failed to cancel schedule."
+    }
   },
   "error": {
     "boundary": {

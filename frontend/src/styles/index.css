@@ -23,6 +23,13 @@
   --color-warning: #e08a00;
   --status-draft-bg: #eee;
   --status-draft-text: #555;
+  /* 캘린더 상태 색상 */
+  --cal-pending-bg: #dbeafe;
+  --cal-pending-text: #1d4ed8;
+  --cal-done-bg: #dcfce7;
+  --cal-done-text: #166534;
+  --cal-failed-bg: #fee2e2;
+  --cal-failed-text: #991b1b;
 }
 
 [data-theme='dark'] {
@@ -48,6 +55,13 @@
   --color-warning: #ffb84d;
   --status-draft-bg: #3a3b42;
   --status-draft-text: #c4c4cc;
+  /* 캘린더 상태 색상 (다크) */
+  --cal-pending-bg: #1e3a8a;
+  --cal-pending-text: #93c5fd;
+  --cal-done-bg: #14532d;
+  --cal-done-text: #86efac;
+  --cal-failed-bg: #7f1d1d;
+  --cal-failed-text: #fca5a5;
 }
 
 * {
@@ -1015,4 +1029,285 @@ button {
   width: auto;
   display: inline-block;
   padding: 0;
+}
+
+/* 콘텐츠 캘린더 (Phase 1-1) */
+.calendar-page {
+  max-width: 1100px;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.calendar-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  min-width: 180px;
+  text-align: center;
+}
+
+.calendar-nav-btn {
+  width: auto;
+  margin: 0;
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 8px;
+}
+
+.calendar-nav-btn:hover {
+  background: var(--bg-hover);
+}
+
+/* 범례 */
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-pending { background: var(--cal-pending-text); }
+.legend-done    { background: var(--cal-done-text); }
+.legend-failed  { background: var(--cal-failed-text); }
+
+.calendar-drag-hint {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 그리드 */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--border-color);
+}
+
+.calendar-weekday {
+  background: var(--bg-card);
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.calendar-day {
+  background: var(--bg-card);
+  min-height: 110px;
+  padding: 6px;
+  position: relative;
+  transition: background 0.1s;
+}
+
+.calendar-day-empty {
+  background: var(--bg-page);
+  min-height: 110px;
+}
+
+.calendar-day-today .calendar-day-number {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day-drag-over {
+  background: var(--color-primary-soft);
+  outline: 2px dashed var(--color-primary);
+  outline-offset: -2px;
+}
+
+.calendar-day-number {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 개별 예약 항목 */
+.calendar-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  transition: opacity 0.15s;
+}
+
+.calendar-item:hover { opacity: 0.8; }
+
+.calendar-item-pending {
+  background: var(--cal-pending-bg);
+  color: var(--cal-pending-text);
+  cursor: grab;
+}
+
+.calendar-item-done {
+  background: var(--cal-done-bg);
+  color: var(--cal-done-text);
+}
+
+.calendar-item-failed {
+  background: var(--cal-failed-bg);
+  color: var(--cal-failed-text);
+}
+
+.calendar-item-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.calendar-item-time {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 상세 모달 */
+.calendar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--shadow-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.calendar-modal {
+  background: var(--bg-card);
+  border-radius: 16px;
+  width: 360px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-modal-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.calendar-modal-body {
+  padding: 20px;
+}
+
+.calendar-modal-caption {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.calendar-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.calendar-modal-time {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.calendar-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.calendar-modal-actions button {
+  flex: 1;
+  margin: 0;
+}
+
+/* status badge (히스토리와 공용) */
+.status-badge {
+  display: inline-block;
+  width: auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-draft     { background: var(--status-draft-bg);    color: var(--status-draft-text); }
+.status-scheduled { background: var(--cal-pending-bg);     color: var(--cal-pending-text); }
+.status-posted    { background: var(--cal-done-bg);        color: var(--cal-done-text); }
+.status-failed    { background: var(--cal-failed-bg);      color: var(--cal-failed-text); }
+
+.post-caption-preview {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 14px;
 }

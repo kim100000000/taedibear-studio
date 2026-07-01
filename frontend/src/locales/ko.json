@@ -12,6 +12,7 @@
   "nav": {
     "upload": "업로드",
     "history": "히스토리",
+    "calendar": "캘린더",
     "settings": "설정",
     "greeting": "{{name}}님"
   },
@@ -282,6 +283,33 @@
     "prev": "이전",
     "start": "시작하기",
     "skip": "건너뛰기"
+  },
+  "calendar": {
+    "weekdays": ["일", "월", "화", "수", "목", "금", "토"],
+    "prev": "이전 달",
+    "next": "다음 달",
+    "legend": {
+      "pending": "예약 중",
+      "done": "업로드 완료",
+      "failed": "실패"
+    },
+    "dragHint": "예약 중인 항목을 드래그해서 날짜를 변경할 수 있어요",
+    "status": {
+      "pending": "예약 중",
+      "done": "업로드 완료",
+      "failed": "실패"
+    },
+    "modal": {
+      "deleteSchedule": "예약 취소",
+      "deleteConfirm": "이 예약을 취소할까요? 삭제하면 되돌릴 수 없어요."
+    },
+    "toast": {
+      "rescheduled": "예약 시간을 변경했어요.",
+      "rescheduleFailed": "시간 변경에 실패했어요.",
+      "rescheduleTooSoon": "예약은 현재 시각보다 최소 10분 이후로 설정해주세요.",
+      "deleted": "예약을 취소했어요.",
+      "deleteFailed": "예약 취소에 실패했어요."
+    }
   },
   "error": {
     "boundary": {

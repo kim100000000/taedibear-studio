@@ -9,6 +9,7 @@ import CaptionPage from './pages/CaptionPage';
 import SchedulePage from './pages/SchedulePage';
 import UploadDonePage from './pages/UploadDonePage';
 import HistoryPage from './pages/HistoryPage';
+import CalendarPage from './pages/CalendarPage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -66,6 +67,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <HistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <ProtectedRoute>
+            <CalendarPage />
           </ProtectedRoute>
         }
       />
