@@ -243,9 +243,20 @@
     "current": "Current plan",
     "upgrade": "Upgrade",
     "downgrade": "Downgrade",
+    "cancelSubscription": "Cancel subscription",
     "priceSuffix": "/mo",
-    "upgradeComingSoon": "Payment integration coming soon. Stay tuned!",
+    "upgradeComingSoon": "No payment key set — set VITE_TOSS_CLIENT_KEY for dev.",
+    "upgradeSuccess": "Upgraded to Pro! 🎉",
     "downgraded": "Switched to Free plan.",
+    "cancelFailed": "Failed to cancel subscription.",
+    "cancelConfirm": "Cancel subscription? Pro benefits end immediately.",
+    "paymentFailed": "Payment failed.",
+    "confirmingPayment": "Confirming payment...",
+    "validUntil": "Active until {{date}}",
+    "limitReachedTitle": "Monthly upload limit reached",
+    "limitReachedDesc": "Free plan allows 10 uploads per month. Upgrade to Pro for unlimited uploads.",
+    "limitReachedFreeFeature": "10 uploads/month",
+    "limitReachedProFeature": "Unlimited uploads",
     "free": {
       "name": "Free",
       "price": "₩0",
@@ -253,7 +264,7 @@
     },
     "pro": {
       "name": "Pro",
-      "price": "₩9,900",
+      "price": "₩29,000",
       "features": ["Unlimited uploads", "Multiple Instagram accounts", "AI caption (advanced)", "Priority scheduling"]
     }
   },

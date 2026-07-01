@@ -50,6 +50,12 @@ app:
     graph-api-version: ${META_GRAPH_API_VERSION:v19.0}
     redirect-uri: ${META_REDIRECT_URI:http://localhost:4000/api/instagram/callback}
 
+  toss:
+    # 토스페이먼츠 시크릿 키 (운영: 실제 키, 개발: 테스트 키 또는 빈 값 → API 호출 스킵)
+    secret-key: ${TOSS_SECRET_KEY:}
+    # 프론트엔드에서 사용하는 클라이언트 키 (VITE_TOSS_CLIENT_KEY 환경변수와 동일하게 설정)
+    client-key: ${TOSS_CLIENT_KEY:}
+
   oauth:
     google:
       client-id: ${GOOGLE_CLIENT_ID:}

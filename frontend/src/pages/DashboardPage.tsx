@@ -6,8 +6,10 @@ import Spinner from '../components/Spinner';
 import OnboardingModal from '../components/OnboardingModal';
 import { listPosts } from '../api/posts';
 import { listInstagramAccounts } from '../api/instagram';
+import { getUsage } from '../api/users';
 import { useAuth } from '../context/AuthContext';
 import type { Post, InstagramAccount, PostStatus } from '../types';
+import type { UsageInfo } from '../api/payments';
 
 // P-04 대시보드 (docs/03_화면설계서.md)
 export default function DashboardPage() {
@@ -15,14 +17,16 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    Promise.all([listPosts({ limit: 100 }), listInstagramAccounts()])
-      .then(([postsRes, accountsRes]) => {
+    Promise.all([listPosts({ limit: 100 }), listInstagramAccounts(), getUsage()])
+      .then(([postsRes, accountsRes, usageRes]) => {
         setPosts(postsRes.data.data.posts);
         setAccounts(accountsRes.data.data);
+        setUsage(usageRes.data.data);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -50,16 +54,15 @@ export default function DashboardPage() {
     failed: t('dashboard.status.failed'),
   };
 
-  const now = new Date();
-  const thisMonthUploads = posts.filter(
-    (p) =>
-      p.status === 'posted' &&
-      p.posted_at &&
-      new Date(p.posted_at).getMonth() === now.getMonth() &&
-      new Date(p.posted_at).getFullYear() === now.getFullYear()
-  ).length;
   const scheduledCount = posts.filter((p) => p.status === 'scheduled').length;
   const recentPosts = posts.slice(0, 5);
+
+  // 사용량 표시 (서버 usage API 우선, 없으면 클라이언트 카운트)
+  const usedThisMonth = usage?.used ?? 0;
+  const usageLimit = usage?.limit ?? null;
+  const usageLabel = usageLimit != null
+    ? `${usedThisMonth} / ${usageLimit}`
+    : `${usedThisMonth}`;
 
   return (
     <div className="page-with-nav">
@@ -76,9 +79,12 @@ export default function DashboardPage() {
         )}
 
         <div className="summary-cards">
-          <div className="summary-card">
-            <span className="summary-value">{thisMonthUploads}</span>
+          <div className={`summary-card${usageLimit != null && usedThisMonth >= usageLimit ? ' summary-card-warn' : ''}`}>
+            <span className="summary-value">{usageLabel}</span>
             <span className="summary-label">{t('dashboard.thisMonthUploads')}</span>
+            {usageLimit != null && usage?.plan === 'free' && (
+              <span className="summary-plan-badge">{t('plan.free.name')}</span>
+            )}
           </div>
           <div className="summary-card">
             <span className="summary-value">{scheduledCount}</span>

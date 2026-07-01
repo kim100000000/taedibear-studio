@@ -24,11 +24,23 @@ export default function SettingsPage() {
   const [loadingAccounts, setLoadingAccounts] = useState(true);
   const [disconnectTarget, setDisconnectTarget] = useState<number | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [planRefresh, setPlanRefresh] = useState(0);
 
   useEffect(() => {
     listInstagramAccounts()
       .then((res) => setAccounts(res.data.data))
       .finally(() => setLoadingAccounts(false));
+  }, []);
+
+  // 결제 완료 후 리다이렉트 (?upgraded=true)
+  useEffect(() => {
+    if (searchParams.get('upgraded') === 'true') {
+      setToast({ type: 'success', message: t('plan.upgradeSuccess') });
+      setPlanRefresh((n) => n + 1);
+      searchParams.delete('upgraded');
+      setSearchParams(searchParams, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -96,7 +108,7 @@ export default function SettingsPage() {
           </button>
         </section>
 
-        <PlanSection onToast={setToast} />
+        <PlanSection onToast={setToast} refreshTrigger={planRefresh} />
 
         <section className="settings-section">
           <h2>{t('settings.instagram.title')}</h2>

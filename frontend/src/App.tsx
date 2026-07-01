@@ -13,6 +13,8 @@ import CalendarPage from './pages/CalendarPage';
 import ImageEditorPage from './pages/ImageEditorPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailPage from './pages/PaymentFailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // docs/03_화면설계서.md 1. 페이지 목록 기준 라우팅
@@ -104,6 +106,9 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      {/* 토스페이먼츠 결제 리다이렉트 (인증 불필요 — Toss가 리다이렉트) */}
+      <Route path="/payments/success" element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
+      <Route path="/payments/fail" element={<PaymentFailPage />} />
     </Routes>
   );
 }

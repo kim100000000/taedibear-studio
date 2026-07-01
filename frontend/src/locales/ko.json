@@ -243,17 +243,28 @@
     "current": "현재 플랜",
     "upgrade": "업그레이드",
     "downgrade": "다운그레이드",
+    "cancelSubscription": "구독 해지",
     "priceSuffix": "/월",
-    "upgradeComingSoon": "결제 연동 준비 중이에요. 곧 만나요!",
+    "upgradeComingSoon": "결제 키 미설정 — 개발 환경에서는 VITE_TOSS_CLIENT_KEY를 설정해주세요.",
+    "upgradeSuccess": "Pro 플랜으로 업그레이드되었어요! 🎉",
     "downgraded": "Free 플랜으로 변경했어요.",
+    "cancelFailed": "구독 해지에 실패했어요.",
+    "cancelConfirm": "정말 구독을 해지할까요? Pro 혜택이 즉시 종료돼요.",
+    "paymentFailed": "결제에 실패했어요.",
+    "confirmingPayment": "결제를 확인하는 중이에요...",
+    "validUntil": "{{date}}까지 이용 가능",
+    "limitReachedTitle": "이번 달 업로드 한도를 초과했어요",
+    "limitReachedDesc": "Free 플랜은 매월 10회까지 업로드할 수 있어요. Pro로 업그레이드하면 무제한으로 업로드할 수 있어요.",
+    "limitReachedFreeFeature": "월 10회 업로드",
+    "limitReachedProFeature": "업로드 무제한",
     "free": {
       "name": "Free",
       "price": "₩0",
-      "features": ["월 10건 업로드", "인스타그램 1개 계정 연동", "AI 캡션 생성 (기본)"]
+      "features": ["월 10회 업로드", "인스타그램 1개 계정 연동", "AI 캡션 생성 (기본)"]
     },
     "pro": {
       "name": "Pro",
-      "price": "₩9,900",
+      "price": "₩29,000",
       "features": ["업로드 무제한", "인스타그램 다중 계정 연동", "AI 캡션 생성 (고급)", "예약 업로드 우선 처리"]
     }
   },

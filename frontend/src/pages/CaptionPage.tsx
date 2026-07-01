@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
+import UpgradeModal from '../components/UpgradeModal';
 import { generateCaption, createPost } from '../api/posts';
 
 // API로 전달되는 값은 한국어 그대로 유지 (Gemini 프롬프트와 맞춰야 함).
@@ -40,6 +41,7 @@ export default function CaptionPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (!state?.imageUrl || !state?.instagramAccountId) {
@@ -89,7 +91,11 @@ export default function CaptionPage() {
         navigate('/upload/schedule', { state: { postId, imageUrl, caption } });
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || t('caption.err.saveFailed'));
+      if (err.response?.status === 403) {
+        setShowUpgradeModal(true);
+      } else {
+        setError(err.response?.data?.error || t('caption.err.saveFailed'));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -98,6 +104,7 @@ export default function CaptionPage() {
   return (
     <div className="page-with-nav">
       <NavBar />
+      <UpgradeModal open={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
       <div className="page-content caption-page">
         <h1>{t('caption.title')}</h1>
 

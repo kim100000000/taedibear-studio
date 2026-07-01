@@ -4,6 +4,7 @@ import com.taedibear.studio.common.exception.ApiException;
 import com.taedibear.studio.domain.Post;
 import com.taedibear.studio.domain.PostStatus;
 import com.taedibear.studio.domain.ScheduledPost;
+import com.taedibear.studio.payment.PaymentService;
 import com.taedibear.studio.post.dto.*;
 import com.taedibear.studio.repository.PostRepository;
 import com.taedibear.studio.repository.ScheduledPostRepository;
@@ -21,9 +22,13 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final ScheduledPostRepository scheduledPostRepository;
+	private final PaymentService paymentService;
 
 	@Transactional
 	public Post createPost(Long userId, CreatePostRequest request) {
+		// Free 플랜 월 10회 제한 체크
+		paymentService.checkPlanLimit(userId);
+
 		Post post = Post.builder()
 				.userId(userId)
 				.instagramAccountId(request.instagram_account_id())

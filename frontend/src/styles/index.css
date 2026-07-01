@@ -1569,3 +1569,105 @@ button {
   height: 160px;
   margin: 0;
 }
+
+/* ── Phase 2-1: 결제 / 업그레이드 모달 / 플랜 ──────────────────────────────── */
+
+/* 대시보드 사용량 카드 — 한도 초과 경고 */
+.summary-card-warn {
+  border: 2px solid var(--color-error, #d33);
+}
+.summary-card-warn .summary-value {
+  color: var(--color-error, #d33);
+}
+.summary-plan-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--bg-page);
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* 플랜 유효기간 */
+.plan-valid-until {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: -4px 0 12px;
+}
+
+/* 업그레이드 모달 */
+.upgrade-modal {
+  max-width: 420px;
+  text-align: center;
+}
+.upgrade-modal-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+.upgrade-modal h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.upgrade-modal-desc {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+.upgrade-modal-plans {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.upgrade-plan-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.upgrade-plan-free {
+  border: 1px solid var(--border-color);
+  background: var(--bg-page);
+}
+.upgrade-plan-pro {
+  border: 2px solid var(--color-primary);
+  background: var(--bg-card);
+}
+.upgrade-plan-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+.upgrade-plan-name {
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 8px;
+}
+.upgrade-plan-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.upgrade-plan-price small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.upgrade-plan-feature {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.upgrade-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
