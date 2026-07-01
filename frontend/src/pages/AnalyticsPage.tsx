@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
                       color: 'var(--text-primary)',
                       fontSize: 13,
                     }}
-                    formatter={(v: number) => [v, t('analytics.uploads')]}
+                    formatter={(v) => [v, t('analytics.uploads')]}
                   />
                   <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
                       color: 'var(--text-primary)',
                       fontSize: 13,
                     }}
-                    formatter={(v: number) => [v, t('analytics.uploads')]}
+                    formatter={(v) => [v, t('analytics.uploads')]}
                   />
                   <Bar dataKey="count" fill="#a78bfa" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
                         borderRadius: 8,
                         fontSize: 13,
                       }}
-                      formatter={(v: number) => [`${v}%`]}
+                      formatter={(v) => [`${v}%`]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
                         borderRadius: 8,
                         fontSize: 13,
                       }}
-                      formatter={(v: number) => [`${v}%`]}
+                      formatter={(v) => [`${v}%`]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
