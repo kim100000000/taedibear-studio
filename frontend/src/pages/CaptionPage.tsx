@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import { generateCaption, createPost } from '../api/posts';
 
-const BUSINESS_TYPES = ['카페', '식당', '베이커리', '기타'];
-const MOODS = ['감성적인', '발랄한', '고급스러운', '친근한'];
+// API로 전달되는 값은 한국어 그대로 유지 (Gemini 프롬프트와 맞춰야 함).
+// labelKey만 i18n 키로 매핑해서 UI 표시를 번역한다.
+const BUSINESS_TYPES: { value: string; labelKey: string }[] = [
+  { value: '카페', labelKey: 'caption.businessTypes.cafe' },
+  { value: '식당', labelKey: 'caption.businessTypes.restaurant' },
+  { value: '베이커리', labelKey: 'caption.businessTypes.bakery' },
+  { value: '기타', labelKey: 'caption.businessTypes.other' },
+];
+
+const MOODS: { value: string; labelKey: string }[] = [
+  { value: '감성적인', labelKey: 'caption.moods.emotional' },
+  { value: '발랄한', labelKey: 'caption.moods.lively' },
+  { value: '고급스러운', labelKey: 'caption.moods.luxury' },
+  { value: '친근한', labelKey: 'caption.moods.friendly' },
+];
 
 interface CaptionPageState {
   imageUrl: string;
@@ -16,9 +30,10 @@ interface CaptionPageState {
 export default function CaptionPage() {
   const { state } = useLocation() as { state: CaptionPageState | null };
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  const [businessType, setBusinessType] = useState(BUSINESS_TYPES[0]);
-  const [mood, setMood] = useState(MOODS[0]);
+  const [businessType, setBusinessType] = useState(BUSINESS_TYPES[0].value);
+  const [mood, setMood] = useState(MOODS[0].value);
   const [caption, setCaption] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
@@ -46,14 +61,14 @@ export default function CaptionPage() {
       setHashtags(data.data.hashtags);
       setHasGenerated(true);
     } catch (err: any) {
-      setError(err.response?.data?.error || '캡션 생성에 실패했어요.');
+      setError(err.response?.data?.error || t('caption.err.generateFailed'));
     } finally {
       setGenerating(false);
     }
   };
 
   const removeHashtag = (tag: string) => {
-    setHashtags((prev) => prev.filter((t) => t !== tag));
+    setHashtags((prev) => prev.filter((h) => h !== tag));
   };
 
   const goNext = async (mode: 'immediate' | 'schedule') => {
@@ -74,7 +89,7 @@ export default function CaptionPage() {
         navigate('/upload/schedule', { state: { postId, imageUrl, caption } });
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || '저장에 실패했어요.');
+      setError(err.response?.data?.error || t('caption.err.saveFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -84,29 +99,29 @@ export default function CaptionPage() {
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content caption-page">
-        <h1>AI 캡션 생성</h1>
+        <h1>{t('caption.title')}</h1>
 
         <div className="caption-layout">
-          <img src={imageUrl} alt="업로드한 이미지" className="caption-preview-image" />
+          <img src={imageUrl} alt="" className="caption-preview-image" />
 
           <div className="caption-editor">
             <div className="form-row">
               <div className="form-field">
-                <label>업종</label>
+                <label>{t('caption.businessTypeLabel')}</label>
                 <select value={businessType} onChange={(e) => setBusinessType(e.target.value)}>
-                  {BUSINESS_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                  {BUSINESS_TYPES.map((bt) => (
+                    <option key={bt.value} value={bt.value}>
+                      {t(bt.labelKey)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="form-field">
-                <label>분위기</label>
+                <label>{t('caption.moodLabel')}</label>
                 <select value={mood} onChange={(e) => setMood(e.target.value)}>
                   {MOODS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
+                    <option key={m.value} value={m.value}>
+                      {t(m.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -114,16 +129,16 @@ export default function CaptionPage() {
             </div>
 
             {generating ? (
-              <Spinner label="캡션을 만들고 있어요..." />
+              <Spinner label={t('caption.generating')} />
             ) : (
               <>
                 <button type="button" className="btn-outline" onClick={handleGenerate}>
-                  {hasGenerated ? '다시 생성' : 'AI 캡션 생성'}
+                  {hasGenerated ? t('caption.regenerate') : t('caption.generate')}
                 </button>
 
                 <textarea
                   rows={6}
-                  placeholder="캡션을 입력하거나 AI로 생성해보세요."
+                  placeholder={t('caption.placeholder')}
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                 />
@@ -150,7 +165,7 @@ export default function CaptionPage() {
                 disabled={submitting || !caption}
                 onClick={() => goNext('immediate')}
               >
-                즉시 업로드
+                {t('caption.immediate')}
               </button>
               <button
                 type="button"
@@ -158,7 +173,7 @@ export default function CaptionPage() {
                 disabled={submitting || !caption}
                 onClick={() => goNext('schedule')}
               >
-                예약 설정
+                {t('caption.schedule')}
               </button>
             </div>
           </div>

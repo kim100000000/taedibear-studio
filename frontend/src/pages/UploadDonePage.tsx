@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 import NavBar from '../components/NavBar';
 
 interface UploadDonePageState {
@@ -12,6 +14,7 @@ interface UploadDonePageState {
 export default function UploadDonePage() {
   const { state } = useLocation() as { state: UploadDonePageState | null };
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!state?.mode) {
@@ -22,33 +25,37 @@ export default function UploadDonePage() {
   if (!state?.mode) return null;
 
   const { mode, imageUrl, scheduledAt } = state;
+  // 날짜 표시는 선택된 언어의 로케일을 따른다.
+  const locale = i18n.language === 'en' ? 'en-US' : 'ko-KR';
 
   return (
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content done-page">
-        <img src={imageUrl} alt="업로드한 이미지" className="done-image" />
+        <img src={imageUrl} alt="" className="done-image" />
 
         {mode === 'immediate' ? (
           <>
-            <h1>업로드가 완료되었어요!</h1>
-            <p className="muted">인스타그램에 게시물이 바로 올라갔어요.</p>
+            <h1>{t('done.immediate.title')}</h1>
+            <p className="muted">{t('done.immediate.desc')}</p>
           </>
         ) : (
           <>
-            <h1>예약이 완료되었어요!</h1>
+            <h1>{t('done.scheduled.title')}</h1>
             <p className="muted">
-              {scheduledAt && new Date(scheduledAt).toLocaleString('ko-KR')} 에 자동으로 업로드될 거예요.
+              {t('done.scheduled.desc', {
+                time: scheduledAt ? new Date(scheduledAt).toLocaleString(locale) : '',
+              })}
             </p>
           </>
         )}
 
         <div className="caption-actions">
           <Link to="/upload" className="btn-primary">
-            새 게시물 만들기
+            {t('done.newPost')}
           </Link>
           <Link to="/history" className="btn-outline">
-            히스토리 보기
+            {t('done.history')}
           </Link>
         </div>
       </div>

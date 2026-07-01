@@ -1,0 +1,303 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "retry": "Retry",
+    "or": "or",
+    "logout": "Log out"
+  },
+  "nav": {
+    "upload": "Upload",
+    "history": "History",
+    "settings": "Settings",
+    "greeting": "Hi, {{name}}"
+  },
+  "landing": {
+    "login": "Log in",
+    "hero": {
+      "title": "From one photo to Instagram — all at once",
+      "subtitle": "AI writes your captions and hashtags, and uploads automatically at the time you choose.",
+      "cta": "Start for free"
+    },
+    "step1": { "title": "Upload a photo", "desc": "Upload the photo you took today." },
+    "step2": { "title": "AI caption", "desc": "AI generates captions and hashtags tailored to your business and vibe." },
+    "step3": { "title": "Auto upload", "desc": "Post right now or schedule it for later — uploads automatically." },
+    "audience": {
+      "title": "Perfect for",
+      "cafe": "☕ Cafés",
+      "restaurant": "🍽️ Restaurants",
+      "bakery": "🥐 Bakeries"
+    },
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "failed": "Login failed.",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "google": "Continue with Google",
+      "kakao": "Continue with Kakao",
+      "naver": "Continue with Naver"
+    },
+    "signup": {
+      "title": "Sign up",
+      "submit": "Sign up",
+      "submitting": "Signing up...",
+      "failed": "Sign up failed.",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "agreeTerms": "I agree to the Terms of Service and Privacy Policy.",
+      "google": "Sign up with Google",
+      "kakao": "Sign up with Kakao",
+      "naver": "Sign up with Naver",
+      "strengthLabel": "Strength: {{level}}",
+      "weak": "Weak",
+      "medium": "Fair",
+      "strong": "Strong"
+    },
+    "field": {
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Password (8+ characters)",
+      "passwordConfirm": "Confirm password",
+      "name": "Name",
+      "show": "Show",
+      "hide": "Hide"
+    },
+    "validation": {
+      "emailRequired": "Please enter your email.",
+      "emailFormat": "Please enter a valid email address.",
+      "passwordRequired": "Please enter your password.",
+      "passwordMin6": "Password must be at least 6 characters.",
+      "passwordMin8": "Password must be at least 8 characters.",
+      "nameMin2": "Name must be at least 2 characters.",
+      "passwordMatch": "Passwords do not match.",
+      "agreeRequired": "Please agree to the Terms of Service."
+    }
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}}",
+    "thisMonthUploads": "Uploads this month",
+    "scheduled": "Scheduled posts",
+    "connectedAccounts": "Connected accounts",
+    "newPost": "Create new post",
+    "recentPosts": "Recent uploads",
+    "noPosts": "No posts yet.",
+    "noCaption": "(No caption)",
+    "connectBanner": "You haven't connected an Instagram account yet.",
+    "connectBannerLink": "Connect now",
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "posted": "Posted",
+      "failed": "Failed"
+    }
+  },
+  "upload": {
+    "title": "Upload photo",
+    "accountLabel": "Instagram account",
+    "dropzone": {
+      "hint": "Drag & drop or click to select an image",
+      "spec": "JPG, PNG, WEBP / Max 10 MB / 1080×1080 recommended",
+      "preview": "Preview"
+    },
+    "next": "Next",
+    "uploading": "Uploading...",
+    "noAccountBanner": "Connect an Instagram account first to create a post.",
+    "noAccountLink": "Go to Settings",
+    "err": {
+      "fileType": "Unsupported file type. Please use JPG, PNG, or WEBP.",
+      "fileSize": "File size must be 10 MB or less.",
+      "selectImage": "Please select an image.",
+      "selectAccount": "Please select an Instagram account.",
+      "failed": "Upload failed."
+    }
+  },
+  "caption": {
+    "title": "AI Caption",
+    "businessTypeLabel": "Business type",
+    "moodLabel": "Vibe",
+    "generate": "Generate with AI",
+    "regenerate": "Regenerate",
+    "generating": "Generating caption...",
+    "placeholder": "Enter a caption or generate one with AI.",
+    "immediate": "Post now",
+    "schedule": "Schedule",
+    "err": {
+      "generateFailed": "Caption generation failed.",
+      "saveFailed": "Save failed."
+    },
+    "businessTypes": {
+      "cafe": "Café",
+      "restaurant": "Restaurant",
+      "bakery": "Bakery",
+      "other": "Other"
+    },
+    "moods": {
+      "emotional": "Emotional",
+      "lively": "Lively",
+      "luxury": "Luxury",
+      "friendly": "Friendly"
+    }
+  },
+  "schedule": {
+    "title": "Schedule",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "err": {
+      "required": "Please select both date and time.",
+      "invalid": "Invalid date or time.",
+      "tooSoon": "Please schedule at least 10 minutes from now.",
+      "failed": "Scheduling failed."
+    }
+  },
+  "done": {
+    "immediate": {
+      "title": "Upload complete!",
+      "desc": "Your post has been published to Instagram."
+    },
+    "scheduled": {
+      "title": "Scheduled!",
+      "desc": "Your post will be uploaded automatically at {{time}}."
+    },
+    "newPost": "Create new post",
+    "history": "View history"
+  },
+  "history": {
+    "title": "History",
+    "tabs": {
+      "all": "All",
+      "posted": "Posted",
+      "scheduled": "Scheduled",
+      "failed": "Failed"
+    },
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "posted": "Posted",
+      "failed": "Failed"
+    },
+    "empty": "No posts found.",
+    "noCaption": "(No caption)",
+    "modal": {
+      "title": "Delete post",
+      "message": "Delete this post? This action cannot be undone."
+    },
+    "toast": {
+      "captionSaved": "Caption updated.",
+      "saveFailed": "Update failed.",
+      "deleted": "Post deleted.",
+      "deleteFailed": "Delete failed.",
+      "retried": "Retrying upload.",
+      "retryFailed": "Retry failed."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": {
+      "title": "Profile",
+      "email": "Email",
+      "name": "Name",
+      "save": "Save",
+      "saved": "Name updated.",
+      "saveFailed": "Update failed."
+    },
+    "instagram": {
+      "title": "Instagram",
+      "noAccounts": "No accounts connected.",
+      "disconnect": "Disconnect",
+      "connect": "Connect account",
+      "connected": "Instagram account connected.",
+      "connectFailed": "Instagram connection failed.",
+      "modal": {
+        "title": "Disconnect account",
+        "message": "Disconnect this Instagram account?"
+      },
+      "disconnected": "Account disconnected.",
+      "disconnectFailed": "Disconnect failed."
+    },
+    "account": {
+      "title": "Account",
+      "logout": "Log out",
+      "changePassword": "Change password",
+      "deleteAccount": "Delete account",
+      "notSupported": "Not available yet."
+    }
+  },
+  "plan": {
+    "title": "Plan",
+    "currentFree": "Free plan",
+    "currentPro": "Pro plan",
+    "current": "Current plan",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "priceSuffix": "/mo",
+    "upgradeComingSoon": "Payment integration coming soon. Stay tuned!",
+    "downgraded": "Switched to Free plan.",
+    "free": {
+      "name": "Free",
+      "price": "₩0",
+      "features": ["10 uploads/month", "1 Instagram account", "AI caption (basic)"]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "₩9,900",
+      "features": ["Unlimited uploads", "Multiple Instagram accounts", "AI caption (advanced)", "Priority scheduling"]
+    }
+  },
+  "onboarding": {
+    "steps": [
+      {
+        "emoji": "🐻",
+        "title": "Welcome to Taedibear Studio",
+        "desc": "From one photo to Instagram — all in one place."
+      },
+      {
+        "emoji": "📷",
+        "title": "1. Upload a photo",
+        "desc": "Upload today's photo and let AI write your caption and hashtags."
+      },
+      {
+        "emoji": "⏰",
+        "title": "2. Pick a time",
+        "desc": "Post right now or schedule it for later — completely automated."
+      },
+      {
+        "emoji": "🎉",
+        "title": "3. Done! Just sit back.",
+        "desc": "Connect your Instagram account in Settings and you're all set."
+      }
+    ],
+    "next": "Next",
+    "prev": "Back",
+    "start": "Get started",
+    "skip": "Skip"
+  },
+  "error": {
+    "boundary": {
+      "message": "Something went wrong. Please try again later.",
+      "button": "Back to home"
+    }
+  },
+  "theme": {
+    "toDark": "Switch to dark mode",
+    "toLight": "Switch to light mode"
+  },
+  "lang": {
+    "toEn": "English",
+    "toKo": "한국어"
+  },
+  "protected": {
+    "checkingLogin": "Checking login..."
+  }
+}

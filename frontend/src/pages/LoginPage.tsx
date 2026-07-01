@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { login } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import type { FieldErrors } from '../types';
@@ -20,14 +21,15 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const validate = (): boolean => {
     const errors: FieldErrors = {};
-    if (!email) errors.email = '이메일을 입력해주세요.';
-    else if (!isValidEmail(email)) errors.email = '이메일 형식이 올바르지 않아요.';
+    if (!email) errors.email = t('auth.validation.emailRequired');
+    else if (!isValidEmail(email)) errors.email = t('auth.validation.emailFormat');
 
-    if (!password) errors.password = '비밀번호를 입력해주세요.';
-    else if (password.length < 6) errors.password = '비밀번호는 6자 이상이어야 해요.';
+    if (!password) errors.password = t('auth.validation.passwordRequired');
+    else if (password.length < 6) errors.password = t('auth.validation.passwordMin6');
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -45,7 +47,7 @@ export default function LoginPage() {
       loginUser(data.data.token, data.data.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || '로그인에 실패했어요.');
+      setError(err.response?.data?.error || t('auth.login.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -54,12 +56,12 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-logo">🐻 Taedibear Studio</div>
-      <h1>로그인</h1>
+      <h1>{t('auth.login.title')}</h1>
 
       <form onSubmit={handleSubmit}>
         <input
           type="email"
-          placeholder="이메일"
+          placeholder={t('auth.field.email')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -68,7 +70,7 @@ export default function LoginPage() {
         <div className="password-field">
           <input
             type={showPassword ? 'text' : 'password'}
-            placeholder="비밀번호"
+            placeholder={t('auth.field.password')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -77,36 +79,36 @@ export default function LoginPage() {
             className="toggle-password"
             onClick={() => setShowPassword((v) => !v)}
           >
-            {showPassword ? '숨기기' : '보기'}
+            {showPassword ? t('auth.field.hide') : t('auth.field.show')}
           </button>
         </div>
         {fieldErrors.password && <p className="field-error">{fieldErrors.password}</p>}
 
         <Link to="/forgot-password" className="link-muted">
-          비밀번호를 잊으셨나요?
+          {t('auth.login.forgotPassword')}
         </Link>
 
         <button type="submit" className="btn-primary" disabled={submitting}>
-          {submitting ? '로그인 중...' : '로그인'}
+          {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
         </button>
       </form>
 
       {error && <p className="error">{error}</p>}
 
-      <div className="divider">또는</div>
+      <div className="divider">{t('common.or')}</div>
 
       <a className="btn-social btn-google" href={`${API_URL}/api/auth/google`}>
-        구글 로그인
+        {t('auth.login.google')}
       </a>
       <a className="btn-social btn-kakao" href={`${API_URL}/api/auth/kakao`}>
-        카카오 로그인
+        {t('auth.login.kakao')}
       </a>
       <a className="btn-social btn-naver" href={`${API_URL}/api/auth/naver`}>
-        네이버 로그인
+        {t('auth.login.naver')}
       </a>
 
       <p className="auth-switch">
-        아직 계정이 없으신가요? <Link to="/signup">회원가입</Link>
+        {t('auth.login.noAccount')} <Link to="/signup">{t('auth.login.signupLink')}</Link>
       </p>
     </div>
   );

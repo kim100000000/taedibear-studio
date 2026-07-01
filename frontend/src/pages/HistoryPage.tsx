@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
@@ -7,22 +8,9 @@ import Toast from '../components/Toast';
 import { listPosts, updatePost, deletePost, publishPost } from '../api/posts';
 import type { Post, PostStatus, ToastData } from '../types';
 
-const TABS: { key: string; label: string }[] = [
-  { key: '', label: '전체' },
-  { key: 'posted', label: '완료' },
-  { key: 'scheduled', label: '예약중' },
-  { key: 'failed', label: '실패' },
-];
-
-const STATUS_LABEL: Record<PostStatus, string> = {
-  draft: '임시저장',
-  scheduled: '예약중',
-  posted: '완료',
-  failed: '실패',
-};
-
 // P-09 히스토리 (docs/03_화면설계서.md)
 export default function HistoryPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +19,20 @@ export default function HistoryPage() {
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
+
+  const TABS = [
+    { key: '', label: t('history.tabs.all') },
+    { key: 'posted', label: t('history.tabs.posted') },
+    { key: 'scheduled', label: t('history.tabs.scheduled') },
+    { key: 'failed', label: t('history.tabs.failed') },
+  ];
+
+  const STATUS_LABEL: Record<PostStatus, string> = {
+    draft: t('history.status.draft'),
+    scheduled: t('history.status.scheduled'),
+    posted: t('history.status.posted'),
+    failed: t('history.status.failed'),
+  };
 
   const load = (status: string) => {
     setLoading(true);
@@ -53,10 +55,10 @@ export default function HistoryPage() {
     try {
       await updatePost(id, { caption: editCaption });
       setEditingId(null);
-      setToast({ type: 'success', message: '캡션을 수정했어요.' });
+      setToast({ type: 'success', message: t('history.toast.captionSaved') });
       load(tab);
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error || '수정에 실패했어요.' });
+      setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.saveFailed') });
     }
   };
 
@@ -64,10 +66,10 @@ export default function HistoryPage() {
     if (!deleteTarget) return;
     try {
       await deletePost(deleteTarget);
-      setToast({ type: 'success', message: '삭제했어요.' });
+      setToast({ type: 'success', message: t('history.toast.deleted') });
       load(tab);
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error || '삭제에 실패했어요.' });
+      setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.deleteFailed') });
     } finally {
       setDeleteTarget(null);
     }
@@ -77,10 +79,10 @@ export default function HistoryPage() {
     setBusyId(id);
     try {
       await publishPost(id);
-      setToast({ type: 'success', message: '다시 업로드를 시도했어요.' });
+      setToast({ type: 'success', message: t('history.toast.retried') });
       load(tab);
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error || '재시도에 실패했어요.' });
+      setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.retryFailed') });
     } finally {
       setBusyId(null);
     }
@@ -90,25 +92,25 @@ export default function HistoryPage() {
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content history-page">
-        <h1>히스토리</h1>
+        <h1>{t('history.title')}</h1>
 
         <div className="history-tabs">
-          {TABS.map((t) => (
+          {TABS.map((tabItem) => (
             <button
-              key={t.key}
+              key={tabItem.key}
               type="button"
-              className={`history-tab ${tab === t.key ? 'history-tab-active' : ''}`}
-              onClick={() => setTab(t.key)}
+              className={`history-tab ${tab === tabItem.key ? 'history-tab-active' : ''}`}
+              onClick={() => setTab(tabItem.key)}
             >
-              {t.label}
+              {tabItem.label}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <Spinner label="불러오는 중..." />
+          <Spinner label={t('common.loading')} />
         ) : posts.length === 0 ? (
-          <EmptyState message="게시물이 없어요." />
+          <EmptyState message={t('history.empty')} />
         ) : (
           <ul className="history-list">
             {posts.map((post) => (
@@ -122,7 +124,7 @@ export default function HistoryPage() {
                       onChange={(e) => setEditCaption(e.target.value)}
                     />
                   ) : (
-                    <p className="post-caption-preview">{post.caption || '(캡션 없음)'}</p>
+                    <p className="post-caption-preview">{post.caption || t('history.noCaption')}</p>
                   )}
                   <span className={`status-badge status-${post.status}`}>
                     {STATUS_LABEL[post.status]}
@@ -132,16 +134,16 @@ export default function HistoryPage() {
                   {editingId === post.id ? (
                     <>
                       <button type="button" className="btn-outline" onClick={() => saveEdit(post.id)}>
-                        저장
+                        {t('common.save')}
                       </button>
                       <button type="button" className="btn-outline" onClick={() => setEditingId(null)}>
-                        취소
+                        {t('common.cancel')}
                       </button>
                     </>
                   ) : (
                     <>
                       <button type="button" className="btn-outline" onClick={() => startEdit(post)}>
-                        수정
+                        {t('common.edit')}
                       </button>
                       {post.status === 'failed' && (
                         <button
@@ -150,7 +152,7 @@ export default function HistoryPage() {
                           disabled={busyId === post.id}
                           onClick={() => retry(post.id)}
                         >
-                          재시도
+                          {t('common.retry')}
                         </button>
                       )}
                       <button
@@ -158,7 +160,7 @@ export default function HistoryPage() {
                         className="btn-danger"
                         onClick={() => setDeleteTarget(post.id)}
                       >
-                        삭제
+                        {t('common.delete')}
                       </button>
                     </>
                   )}
@@ -171,8 +173,8 @@ export default function HistoryPage() {
 
       <ConfirmModal
         open={!!deleteTarget}
-        title="게시물 삭제"
-        message="이 게시물을 삭제할까요? 삭제하면 되돌릴 수 없어요."
+        title={t('history.modal.title')}
+        message={t('history.modal.message')}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
       />

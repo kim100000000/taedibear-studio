@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { register } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import type { FieldErrors } from '../types';
@@ -8,26 +9,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 function isValidEmail(value: string): boolean {
   return /\S+@\S+\.\S+/.test(value);
-}
-
-interface PasswordStrength {
-  label: string;
-  className: string;
-}
-
-// 약함 / 보통 / 강함 — 길이 + 문자 종류 조합으로 간단히 판단
-function getPasswordStrength(password: string): PasswordStrength | null {
-  if (!password) return null;
-  let score = 0;
-  if (password.length >= 8) score += 1;
-  if (password.length >= 12) score += 1;
-  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
-  if (/[0-9]/.test(password)) score += 1;
-  if (/[^A-Za-z0-9]/.test(password)) score += 1;
-
-  if (score <= 1) return { label: '약함', className: 'weak' };
-  if (score <= 3) return { label: '보통', className: 'medium' };
-  return { label: '강함', className: 'strong' };
 }
 
 // P-03 회원가입 (docs/03_화면설계서.md)
@@ -42,20 +23,36 @@ export default function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
   const { loginUser } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
-  const strength = getPasswordStrength(password);
+  // 약함 / 보통 / 강함 — 길이 + 문자 종류 조합으로 간단히 판단
+  const getStrengthLabel = (pw: string): { label: string; className: string } | null => {
+    if (!pw) return null;
+    let score = 0;
+    if (pw.length >= 8) score += 1;
+    if (pw.length >= 12) score += 1;
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score += 1;
+    if (/[0-9]/.test(pw)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+
+    if (score <= 1) return { label: t('auth.signup.weak'), className: 'weak' };
+    if (score <= 3) return { label: t('auth.signup.medium'), className: 'medium' };
+    return { label: t('auth.signup.strong'), className: 'strong' };
+  };
+
+  const strength = getStrengthLabel(password);
 
   const validate = (): boolean => {
     const errors: FieldErrors = {};
-    if (!name || name.trim().length < 2) errors.name = '이름은 2자 이상이어야 해요.';
-    if (!email) errors.email = '이메일을 입력해주세요.';
-    else if (!isValidEmail(email)) errors.email = '이메일 형식이 올바르지 않아요.';
+    if (!name || name.trim().length < 2) errors.name = t('auth.validation.nameMin2');
+    if (!email) errors.email = t('auth.validation.emailRequired');
+    else if (!isValidEmail(email)) errors.email = t('auth.validation.emailFormat');
 
-    if (!password) errors.password = '비밀번호를 입력해주세요.';
-    else if (password.length < 8) errors.password = '비밀번호는 8자 이상이어야 해요.';
+    if (!password) errors.password = t('auth.validation.passwordRequired');
+    else if (password.length < 8) errors.password = t('auth.validation.passwordMin8');
 
-    if (passwordConfirm !== password) errors.passwordConfirm = '비밀번호가 일치하지 않아요.';
-    if (!agreed) errors.agreed = '이용약관에 동의해주세요.';
+    if (passwordConfirm !== password) errors.passwordConfirm = t('auth.validation.passwordMatch');
+    if (!agreed) errors.agreed = t('auth.validation.agreeRequired');
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -73,7 +70,7 @@ export default function SignupPage() {
       loginUser(data.data.token, data.data.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || '회원가입에 실패했어요.');
+      setError(err.response?.data?.error || t('auth.signup.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -82,12 +79,12 @@ export default function SignupPage() {
   return (
     <div className="auth-page">
       <div className="auth-logo">🐻 Taedibear Studio</div>
-      <h1>회원가입</h1>
+      <h1>{t('auth.signup.title')}</h1>
 
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="이름"
+          placeholder={t('auth.field.name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -95,7 +92,7 @@ export default function SignupPage() {
 
         <input
           type="email"
-          placeholder="이메일"
+          placeholder={t('auth.field.email')}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -103,16 +100,20 @@ export default function SignupPage() {
 
         <input
           type="password"
-          placeholder="비밀번호 (8자 이상)"
+          placeholder={t('auth.field.passwordHint')}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {strength && <p className={`password-strength ${strength.className}`}>강도: {strength.label}</p>}
+        {strength && (
+          <p className={`password-strength ${strength.className}`}>
+            {t('auth.signup.strengthLabel', { level: strength.label })}
+          </p>
+        )}
         {fieldErrors.password && <p className="field-error">{fieldErrors.password}</p>}
 
         <input
           type="password"
-          placeholder="비밀번호 확인"
+          placeholder={t('auth.field.passwordConfirm')}
           value={passwordConfirm}
           onChange={(e) => setPasswordConfirm(e.target.value)}
         />
@@ -124,31 +125,31 @@ export default function SignupPage() {
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
           />
-          <span>이용약관 및 개인정보처리방침에 동의합니다.</span>
+          <span>{t('auth.signup.agreeTerms')}</span>
         </label>
         {fieldErrors.agreed && <p className="field-error">{fieldErrors.agreed}</p>}
 
         <button type="submit" className="btn-primary" disabled={submitting}>
-          {submitting ? '가입 중...' : '회원가입'}
+          {submitting ? t('auth.signup.submitting') : t('auth.signup.submit')}
         </button>
       </form>
 
       {error && <p className="error">{error}</p>}
 
-      <div className="divider">또는</div>
+      <div className="divider">{t('common.or')}</div>
 
       <a className="btn-social btn-google" href={`${API_URL}/api/auth/google`}>
-        구글 가입하기
+        {t('auth.signup.google')}
       </a>
       <a className="btn-social btn-kakao" href={`${API_URL}/api/auth/kakao`}>
-        카카오 가입하기
+        {t('auth.signup.kakao')}
       </a>
       <a className="btn-social btn-naver" href={`${API_URL}/api/auth/naver`}>
-        네이버 가입하기
+        {t('auth.signup.naver')}
       </a>
 
       <p className="auth-switch">
-        이미 계정이 있으신가요? <Link to="/login">로그인</Link>
+        {t('auth.signup.hasAccount')} <Link to="/login">{t('auth.signup.loginLink')}</Link>
       </p>
     </div>
   );

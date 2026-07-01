@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import i18n from '../i18n';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -31,9 +32,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
     if (this.state.hasError) {
       return (
         <div className="empty-state">
-          <p>예상치 못한 문제가 발생했어요. 잠시 후 다시 시도해주세요.</p>
+          <p>{i18n.t('error.boundary.message')}</p>
           <button type="button" className="btn-primary" onClick={this.handleReload}>
-            처음으로 돌아가기
+            {i18n.t('error.boundary.button')}
           </button>
         </div>
       );

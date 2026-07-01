@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import { createSchedule } from '../api/scheduled';
 
@@ -15,6 +16,7 @@ interface SchedulePageState {
 export default function SchedulePage() {
   const { state } = useLocation() as { state: SchedulePageState | null };
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
@@ -33,16 +35,16 @@ export default function SchedulePage() {
 
   const handleConfirm = async () => {
     if (!date || !time) {
-      setError('날짜와 시간을 모두 선택해주세요.');
+      setError(t('schedule.err.required'));
       return;
     }
     const scheduledAt = new Date(`${date}T${time}:00`);
     if (Number.isNaN(scheduledAt.getTime())) {
-      setError('날짜/시간이 올바르지 않아요.');
+      setError(t('schedule.err.invalid'));
       return;
     }
     if (scheduledAt.getTime() - Date.now() < MIN_LEAD_MS) {
-      setError('예약은 현재 시각보다 최소 10분 이후로 설정해주세요.');
+      setError(t('schedule.err.tooSoon'));
       return;
     }
 
@@ -52,7 +54,7 @@ export default function SchedulePage() {
       await createSchedule({ post_id: postId, scheduled_at: scheduledAt.toISOString() });
       navigate('/upload/done', { state: { mode: 'scheduled', imageUrl, scheduledAt: scheduledAt.toISOString() } });
     } catch (err: any) {
-      setError(err.response?.data?.error || '예약에 실패했어요.');
+      setError(err.response?.data?.error || t('schedule.err.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -62,20 +64,20 @@ export default function SchedulePage() {
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content schedule-page">
-        <h1>예약 설정</h1>
+        <h1>{t('schedule.title')}</h1>
 
         <div className="schedule-layout">
-          <img src={imageUrl} alt="업로드한 이미지" className="caption-preview-image" />
+          <img src={imageUrl} alt="" className="caption-preview-image" />
           <div className="schedule-form">
             <p className="post-caption-preview">{caption}</p>
 
             <div className="form-row">
               <div className="form-field">
-                <label>날짜</label>
+                <label>{t('schedule.dateLabel')}</label>
                 <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
               </div>
               <div className="form-field">
-                <label>시간</label>
+                <label>{t('schedule.timeLabel')}</label>
                 <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
               </div>
             </div>
@@ -84,10 +86,10 @@ export default function SchedulePage() {
 
             <div className="caption-actions">
               <button type="button" className="btn-primary" disabled={submitting} onClick={handleConfirm}>
-                예약 확정
+                {t('schedule.confirm')}
               </button>
               <button type="button" className="btn-outline" onClick={() => navigate(-1)}>
-                취소
+                {t('schedule.cancel')}
               </button>
             </div>
           </div>

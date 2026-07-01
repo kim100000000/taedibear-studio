@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import ConfirmModal from '../components/ConfirmModal';
@@ -15,6 +16,7 @@ export default function SettingsPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const [name, setName] = useState(user?.name || '');
   const [savingName, setSavingName] = useState(false);
@@ -32,9 +34,9 @@ export default function SettingsPage() {
   useEffect(() => {
     const connected = searchParams.get('connected');
     if (connected === 'true') {
-      setToast({ type: 'success', message: '인스타그램 계정을 연동했어요.' });
+      setToast({ type: 'success', message: t('settings.instagram.connected') });
     } else if (connected === 'false') {
-      setToast({ type: 'error', message: '인스타그램 연동에 실패했어요.' });
+      setToast({ type: 'error', message: t('settings.instagram.connectFailed') });
     }
     if (connected !== null) {
       searchParams.delete('connected');
@@ -47,9 +49,9 @@ export default function SettingsPage() {
     setSavingName(true);
     try {
       await updateMe(name);
-      setToast({ type: 'success', message: '이름을 변경했어요.' });
+      setToast({ type: 'success', message: t('settings.profile.saved') });
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error || '변경에 실패했어요.' });
+      setToast({ type: 'error', message: err.response?.data?.error || t('settings.profile.saveFailed') });
     } finally {
       setSavingName(false);
     }
@@ -60,9 +62,9 @@ export default function SettingsPage() {
     try {
       await disconnectInstagramAccount(disconnectTarget);
       setAccounts((prev) => prev.filter((a) => a.id !== disconnectTarget));
-      setToast({ type: 'success', message: '연동을 해제했어요.' });
+      setToast({ type: 'success', message: t('settings.instagram.disconnected') });
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error || '해제에 실패했어요.' });
+      setToast({ type: 'error', message: err.response?.data?.error || t('settings.instagram.disconnectFailed') });
     } finally {
       setDisconnectTarget(null);
     }
@@ -77,31 +79,31 @@ export default function SettingsPage() {
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content settings-page">
-        <h1>설정</h1>
+        <h1>{t('settings.title')}</h1>
 
         <section className="settings-section">
-          <h2>프로필</h2>
+          <h2>{t('settings.profile.title')}</h2>
           <div className="form-field">
-            <label>이메일</label>
+            <label>{t('settings.profile.email')}</label>
             <input type="text" value={user?.email || ''} disabled />
           </div>
           <div className="form-field">
-            <label>이름</label>
+            <label>{t('settings.profile.name')}</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <button type="button" className="btn-outline" disabled={savingName} onClick={saveName}>
-            저장
+            {t('settings.profile.save')}
           </button>
         </section>
 
         <PlanSection onToast={setToast} />
 
         <section className="settings-section">
-          <h2>인스타그램 연동</h2>
+          <h2>{t('settings.instagram.title')}</h2>
           {loadingAccounts ? (
-            <Spinner label="불러오는 중..." />
+            <Spinner label={t('common.loading')} />
           ) : accounts.length === 0 ? (
-            <p className="muted">연동된 계정이 없어요.</p>
+            <p className="muted">{t('settings.instagram.noAccounts')}</p>
           ) : (
             <ul className="account-list">
               {accounts.map((acc) => (
@@ -112,7 +114,7 @@ export default function SettingsPage() {
                     className="btn-danger"
                     onClick={() => setDisconnectTarget(acc.id)}
                   >
-                    연동 해제
+                    {t('settings.instagram.disconnect')}
                   </button>
                 </li>
               ))}
@@ -125,28 +127,28 @@ export default function SettingsPage() {
               window.location.href = getInstagramConnectUrl();
             }}
           >
-            새 계정 연동
+            {t('settings.instagram.connect')}
           </button>
         </section>
 
         <section className="settings-section">
-          <h2>계정 관리</h2>
+          <h2>{t('settings.account.title')}</h2>
           <button type="button" className="btn-outline" onClick={handleLogout}>
-            로그아웃
+            {t('settings.account.logout')}
           </button>
-          <button type="button" className="btn-outline" disabled title="아직 지원하지 않아요.">
-            비밀번호 변경
+          <button type="button" className="btn-outline" disabled title={t('settings.account.notSupported')}>
+            {t('settings.account.changePassword')}
           </button>
-          <button type="button" className="btn-danger" disabled title="아직 지원하지 않아요.">
-            회원 탈퇴
+          <button type="button" className="btn-danger" disabled title={t('settings.account.notSupported')}>
+            {t('settings.account.deleteAccount')}
           </button>
         </section>
       </div>
 
       <ConfirmModal
         open={!!disconnectTarget}
-        title="연동 해제"
-        message="이 인스타그램 계정 연동을 해제할까요?"
+        title={t('settings.instagram.modal.title')}
+        message={t('settings.instagram.modal.message')}
         onConfirm={confirmDisconnect}
         onCancel={() => setDisconnectTarget(null)}
       />

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import OnboardingModal from '../components/OnboardingModal';
@@ -8,16 +9,10 @@ import { listInstagramAccounts } from '../api/instagram';
 import { useAuth } from '../context/AuthContext';
 import type { Post, InstagramAccount, PostStatus } from '../types';
 
-const STATUS_LABEL: Record<PostStatus, string> = {
-  draft: '임시저장',
-  scheduled: '예약중',
-  posted: '완료',
-  failed: '실패',
-};
-
 // P-04 대시보드 (docs/03_화면설계서.md)
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [posts, setPosts] = useState<Post[]>([]);
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +41,14 @@ export default function DashboardPage() {
     setShowOnboarding(false);
   };
 
-  if (loading) return <Spinner label="불러오는 중..." />;
+  if (loading) return <Spinner label={t('common.loading')} />;
+
+  const STATUS_LABEL: Record<PostStatus, string> = {
+    draft: t('dashboard.status.draft'),
+    scheduled: t('dashboard.status.scheduled'),
+    posted: t('dashboard.status.posted'),
+    failed: t('dashboard.status.failed'),
+  };
 
   const now = new Date();
   const thisMonthUploads = posts.filter(
@@ -64,44 +66,44 @@ export default function DashboardPage() {
       {showOnboarding && <OnboardingModal onClose={closeOnboarding} />}
       <NavBar />
       <div className="page-content">
-        <h1>안녕하세요, {user?.name}님</h1>
+        <h1>{t('dashboard.greeting', { name: user?.name })}</h1>
 
         {accounts.length === 0 && (
           <div className="banner">
-            인스타그램 계정이 아직 연동되지 않았어요.{' '}
-            <Link to="/settings">지금 연동하기</Link>
+            {t('dashboard.connectBanner')}{' '}
+            <Link to="/settings">{t('dashboard.connectBannerLink')}</Link>
           </div>
         )}
 
         <div className="summary-cards">
           <div className="summary-card">
             <span className="summary-value">{thisMonthUploads}</span>
-            <span className="summary-label">이번 달 업로드</span>
+            <span className="summary-label">{t('dashboard.thisMonthUploads')}</span>
           </div>
           <div className="summary-card">
             <span className="summary-value">{scheduledCount}</span>
-            <span className="summary-label">예약 중인 게시물</span>
+            <span className="summary-label">{t('dashboard.scheduled')}</span>
           </div>
           <div className="summary-card">
             <span className="summary-value">{accounts.length}</span>
-            <span className="summary-label">연동된 인스타 계정</span>
+            <span className="summary-label">{t('dashboard.connectedAccounts')}</span>
           </div>
         </div>
 
         <Link to="/upload" className="btn-primary btn-large quick-upload-btn">
-          새 게시물 만들기
+          {t('dashboard.newPost')}
         </Link>
 
-        <h2>최근 업로드</h2>
+        <h2>{t('dashboard.recentPosts')}</h2>
         {recentPosts.length === 0 ? (
-          <p className="muted">아직 게시물이 없어요.</p>
+          <p className="muted">{t('dashboard.noPosts')}</p>
         ) : (
           <ul className="recent-post-list">
             {recentPosts.map((post) => (
               <li key={post.id}>
                 <img src={post.image_url} alt="" />
                 <div>
-                  <p className="post-caption-preview">{post.caption || '(캡션 없음)'}</p>
+                  <p className="post-caption-preview">{post.caption || t('dashboard.noCaption')}</p>
                   <span className={`status-badge status-${post.status}`}>
                     {STATUS_LABEL[post.status]}
                   </span>

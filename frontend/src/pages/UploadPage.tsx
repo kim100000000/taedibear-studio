@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import { uploadImage } from '../api/posts';
@@ -21,6 +22,7 @@ export default function UploadPage() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     listInstagramAccounts()
@@ -34,11 +36,11 @@ export default function UploadPage() {
   const pickFile = (selected: File | null | undefined) => {
     if (!selected) return;
     if (!ALLOWED_TYPES.includes(selected.type)) {
-      setError('지원하지 않는 파일 형식이에요. JPG, PNG, WEBP만 가능해요.');
+      setError(t('upload.err.fileType'));
       return;
     }
     if (selected.size > MAX_SIZE) {
-      setError('파일 크기는 최대 10MB까지 업로드할 수 있어요.');
+      setError(t('upload.err.fileSize'));
       return;
     }
     setError('');
@@ -54,11 +56,11 @@ export default function UploadPage() {
 
   const handleNext = async () => {
     if (!file) {
-      setError('이미지를 선택해주세요.');
+      setError(t('upload.err.selectImage'));
       return;
     }
     if (!accountId) {
-      setError('업로드할 인스타그램 계정을 선택해주세요.');
+      setError(t('upload.err.selectAccount'));
       return;
     }
 
@@ -70,28 +72,28 @@ export default function UploadPage() {
         state: { imageUrl: data.data.image_url, instagramAccountId: Number(accountId) },
       });
     } catch (err: any) {
-      setError(err.response?.data?.error || '업로드에 실패했어요.');
+      setError(err.response?.data?.error || t('upload.err.failed'));
     } finally {
       setUploading(false);
     }
   };
 
-  if (loadingAccounts) return <Spinner label="불러오는 중..." />;
+  if (loadingAccounts) return <Spinner label={t('common.loading')} />;
 
   return (
     <div className="page-with-nav">
       <NavBar />
       <div className="page-content upload-page">
-        <h1>사진 업로드</h1>
+        <h1>{t('upload.title')}</h1>
 
         {accounts.length === 0 ? (
           <div className="banner">
-            먼저 인스타그램 계정을 연동해야 게시물을 만들 수 있어요.{' '}
-            <Link to="/settings">설정에서 연동하기</Link>
+            {t('upload.noAccountBanner')}{' '}
+            <Link to="/settings">{t('upload.noAccountLink')}</Link>
           </div>
         ) : (
           <div className="form-field">
-            <label>업로드할 인스타그램 계정</label>
+            <label>{t('upload.accountLabel')}</label>
             <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
@@ -113,11 +115,11 @@ export default function UploadPage() {
           onClick={() => fileInputRef.current?.click()}
         >
           {previewUrl ? (
-            <img src={previewUrl} alt="미리보기" className="dropzone-preview" />
+            <img src={previewUrl} alt={t('upload.dropzone.preview')} className="dropzone-preview" />
           ) : (
             <>
-              <p>이미지를 드래그하거나 클릭해서 선택해주세요</p>
-              <p className="muted">JPG, PNG, WEBP / 최대 10MB / 1080x1080 권장</p>
+              <p>{t('upload.dropzone.hint')}</p>
+              <p className="muted">{t('upload.dropzone.spec')}</p>
             </>
           )}
           <input
@@ -137,7 +139,7 @@ export default function UploadPage() {
           disabled={uploading || accounts.length === 0}
           onClick={handleNext}
         >
-          {uploading ? '업로드 중...' : '다음'}
+          {uploading ? t('upload.uploading') : t('upload.next')}
         </button>
       </div>
     </div>
