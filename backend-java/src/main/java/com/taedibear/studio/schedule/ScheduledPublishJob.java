@@ -1,10 +1,12 @@
 package com.taedibear.studio.schedule;
 
 import com.taedibear.studio.domain.*;
+import com.taedibear.studio.email.EmailService;
 import com.taedibear.studio.instagram.InstagramPublishService;
 import com.taedibear.studio.repository.InstagramAccountRepository;
 import com.taedibear.studio.repository.PostRepository;
 import com.taedibear.studio.repository.ScheduledPostRepository;
+import com.taedibear.studio.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,6 +35,8 @@ public class ScheduledPublishJob {
 	private final PostRepository postRepository;
 	private final InstagramAccountRepository instagramAccountRepository;
 	private final InstagramPublishService instagramPublishService;
+	private final UserRepository userRepository;
+	private final EmailService emailService;
 
 	@Scheduled(cron = "0 * * * * *")
 	@Transactional
@@ -75,12 +79,23 @@ public class ScheduledPublishJob {
 
 			log.info("[Cron] scheduled post {} published as {}", post.getId(), instagramPostId);
 		} catch (Exception ex) {
-			log.error("[Cron] scheduled post {} publish failed: {}", post.getId(), ex.getMessage());
+			int newRetryCount = scheduledPost.getRetryCount() + 1;
+			scheduledPost.setRetryCount(newRetryCount);
 
-			post.setStatus(PostStatus.failed);
+			if (newRetryCount >= MAX_RETRY_COUNT) {
+				// 3회 모두 실패 → 최종 실패 처리 + 이메일 알림
+				log.error("[Cron] scheduled post {} publish FINAL failed (retry={}): {}",
+						post.getId(), newRetryCount, ex.getMessage());
+				post.setStatus(PostStatus.failed);
+				scheduledPost.setStatus(ScheduleStatus.failed);
 
-			scheduledPost.setStatus(ScheduleStatus.failed);
-			scheduledPost.setRetryCount(scheduledPost.getRetryCount() + 1);
+				userRepository.findById(post.getUserId()).ifPresent(user ->
+						emailService.sendUploadFailureNotification(post, user));
+			} else {
+				// 재시도 가능 — status 는 pending 유지, 다음 cron 에서 재처리
+				log.warn("[Cron] scheduled post {} publish failed (retry={}/{}): {}",
+						post.getId(), newRetryCount, MAX_RETRY_COUNT, ex.getMessage());
+			}
 		}
 	}
 

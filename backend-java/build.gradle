@@ -51,6 +51,9 @@ dependencies {
 	// 예약 발행은 Spring 기본 @Scheduled(@EnableScheduling, spring-context에 포함)로 처리한다.
 	// node-cron(1분 주기 polling)과 동일한 방식.
 
+	// Email (Phase 2-2 예약 실패 알림)
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
