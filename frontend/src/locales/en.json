@@ -13,6 +13,7 @@
     "upload": "Upload",
     "history": "History",
     "calendar": "Calendar",
+    "analytics": "Analytics",
     "settings": "Settings",
     "greeting": "Hi, {{name}}"
   },
@@ -283,6 +284,22 @@
     "prev": "Back",
     "start": "Get started",
     "skip": "Skip"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "thisMonth": "This month",
+    "uploads": "Uploads",
+    "successRate": "Success rate",
+    "scheduledRatio": "Scheduled ratio",
+    "monthlyTitle": "Monthly upload trend",
+    "dailyTitle": "Day-of-week pattern",
+    "successTitle": "Upload success rate",
+    "scheduleTitle": "Scheduled vs immediate",
+    "posted": "Success",
+    "failed": "Failed",
+    "scheduled": "Scheduled",
+    "immediate": "Immediate",
+    "noData": "No data yet."
   },
   "editor": {
     "title": "Edit Image",

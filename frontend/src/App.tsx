@@ -11,6 +11,7 @@ import UploadDonePage from './pages/UploadDonePage';
 import HistoryPage from './pages/HistoryPage';
 import CalendarPage from './pages/CalendarPage';
 import ImageEditorPage from './pages/ImageEditorPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -84,6 +85,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <CalendarPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <AnalyticsPage />
           </ProtectedRoute>
         }
       />

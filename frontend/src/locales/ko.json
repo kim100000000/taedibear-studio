@@ -13,6 +13,7 @@
     "upload": "업로드",
     "history": "히스토리",
     "calendar": "캘린더",
+    "analytics": "분석",
     "settings": "설정",
     "greeting": "{{name}}님"
   },
@@ -283,6 +284,22 @@
     "prev": "이전",
     "start": "시작하기",
     "skip": "건너뛰기"
+  },
+  "analytics": {
+    "title": "분석 대시보드",
+    "thisMonth": "이번 달 현황",
+    "uploads": "업로드",
+    "successRate": "성공률",
+    "scheduledRatio": "예약 비율",
+    "monthlyTitle": "월별 업로드 추이",
+    "dailyTitle": "요일별 업로드 패턴",
+    "successTitle": "업로드 성공률",
+    "scheduleTitle": "예약 vs 즉시 업로드",
+    "posted": "성공",
+    "failed": "실패",
+    "scheduled": "예약",
+    "immediate": "즉시",
+    "noData": "아직 데이터가 없어요."
   },
   "editor": {
     "title": "이미지 편집",

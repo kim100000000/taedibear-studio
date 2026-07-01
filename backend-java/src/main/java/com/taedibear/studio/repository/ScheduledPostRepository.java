@@ -27,4 +27,9 @@ public interface ScheduledPostRepository extends JpaRepository<ScheduledPost, Lo
 	@Query("select sp from ScheduledPost sp where sp.id = :id and sp.postId in " +
 			"(select p.id from Post p where p.userId = :userId)")
 	Optional<ScheduledPost> findByIdAndPostUserId(@Param("id") Long id, @Param("userId") Long userId);
+
+	// Analytics: 사용자의 게시물 중 예약이 걸렸던 post 수 (중복 제거)
+	@Query("select count(distinct sp.postId) from ScheduledPost sp where sp.postId in " +
+			"(select p.id from Post p where p.userId = :userId)")
+	long countScheduledPostsByUserId(@Param("userId") Long userId);
 }

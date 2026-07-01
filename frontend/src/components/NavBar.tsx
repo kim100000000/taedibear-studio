@@ -24,6 +24,7 @@ export default function NavBar() {
         <Link to="/upload">{t('nav.upload')}</Link>
         <Link to="/history">{t('nav.history')}</Link>
         <Link to="/calendar">{t('nav.calendar')}</Link>
+        <Link to="/analytics">{t('nav.analytics')}</Link>
         <Link to="/settings">{t('nav.settings')}</Link>
       </div>
       <div className="navbar-profile">
