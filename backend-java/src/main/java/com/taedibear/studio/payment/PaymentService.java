@@ -40,7 +40,17 @@ public class PaymentService {
     @Value("${app.toss.secret-key:}")
     private String tossSecretKey;
 
+    // C2: true일 때만 시크릿 키 없이 토스 API 호출을 스킵 (로컬 개발 전용, 기본 false)
+    @Value("${app.toss.dev-mode:false}")
+    private boolean tossDevMode;
+
     private static final int FREE_LIMIT = 10;
+
+    // C1: Pro 플랜 가격 (frontend PlanSection.tsx의 amount: 29000과 동일하게 유지)
+    // 결제 금액은 반드시 서버가 아는 가격과 대조해야 한다 — 클라이언트가 보낸 amount를
+    // 그대로 믿으면 조작된 소액 결제(예: 100원)로도 Pro 승인이 가능하다.
+    private static final int PRO_PLAN_PRICE = 29000;
+
     private static final String TOSS_CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
     private static final String TOSS_CANCEL_URL = "https://api.tosspayments.com/v1/payments/{paymentKey}/cancel";
 
@@ -49,6 +59,13 @@ public class PaymentService {
     @Transactional
     public PaymentStatusResponse confirm(Long userId, ConfirmPaymentRequest request) {
         User user = getUser(userId);
+
+        // C1: 결제 금액 서버 검증 — 토스 승인 API 호출 전에 반드시 수행
+        if (request.amount() == null || request.amount() != PRO_PLAN_PRICE) {
+            log.warn("[Payment] 금액 불일치 — userId={}, 요청 금액={}, 정상 가격={}",
+                    userId, request.amount(), PRO_PLAN_PRICE);
+            throw ApiException.badRequest("결제 금액이 올바르지 않아요.");
+        }
 
         // 중복 결제 방지
         if (paymentRepository.findByOrderId(request.orderId()).isPresent()) {
@@ -154,8 +171,14 @@ public class PaymentService {
 
     private void callTossConfirm(String paymentKey, String orderId, Integer amount) {
         if (tossSecretKey == null || tossSecretKey.isBlank()) {
-            log.warn("[Toss] secret key 미설정 — 결제 승인 스킵 (개발 모드)");
-            return;
+            // C2: 키 누락은 설정 오류다. dev-mode가 명시적으로 켜진 경우에만 스킵을 허용하고,
+            // 그 외에는 결제를 실패시켜 "승인 없이 Pro 부여"를 원천 차단한다.
+            if (tossDevMode) {
+                log.warn("[Toss] dev-mode — 결제 승인 API 호출 스킵 (로컬 개발 전용, 운영 금지)");
+                return;
+            }
+            log.error("[Toss] secret key 미설정 상태에서 결제 승인 요청 — 설정 오류");
+            throw ApiException.internal("결제 설정에 문제가 있어요. 관리자에게 문의해주세요.");
         }
         try {
             webClient.post()
@@ -178,8 +201,12 @@ public class PaymentService {
 
     private void callTossCancel(String paymentKey, String reason) {
         if (tossSecretKey == null || tossSecretKey.isBlank()) {
-            log.warn("[Toss] secret key 미설정 — 결제 취소 스킵 (개발 모드)");
-            return;
+            if (tossDevMode) {
+                log.warn("[Toss] dev-mode — 결제 취소 API 호출 스킵 (로컬 개발 전용, 운영 금지)");
+                return;
+            }
+            log.error("[Toss] secret key 미설정 상태에서 결제 취소 요청 — 설정 오류");
+            throw ApiException.internal("결제 설정에 문제가 있어요. 관리자에게 문의해주세요.");
         }
         try {
             webClient.post()

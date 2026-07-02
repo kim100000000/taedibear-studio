@@ -3,6 +3,7 @@ package com.taedibear.studio.config;
 import com.taedibear.studio.security.jwt.JwtAuthenticationEntryPoint;
 import com.taedibear.studio.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +26,10 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+	// C3: CORS 허용 오리진 — 프론트엔드 주소만 허용 (개발: http://localhost:5173, 운영: CLIENT_URL)
+	@Value("${app.client-url}")
+	private String clientUrl;
 
 	// bcrypt: Node 버전(bcryptjs, salt rounds 10)과 동일한 알고리즘.
 	@Bean
@@ -53,7 +58,9 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOriginPatterns(List.of("*"));
+		// C3: 와일드카드("*") + allowCredentials(true) 조합은 어떤 사이트든 인증 요청을
+		// 위조할 수 있게 하므로 금지. 프론트엔드 오리진만 명시적으로 허용한다.
+		configuration.setAllowedOrigins(List.of(clientUrl));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);

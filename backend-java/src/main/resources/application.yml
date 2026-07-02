@@ -68,10 +68,13 @@ app:
     admin: ${ADMIN_EMAIL:}
 
   toss:
-    # 토스페이먼츠 시크릿 키 (운영: 실제 키, 개발: 테스트 키 또는 빈 값 → API 호출 스킵)
+    # 토스페이먼츠 시크릿 키 (운영: 실제 키 필수)
     secret-key: ${TOSS_SECRET_KEY:}
     # 프론트엔드에서 사용하는 클라이언트 키 (VITE_TOSS_CLIENT_KEY 환경변수와 동일하게 설정)
     client-key: ${TOSS_CLIENT_KEY:}
+    # 개발 모드: true일 때만 시크릿 키 없이 승인/취소 API 호출을 스킵한다.
+    # 기본값 false — 운영에서 키가 누락되면 결제가 실패하도록(무료 Pro 방지) 안전하게 막는다.
+    dev-mode: ${TOSS_DEV_MODE:false}
 
   oauth:
     google:
