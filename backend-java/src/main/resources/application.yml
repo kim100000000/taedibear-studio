@@ -44,7 +44,8 @@ app:
   client-url: ${CLIENT_URL:http://localhost:5173}
 
   jwt:
-    secret: ${JWT_SECRET:change_this_secret}
+    # C8: 기본값 없음 — JWT_SECRET 미설정 시 부팅 실패 (JwtTokenProvider에서 명확한 에러 메시지로 검증)
+    secret: ${JWT_SECRET:}
     expiration-ms: ${JWT_EXPIRATION_MS:604800000} # 7일
 
   gemini:

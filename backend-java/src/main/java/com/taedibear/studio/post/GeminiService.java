@@ -34,15 +34,22 @@ public class GeminiService {
 	private final String apiKey;
 	private final String model;
 
+	// C7: 서버가 다운로드를 허용하는 이미지 URL prefix — 자사 S3 버킷만
+	private final String allowedImageUrlPrefix;
+
 	public GeminiService(
 			WebClient.Builder webClientBuilder,
 			ObjectMapper objectMapper,
 			@Value("${app.gemini.api-key}") String apiKey,
-			@Value("${app.gemini.model}") String model) {
+			@Value("${app.gemini.model}") String model,
+			@Value("${app.aws.s3-bucket}") String s3Bucket,
+			@Value("${app.aws.region}") String awsRegion) {
 		this.webClient = webClientBuilder.baseUrl("https://generativelanguage.googleapis.com").build();
 		this.objectMapper = objectMapper;
 		this.apiKey = apiKey;
 		this.model = model;
+		// S3Service.uploadImage가 만드는 URL 형식과 동일하게 유지
+		this.allowedImageUrlPrefix = String.format("https://%s.s3.%s.amazonaws.com/", s3Bucket, awsRegion);
 	}
 
 	public record CaptionResult(String caption, List<String> hashtags) {
@@ -50,6 +57,13 @@ public class GeminiService {
 
 	public CaptionResult generateCaption(String imageUrl, String businessType, String mood,
 	                                     String specialMenu, String eventPromotion, String keywords) {
+		// C7: SSRF 차단 — 임의 URL(내부망, 클라우드 메타데이터 엔드포인트 등)을 서버가
+		// 대신 다운로드하는 것을 막는다. 업로드 API가 발급한 자사 S3 URL만 허용.
+		if (imageUrl == null || !imageUrl.startsWith(allowedImageUrlPrefix)) {
+			log.warn("[Gemini] 허용되지 않은 image_url 차단: {}", imageUrl);
+			throw ApiException.badRequest("이미지 URL이 올바르지 않아요. 업로드 후 발급된 이미지 주소를 사용해주세요.");
+		}
+
 		byte[] imageBytes = downloadImage(imageUrl);
 		String mimeType = guessMimeType(imageUrl);
 		String base64Image = Base64.getEncoder().encodeToString(imageBytes);

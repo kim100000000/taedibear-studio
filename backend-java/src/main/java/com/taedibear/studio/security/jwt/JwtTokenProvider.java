@@ -23,9 +23,18 @@ public class JwtTokenProvider {
 	private final long expirationMs;
 
 	public JwtTokenProvider(
-			@Value("${app.jwt.secret}") String secret,
+			@Value("${app.jwt.secret:}") String secret,
 			@Value("${app.jwt.expiration-ms}") long expirationMs) {
-		// HS256은 최소 256bit(32byte) 키가 필요하다. 운영 환경에서는 JWT_SECRET을 충분히 긴 값으로 설정해야 한다.
+		// C8: 기본값·짧은 키 금지. 미설정이거나 32바이트 미만이면 부팅을 실패시켜
+		// 약한 키로 서비스가 뜨는 것을 원천 차단한다 (fail-fast).
+		if (secret == null || secret.isBlank()) {
+			throw new IllegalStateException(
+					"JWT_SECRET 환경변수가 설정되지 않았어요. 'openssl rand -base64 48'로 생성한 값을 .env에 설정해주세요.");
+		}
+		if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+			throw new IllegalStateException(
+					"JWT_SECRET이 너무 짧아요 (HS256은 최소 32바이트 필요). 'openssl rand -base64 48'로 생성한 값을 사용해주세요.");
+		}
 		this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
 		this.expirationMs = expirationMs;
 	}
