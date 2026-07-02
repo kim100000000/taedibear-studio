@@ -23,6 +23,9 @@ public class EmailService {
     @Value("${app.mail.from:noreply@taedibear.studio}")
     private String fromAddress;
 
+    @Value("${app.mail.admin:}")
+    private String adminEmail;
+
     @Value("${app.client-url:http://localhost:5173}")
     private String clientUrl;
 
@@ -86,6 +89,58 @@ public class EmailService {
                 captionHtml,
                 historyUrl
         );
+    }
+
+    /**
+     * 관리자용 일일 실패 현황 요약 이메일.
+     * ADMIN_EMAIL 미설정 시 발송 스킵.
+     */
+    @Async
+    public void sendAdminDailyReport(int failedCount, int retrySuccessCount, int finalFailedCount) {
+        if (adminEmail == null || adminEmail.isBlank()) {
+            log.info("[Email] ADMIN_EMAIL 미설정 — 관리자 리포트 발송 스킵");
+            return;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress);
+            helper.setTo(adminEmail);
+            helper.setSubject("[Taedibear Studio] 일일 업로드 실패 현황");
+            helper.setText(buildAdminReportHtml(failedCount, retrySuccessCount, finalFailedCount), true);
+            mailSender.send(message);
+            log.info("[Email] 관리자 리포트 발송 완료 → {}", adminEmail);
+        } catch (MessagingException e) {
+            log.error("[Email] 관리자 리포트 발송 실패: {}", e.getMessage());
+        }
+    }
+
+    private String buildAdminReportHtml(int failedCount, int retrySuccessCount, int finalFailedCount) {
+        return """
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head><meta charset="UTF-8"></head>
+                <body style="font-family:'Apple SD Gothic Neo',sans-serif;color:#222;max-width:480px;margin:0 auto;padding:24px;">
+                  <h2 style="font-size:20px;">📊 일일 업로드 실패 현황</h2>
+                  <table style="width:100%%;border-collapse:collapse;margin:16px 0;">
+                    <tr style="background:#f7f7fb;">
+                      <td style="padding:10px 16px;border:1px solid #eee;">실패 발생 건수</td>
+                      <td style="padding:10px 16px;border:1px solid #eee;font-weight:700;">%d건</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:10px 16px;border:1px solid #eee;">재시도 성공 건수</td>
+                      <td style="padding:10px 16px;border:1px solid #eee;font-weight:700;color:#2e9e44;">%d건</td>
+                    </tr>
+                    <tr style="background:#fff5f5;">
+                      <td style="padding:10px 16px;border:1px solid #eee;">최종 실패 건수</td>
+                      <td style="padding:10px 16px;border:1px solid #eee;font-weight:700;color:#d33;">%d건</td>
+                    </tr>
+                  </table>
+                  <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+                  <p style="font-size:12px;color:#999;">Taedibear Studio 자동 발송</p>
+                </body>
+                </html>
+                """.formatted(failedCount, retrySuccessCount, finalFailedCount);
     }
 
     private String escapeHtml(String text) {
