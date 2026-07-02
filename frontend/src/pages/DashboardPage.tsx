@@ -7,7 +7,7 @@ import OnboardingModal from '../components/OnboardingModal';
 import Toast from '../components/Toast';
 import { listPosts } from '../api/posts';
 import { listInstagramAccounts } from '../api/instagram';
-import { getUsage } from '../api/users';
+import { getUsage, getMe } from '../api/users';
 import { useAuth } from '../context/AuthContext';
 import type { Post, InstagramAccount, PostStatus, ToastData } from '../types';
 import type { UsageInfo } from '../api/payments';
@@ -19,16 +19,18 @@ export default function DashboardPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
   const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    Promise.all([listPosts({ limit: 100 }), listInstagramAccounts(), getUsage()])
-      .then(([postsRes, accountsRes, usageRes]) => {
+    Promise.all([listPosts({ limit: 100 }), listInstagramAccounts(), getUsage(), getMe()])
+      .then(([postsRes, accountsRes, usageRes, meRes]) => {
         setPosts(postsRes.data.data.posts);
         setAccounts(accountsRes.data.data);
         setUsage(usageRes.data.data);
+        setCredits(meRes.data.data.credits ?? null);
       })
       .catch((err: any) => {
         const msg = err.isNetworkError
@@ -104,6 +106,15 @@ export default function DashboardPage() {
             <span className="summary-value">{accounts.length}</span>
             <span className="summary-label">{t('dashboard.connectedAccounts')}</span>
           </div>
+          {usage?.plan === 'free' && credits !== null && (
+            <div className={`summary-card${credits === 0 ? ' summary-card-warn' : ''}`}>
+              <span className="summary-value">{credits}</span>
+              <span className="summary-label">{t('dashboard.credits')}</span>
+              {credits === 0 && (
+                <span className="summary-hint">{t('dashboard.creditsEmpty')}</span>
+              )}
+            </div>
+          )}
         </div>
 
         <Link to="/upload" className="btn-primary btn-large quick-upload-btn">

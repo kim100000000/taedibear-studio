@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { completeOnboarding } from '../api/users';
 
 interface OnboardingStep {
   emoji: string;
@@ -22,6 +23,8 @@ export default function OnboardingModal({ onClose }: OnboardingModalProps) {
 
   const handleNext = () => {
     if (isLastStep) {
+      // Phase 2-1: 온보딩 완료 시 +2 크레딧 지급 (실패해도 UX 방해 안 함)
+      completeOnboarding().catch(() => {});
       onClose();
       return;
     }

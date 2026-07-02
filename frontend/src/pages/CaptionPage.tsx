@@ -5,7 +5,7 @@ import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import UpgradeModal from '../components/UpgradeModal';
 import { generateCaption, createPost } from '../api/posts';
-import { getMe } from '../api/users';
+import { getMe, watchAd } from '../api/users';
 
 // API로 전달되는 값은 한국어 그대로 유지 (Gemini 프롬프트와 맞춰야 함).
 // labelKey만 i18n 키로 매핑해서 UI 표시를 번역한다.
@@ -47,20 +47,21 @@ export default function CaptionPage() {
   const [error, setError] = useState('');
   const [hasGenerated, setHasGenerated] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [adWatching, setAdWatching] = useState(false);
+  const [userPlan, setUserPlan] = useState<'free' | 'pro'>('free');
 
   useEffect(() => {
     if (!state?.imageUrl || !state?.instagramAccountId) {
       navigate('/upload', { replace: true });
       return;
     }
-    // Phase 2-3: 저장된 업종/분위기 자동 로드
+    // Phase 2-3: 저장된 업종/분위기 자동 로드 / Phase 2-1: 크레딧 로드
     getMe().then(({ data }) => {
-      if (data.data.business_type) {
-        setBusinessType(data.data.business_type);
-      }
-      if (data.data.mood) {
-        setMood(data.data.mood);
-      }
+      if (data.data.business_type) setBusinessType(data.data.business_type);
+      if (data.data.mood) setMood(data.data.mood);
+      if (data.data.credits !== undefined) setCredits(data.data.credits);
+      if (data.data.plan) setUserPlan(data.data.plan as 'free' | 'pro');
     }).catch(() => { /* 실패해도 기본값 사용 */ });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -68,6 +69,21 @@ export default function CaptionPage() {
   if (!state?.imageUrl) return null;
 
   const { imageUrl, instagramAccountId } = state;
+
+  const handleWatchAd = async () => {
+    setAdWatching(true);
+    setError('');
+    try {
+      // 실제 광고 연동 전: 2초 딜레이로 광고 시청 시뮬레이션
+      await new Promise((r) => setTimeout(r, 2000));
+      const { data } = await watchAd();
+      setCredits(data.data.credits);
+    } catch (err: any) {
+      setError(err.response?.data?.error || t('caption.err.adFailed'));
+    } finally {
+      setAdWatching(false);
+    }
+  };
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -197,11 +213,35 @@ export default function CaptionPage() {
               </div>
             )}
 
+            {/* Phase 2-1: 크레딧 표시 및 광고 충전 (Free 플랜만) */}
+            {userPlan === 'free' && credits !== null && (
+              <div className="credit-status">
+                <span className="credit-badge">
+                  ⚡ {t('caption.credits', { count: credits })}
+                </span>
+                {credits === 0 && (
+                  <button
+                    type="button"
+                    className="btn-outline credit-ad-btn"
+                    disabled={adWatching}
+                    onClick={handleWatchAd}
+                  >
+                    {adWatching ? t('caption.adWatching') : t('caption.watchAd')}
+                  </button>
+                )}
+              </div>
+            )}
+
             {generating ? (
               <Spinner label={t('caption.generating')} />
             ) : (
               <>
-                <button type="button" className="btn-outline" onClick={handleGenerate}>
+                <button
+                  type="button"
+                  className="btn-outline"
+                  disabled={userPlan === 'free' && credits !== null && credits <= 0}
+                  onClick={handleGenerate}
+                >
                   {hasGenerated ? t('caption.regenerate') : t('caption.generate')}
                 </button>
 

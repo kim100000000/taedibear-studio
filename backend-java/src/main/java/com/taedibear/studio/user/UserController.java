@@ -34,6 +34,22 @@ public class UserController {
 		return ApiResponse.ok(paymentService.getUsage(principal.getId()));
 	}
 
+	// POST /api/users/me/onboarding-complete — 온보딩 완료 +2 크레딧 (Phase 2-1)
+	@PostMapping("/me/onboarding-complete")
+	public ApiResponse<Map<String, Object>> onboardingComplete(
+			@AuthenticationPrincipal UserPrincipal principal) {
+		int credits = userService.completeOnboarding(principal.getId());
+		return ApiResponse.ok(Map.of("credits", credits));
+	}
+
+	// POST /api/users/me/credits/ad-watch — 광고 시청 충전 +1 크레딧, 하루 2회 제한 (Phase 2-1)
+	@PostMapping("/me/credits/ad-watch")
+	public ApiResponse<Map<String, Object>> adWatch(
+			@AuthenticationPrincipal UserPrincipal principal) {
+		int credits = userService.watchAd(principal.getId());
+		return ApiResponse.ok(Map.of("credits", credits));
+	}
+
 	// PUT /api/users/me
 	@PutMapping("/me")
 	public ApiResponse<Map<String, Object>> updateMe(

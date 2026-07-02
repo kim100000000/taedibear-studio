@@ -12,6 +12,8 @@ export interface User {
   // Phase 2-3: 업종/분위기 저장
   business_type?: string | null;
   mood?: string | null;
+  // Phase 2-1: 크레딧
+  credits?: number;
 }
 
 export interface InstagramAccount {

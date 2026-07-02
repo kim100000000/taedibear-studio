@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 // docs/04_DB설계서.md 3.1 users
@@ -54,6 +55,19 @@ public class User {
 	@Column(nullable = false)
 	@Builder.Default
 	private Plan plan = Plan.free;
+
+	// Phase 2-1: 크레딧 시스템
+	@Column(nullable = false)
+	@Builder.Default
+	private int credits = 3;  // 가입 시 기본 3개
+
+	// 광고 시청 충전 — 하루 2회 제한
+	@Column(name = "ad_watch_count")
+	@Builder.Default
+	private int adWatchCount = 0;
+
+	@Column(name = "last_ad_watch_date")
+	private LocalDate lastAdWatchDate;
 
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)
