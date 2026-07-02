@@ -15,6 +15,8 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // docs/03_화면설계서.md 1. 페이지 목록 기준 라우팅
@@ -109,6 +111,9 @@ export default function App() {
       {/* 토스페이먼츠 결제 리다이렉트 (인증 불필요 — Toss가 리다이렉트) */}
       <Route path="/payments/success" element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
       <Route path="/payments/fail" element={<PaymentFailPage />} />
+      {/* Phase 2-5: 법적 문서 (인증 불필요) */}
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
     </Routes>
   );
 }

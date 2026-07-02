@@ -156,8 +156,8 @@ export default function LandingPage() {
           🐻 Taedibear Studio &copy; {new Date().getFullYear()}
         </div>
         <div className="landing-footer-links">
-          <a href="/terms">{t('landing.terms')}</a>
-          <a href="/privacy">{t('landing.privacy')}</a>
+          <Link to="/terms">{t('landing.terms')}</Link>
+          <Link to="/privacy">{t('landing.privacy')}</Link>
           <a href="mailto:support@taedibear.studio">{t('landing.contact')}</a>
         </div>
       </footer>
