@@ -17,7 +17,7 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link to="/dashboard" className="navbar-logo">
+      <Link to="/" className="navbar-logo">
         🐻 Taedibear Studio
       </Link>
       <div className="navbar-menu">

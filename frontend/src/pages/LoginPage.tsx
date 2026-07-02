@@ -64,7 +64,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-logo">🐻 Taedibear Studio</div>
+      <Link to="/" className="auth-logo">🐻 Taedibear Studio</Link>
       {sessionExpired && (
         <div className="banner banner-warn">{t('error.sessionExpired')}</div>
       )}

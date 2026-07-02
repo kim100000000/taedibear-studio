@@ -78,7 +78,7 @@ export default function SignupPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-logo">🐻 Taedibear Studio</div>
+      <Link to="/" className="auth-logo">🐻 Taedibear Studio</Link>
       <h1>{t('auth.signup.title')}</h1>
 
       <form onSubmit={handleSubmit}>

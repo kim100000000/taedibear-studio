@@ -14,7 +14,7 @@ export default function LandingPage() {
     <div className="landing-page">
       {/* 헤더 */}
       <header className="landing-header">
-        <div className="landing-logo">🐻 Taedibear Studio</div>
+        <a href="/" className="landing-logo">🐻 Taedibear Studio</a>
         <div className="landing-header-actions">
           <LangToggle />
           <ThemeToggle />

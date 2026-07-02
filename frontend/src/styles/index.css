@@ -122,10 +122,31 @@ button {
 }
 
 .auth-logo {
+  display: block;
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
   text-align: center;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.auth-logo:hover {
+  color: var(--color-primary);
+}
+
+.auth-back {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color 0.15s ease;
+}
+
+.auth-back:hover {
+  color: var(--color-primary);
 }
 
 .auth-page h1 {
@@ -207,6 +228,15 @@ button {
 .btn-primary {
   background: var(--color-primary);
   color: #fff;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #e0712a;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -225,6 +255,16 @@ button {
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--text-secondary);
+}
+
+.btn-outline:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-large {
@@ -245,6 +285,15 @@ button {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btn-social:hover {
+  filter: brightness(0.93);
+}
+
+.btn-social:active {
+  transform: scale(0.98);
 }
 
 .btn-google {
@@ -318,6 +367,13 @@ button {
 .landing-logo {
   font-size: 18px;
   font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.landing-logo:hover {
+  color: var(--color-primary);
 }
 .landing-login-btn {
   display: inline-block;
@@ -592,6 +648,12 @@ button {
   width: 280px;
   box-shadow: 0 2px 12px var(--shadow-card);
   position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.landing-plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 32px var(--shadow-card);
 }
 .landing-plan-card--pro {
   border-color: var(--color-primary);
@@ -644,6 +706,11 @@ button {
   width: 100%;
   text-align: center;
   text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
 /* 푸터 */
@@ -712,6 +779,11 @@ button {
   font-weight: 700;
   text-decoration: none;
   color: var(--text-primary);
+  transition: color 0.15s ease;
+}
+
+.navbar-logo:hover {
+  color: var(--color-primary);
 }
 
 .navbar-menu {
@@ -837,6 +909,12 @@ button {
   padding: 20px;
   text-align: center;
   box-shadow: 0 2px 12px var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-card);
 }
 
 .summary-value {
@@ -1116,6 +1194,12 @@ button {
   padding: 16px;
   margin-bottom: 16px;
   box-shadow: 0 2px 12px var(--shadow-card);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.history-card:hover {
+  box-shadow: 0 4px 20px var(--shadow-card);
+  transform: translateY(-1px);
 }
 
 .history-card img {
