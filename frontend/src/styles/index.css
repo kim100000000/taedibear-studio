@@ -773,6 +773,56 @@ button {
   color: #f5c97a;
 }
 
+/* Phase 2-5: 이용약관 / 개인정보처리방침 페이지 */
+.legal-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+.legal-page h1 {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+.legal-date {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.legal-page section {
+  margin-bottom: 32px;
+}
+.legal-page h2 {
+  font-size: 17px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+.legal-page p,
+.legal-page li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.legal-page ul {
+  padding-left: 20px;
+}
+.legal-back {
+  margin-bottom: 24px;
+}
+.legal-back-bottom {
+  margin-top: 24px;
+  margin-bottom: 0;
+}
+.legal-back a {
+  font-size: 14px;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.legal-back a:hover {
+  text-decoration: underline;
+}
+
 /* 대시보드 요약 카드 */
 .summary-cards {
   display: flex;
@@ -1947,6 +1997,35 @@ button {
   background: var(--bg-page);
   color: var(--text-secondary);
   margin-top: 4px;
+}
+
+/* 대시보드 크레딧 카드 힌트 */
+.summary-hint {
+  font-size: 11px;
+  color: var(--color-error);
+  margin-top: 4px;
+}
+
+/* Phase 2-1: 캡션 페이지 크레딧 상태 바 */
+.credit-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--color-primary-soft);
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  margin-bottom: 12px;
+}
+.credit-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+.credit-ad-btn {
+  font-size: 12px;
+  padding: 5px 12px;
+  margin-left: auto;
 }
 
 /* 플랜 유효기간 */

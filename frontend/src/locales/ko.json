@@ -106,6 +106,8 @@
     "thisMonthUploads": "이번 달 업로드",
     "scheduled": "예약 중인 게시물",
     "connectedAccounts": "연동된 인스타 계정",
+    "credits": "크레딧",
+    "creditsEmpty": "광고 보고 충전하기",
     "newPost": "새 게시물 만들기",
     "recentPosts": "최근 업로드",
     "noPosts": "아직 게시물이 없어요.",
@@ -156,9 +158,13 @@
     "eventPromotionPlaceholder": "예: 오픈 기념 아메리카노 1+1",
     "keywordsLabel": "강조할 키워드",
     "keywordsPlaceholder": "예: 분위기 맛집, 데이트 코스, 혼카페",
+    "credits": "크레딧 {{count}}개",
+    "watchAd": "광고 보고 충전",
+    "adWatching": "광고 시청 중...",
     "err": {
       "generateFailed": "캡션 생성에 실패했어요.",
-      "saveFailed": "저장에 실패했어요."
+      "saveFailed": "저장에 실패했어요.",
+      "adFailed": "광고 시청에 실패했어요."
     },
     "businessTypes": {
       "cafe": "카페",
@@ -214,6 +220,7 @@
     },
     "empty": "게시물이 없어요.",
     "noCaption": "(캡션 없음)",
+    "regenerate": "이 스타일로 다시 생성",
     "modal": {
       "title": "게시물 삭제",
       "message": "이 게시물을 삭제할까요? 삭제하면 되돌릴 수 없어요."

@@ -106,6 +106,8 @@
     "thisMonthUploads": "Uploads this month",
     "scheduled": "Scheduled posts",
     "connectedAccounts": "Connected accounts",
+    "credits": "Credits",
+    "creditsEmpty": "Watch an ad to earn more",
     "newPost": "Create new post",
     "recentPosts": "Recent uploads",
     "noPosts": "No posts yet.",
@@ -156,9 +158,13 @@
     "eventPromotionPlaceholder": "e.g. Buy 1 get 1 free Americano for opening week",
     "keywordsLabel": "Keywords to highlight",
     "keywordsPlaceholder": "e.g. cozy café, date spot, solo café",
+    "credits": "{{count}} credits",
+    "watchAd": "Watch ad to earn",
+    "adWatching": "Watching ad...",
     "err": {
       "generateFailed": "Caption generation failed.",
-      "saveFailed": "Save failed."
+      "saveFailed": "Save failed.",
+      "adFailed": "Failed to watch ad."
     },
     "businessTypes": {
       "cafe": "Café",
@@ -214,6 +220,7 @@
     },
     "empty": "No posts found.",
     "noCaption": "(No caption)",
+    "regenerate": "Regenerate with this style",
     "modal": {
       "title": "Delete post",
       "message": "Delete this post? This action cannot be undone."
