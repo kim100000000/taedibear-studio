@@ -32,4 +32,7 @@ public interface ScheduledPostRepository extends JpaRepository<ScheduledPost, Lo
 	@Query("select count(distinct sp.postId) from ScheduledPost sp where sp.postId in " +
 			"(select p.id from Post p where p.userId = :userId)")
 	long countScheduledPostsByUserId(@Param("userId") Long userId);
+
+	// Phase 2-3 관리자 리포트: 날짜 범위 내 상태별 건수
+	long countByStatusAndScheduledAtBetween(ScheduleStatus status, LocalDateTime from, LocalDateTime to);
 }

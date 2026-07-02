@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,4 +53,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		   "WHERE p.userId = :userId " +
 		   "AND YEAR(p.createdAt) = :year AND MONTH(p.createdAt) = :month")
 	long countThisMonth(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
+
+	// Phase 2-3 관리자 리포트: 날짜 범위 내 posted 상태 건수 (재시도 성공 카운트용)
+	long countByStatusAndPostedAtBetween(PostStatus status, LocalDateTime from, LocalDateTime to);
 }
