@@ -1,8 +1,8 @@
 # Taedibear Studio — API 명세서
 
-**버전:** v1.2  
+**버전:** v1.3  
 **작성일:** 2026-06-27  
-**수정일:** 2026-07-01 — 백엔드 Spring Boot 이전 반영  
+**수정일:** 2026-07-01 — 백엔드 Spring Boot 이전 반영 / 분석 API 추가  
 **Base URL:** `https://api.taedibear.com` (개발: `http://localhost:8080`)  
 **인증 방식:** JWT Bearer Token
 
@@ -631,10 +631,73 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 
 ---
 
-## 6. 변경 이력
+## 6. 분석 API (`/api/analytics`)
+
+---
+
+### GET /api/analytics/summary
+
+**설명:** 로그인 사용자의 업로드 통계를 반환합니다. Meta API 없이 서비스 DB만 사용.
+
+**인증:** 필요 (Bearer Token)
+
+**요청 파라미터:** 없음
+
+**응답 예시:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "monthly_uploads": [
+      { "month": "2025-08", "count": 3 },
+      { "month": "2025-09", "count": 0 },
+      { "month": "2025-10", "count": 7 },
+      "...(최근 12개월, 빈 달 포함)"
+    ],
+    "success_rate": 87.5,
+    "scheduled_ratio": 60.0,
+    "daily_pattern": [
+      { "day": "Sun", "count": 2 },
+      { "day": "Mon", "count": 5 },
+      { "day": "Tue", "count": 3 },
+      { "day": "Wed", "count": 8 },
+      { "day": "Thu", "count": 4 },
+      { "day": "Fri", "count": 6 },
+      { "day": "Sat", "count": 1 }
+    ],
+    "this_month_used": 5
+  }
+}
+```
+
+**필드 설명:**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `monthly_uploads` | array | 최근 12개월 월별 업로드 수. 빈 달은 `count: 0` |
+| `monthly_uploads[].month` | string | "YYYY-MM" 형식 |
+| `monthly_uploads[].count` | number | 해당 월 게시물 수 |
+| `success_rate` | number | posted / (posted + failed) × 100, 소수점 1자리 |
+| `scheduled_ratio` | number | 예약 경험 post / 전체 post × 100, 소수점 1자리 |
+| `daily_pattern` | array | 업로드 완료(posted) 기준 요일별 집계 |
+| `daily_pattern[].day` | string | "Sun" ~ "Sat" |
+| `daily_pattern[].count` | number | 해당 요일 업로드 완료 수 |
+| `this_month_used` | number | 이번 달 총 게시물 수 |
+
+**구현 참고:**
+- `monthly_uploads`: `YEAR(p.createdAt)`, `MONTH(p.createdAt)` grouping, 12개월 LinkedHashMap으로 빈 달 보정
+- `success_rate`: `PostStatus.posted / (posted + failed)` — 0건이면 0.0 반환
+- `scheduled_ratio`: `COUNT(DISTINCT sp.postId) / total_posts` — `ScheduledPostRepository` 활용
+- `daily_pattern`: MySQL `FUNCTION('DAYOFWEEK', p.postedAt)` (1=Sun ~ 7=Sat)
+
+---
+
+## 7. 변경 이력
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|----------|--------|
 | v1.0 | 2026-06-27 | 최초 작성 | @taedibear |
 | v1.1 | 2026-06-27 | AI 캡션 생성 모델 ChatGPT → Gemini 변경 | @taedibear |
 | v1.2 | 2026-07-01 | 개발 서버 포트 4000 → 8080 (Spring Boot) / GET /api/auth/naver 구현 방식 Node.js/passport → Spring NaverOAuthClient.java 수정 / GET /api/instagram/connect 인증 방식 명시 (?token= 쿼리 파라미터) | @taedibear |
+| v1.3 | 2026-07-01 | GET /api/analytics/summary 신규 추가 (Phase 1-3 분석 대시보드) | @taedibear |
