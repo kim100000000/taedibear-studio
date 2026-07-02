@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -132,8 +133,14 @@ public class PaymentService {
 
     // ── 플랜 제한 체크 (PostService에서 호출) ────────────────────────────────────
 
+    // 사용자 행 잠금(FOR UPDATE)으로 동시 요청을 직렬화 — 잠금 없이는 "카운트 조회 → 검사 → INSERT"
+    // 사이에 다른 요청이 끼어들어 월 10회 제한을 초과할 수 있다.
+    // MANDATORY: 호출자의 트랜잭션(PostService.createPost) 안에서만 실행되도록 강제.
+    // 트랜잭션 없이 호출하면 잠금이 무의미해지므로 예외를 던지게 한다.
+    @Transactional(propagation = Propagation.MANDATORY)
     public void checkPlanLimit(Long userId) {
-        User user = getUser(userId);
+        User user = userRepository.findByIdForUpdate(userId)
+                .orElseThrow(() -> ApiException.notFound("사용자를 찾을 수 없어요."));
         if (user.getPlan() == Plan.pro) return;
 
         LocalDate today = LocalDate.now();

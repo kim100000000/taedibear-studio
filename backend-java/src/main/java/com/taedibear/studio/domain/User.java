@@ -69,6 +69,15 @@ public class User {
 	@Column(name = "last_ad_watch_date")
 	private LocalDate lastAdWatchDate;
 
+	// 광고 시청 최소 간격 검증용 (마지막 광고 충전 시각)
+	@Column(name = "last_ad_watch_at")
+	private LocalDateTime lastAdWatchAt;
+
+	// 온보딩 보너스 1회 지급 여부 — 반복 호출로 크레딧 무한 충전 방지
+	@Column(name = "onboarding_completed", nullable = false)
+	@Builder.Default
+	private boolean onboardingCompleted = false;
+
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
