@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
@@ -11,6 +12,7 @@ import type { Post, PostStatus, ToastData } from '../types';
 // P-09 히스토리 (docs/03_화면설계서.md)
 export default function HistoryPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [tab, setTab] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -153,6 +155,23 @@ export default function HistoryPage() {
                           onClick={() => retry(post.id)}
                         >
                           {t('common.retry')}
+                        </button>
+                      )}
+                      {/* Phase 2-4: 이 스타일로 다시 생성 */}
+                      {post.status === 'posted' && (
+                        <button
+                          type="button"
+                          className="btn-outline"
+                          onClick={() =>
+                            navigate('/upload/caption', {
+                              state: {
+                                imageUrl: post.image_url,
+                                instagramAccountId: post.instagram_account_id,
+                              },
+                            })
+                          }
+                        >
+                          {t('history.regenerate')}
                         </button>
                       )}
                       <button
