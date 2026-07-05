@@ -47,8 +47,9 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/health").permitAll()
 						.requestMatchers("/api/auth/**").permitAll()
-						// /connect, /callback은 JWT를 query/state로 직접 검증하므로 Security 필터는 통과시킨다.
-						.requestMatchers("/api/instagram/connect", "/api/instagram/callback").permitAll()
+						// C6: /callback은 Meta가 브라우저 리다이렉트로 호출 — state nonce로 사용자를 복원하므로 permitAll.
+						// (기존 /connect?token= 엔드포인트는 제거됨 — /connect-url 은 일반 JWT 인증을 탄다)
+						.requestMatchers("/api/instagram/callback").permitAll()
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

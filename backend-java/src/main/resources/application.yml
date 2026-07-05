@@ -46,7 +46,15 @@ app:
   jwt:
     # C8: 기본값 없음 — JWT_SECRET 미설정 시 부팅 실패 (JwtTokenProvider에서 명확한 에러 메시지로 검증)
     secret: ${JWT_SECRET:}
-    expiration-ms: ${JWT_EXPIRATION_MS:604800000} # 7일
+    # C4: refresh token 도입으로 access token 수명을 7일 → 30분으로 단축
+    expiration-ms: ${JWT_EXPIRATION_MS:1800000} # 30분
+
+  auth:
+    # C4: refresh token (HttpOnly 쿠키, DB 저장·회전)
+    refresh-expiration-ms: ${REFRESH_TOKEN_EXPIRATION_MS:1209600000} # 14일
+    # 운영(HTTPS)은 true. 프론트/백엔드가 서로 다른 도메인이면 same-site를 None으로 (None은 Secure=true 필수)
+    cookie-secure: ${AUTH_COOKIE_SECURE:false}
+    cookie-same-site: ${AUTH_COOKIE_SAME_SITE:Lax}
 
   gemini:
     api-key: ${GEMINI_API_KEY:}
@@ -86,6 +94,8 @@ app:
       redirect-uri: ${GOOGLE_CALLBACK_URL:http://localhost:4000/api/auth/google/callback}
     kakao:
       client-id: ${KAKAO_CLIENT_ID:}
+      # 카카오 콘솔 [보안] 탭에서 Client Secret "사용함"이면 필수 (미설정 시 KOE010 invalid_client)
+      client-secret: ${KAKAO_CLIENT_SECRET:}
       redirect-uri: ${KAKAO_CALLBACK_URL:http://localhost:4000/api/auth/kakao/callback}
     naver:
       client-id: ${NAVER_CLIENT_ID:}

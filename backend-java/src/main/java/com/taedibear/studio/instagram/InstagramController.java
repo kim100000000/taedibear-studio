@@ -1,11 +1,8 @@
 package com.taedibear.studio.instagram;
 
 import com.taedibear.studio.common.ApiResponse;
-import com.taedibear.studio.domain.InstagramAccount;
 import com.taedibear.studio.instagram.dto.InstagramAccountResponse;
 import com.taedibear.studio.security.UserPrincipal;
-import com.taedibear.studio.security.jwt.JwtTokenProvider;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 // docs/05_API명세서.md 2. 인스타그램 연동 API
-// /connect, /callback은 브라우저 전체 페이지 리다이렉트라 Authorization 헤더 대신
-// JWT를 ?token= 쿼리/state 파라미터로 직접 주고받는다 (Node 버전과 동일한 방식).
+// C6: 기존 GET /connect?token=<JWT> 방식(JWT URL 노출)을 제거하고,
+// 인증된 GET /connect-url 이 랜덤 nonce state가 담긴 Meta 로그인 URL을 반환한다.
+// 콜백은 nonce로 사용자를 복원하므로 URL에 JWT가 실리지 않는다.
 @Slf4j
 @RestController
 @RequestMapping("/api/instagram")
@@ -29,26 +27,17 @@ public class InstagramController {
 
 	private final MetaApiClient metaApiClient;
 	private final InstagramAccountService instagramAccountService;
-	private final JwtTokenProvider jwtTokenProvider;
+	private final ConnectStateService connectStateService;
 
 	@Value("${app.client-url}")
 	private String clientUrl;
 
-	@GetMapping("/connect")
-	public void connect(@RequestParam(required = false) String token, HttpServletResponse response) throws IOException {
-		if (token == null) {
-			response.setStatus(401);
-			response.getWriter().write("{\"success\":false,\"error\":\"토큰이 필요해요.\"}");
-			return;
-		}
-		try {
-			jwtTokenProvider.parseClaims(token);
-		} catch (JwtException | IllegalArgumentException ex) {
-			response.setStatus(401);
-			response.getWriter().write("{\"success\":false,\"error\":\"유효하지 않은 토큰이에요.\"}");
-			return;
-		}
-		response.sendRedirect(metaApiClient.getLoginUrl(token));
+	// GET /api/instagram/connect-url — 인증 필요(Authorization 헤더).
+	// 프론트가 이 URL을 받아 window.location으로 이동한다.
+	@GetMapping("/connect-url")
+	public ApiResponse<Map<String, String>> connectUrl(@AuthenticationPrincipal UserPrincipal principal) {
+		String nonce = connectStateService.issue(principal.getId());
+		return ApiResponse.ok(Map.of("url", metaApiClient.getLoginUrl(nonce)));
 	}
 
 	@GetMapping("/callback")
@@ -61,7 +50,13 @@ public class InstagramController {
 			return;
 		}
 		try {
-			Long userId = jwtTokenProvider.getUserId(jwtTokenProvider.parseClaims(state));
+			// C6: state는 JWT가 아닌 일회성 nonce — 유효하지 않으면 연동 실패 처리
+			Long userId = connectStateService.consume(state);
+			if (userId == null) {
+				log.warn("[Meta connect] 유효하지 않은 state로 콜백 수신");
+				response.sendRedirect(clientUrl + "/settings?connected=false");
+				return;
+			}
 
 			String shortLivedToken = metaApiClient.exchangeCodeForToken(code);
 			MetaApiClient.LongLivedToken longLived = metaApiClient.getLongLivedToken(shortLivedToken);

@@ -2,7 +2,6 @@ package com.taedibear.studio.security.jwt;
 
 import com.taedibear.studio.domain.User;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,14 +55,7 @@ public class JwtTokenProvider {
 		return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
 	}
 
-	// POST /api/auth/refresh: 만료된 토큰도 허용해서 새 토큰을 발급한다 (서명만 검증, 만료는 무시).
-	public Claims parseClaimsIgnoringExpiration(String token) {
-		try {
-			return parseClaims(token);
-		} catch (ExpiredJwtException ex) {
-			return ex.getClaims();
-		}
-	}
+	// C4: parseClaimsIgnoringExpiration 제거 — 만료 무시 재발급은 refresh token 체계로 대체됨.
 
 	public Long getUserId(Claims claims) {
 		return Long.parseLong(claims.getSubject());

@@ -1,22 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// GET /api/auth/google/callback 처리 후 백엔드가 리다이렉트하는 /auth?token=<JWT> 를 받는 페이지
+// 소셜 로그인 콜백 처리 후 백엔드가 리다이렉트하는 /auth 페이지.
+// C6: JWT를 URL로 받지 않는다 — 백엔드가 심은 refresh 쿠키(HttpOnly)로 access token을 교환한다.
 export default function AuthCallbackPage() {
-  const [searchParams] = useSearchParams();
-  const { loginWithToken } = useAuth();
+  const { loginFromCallback } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    if (!token) {
-      setError('로그인 정보를 받지 못했어요.');
-      return;
-    }
-
-    loginWithToken(token)
+    loginFromCallback()
       .then(() => navigate('/dashboard'))
       .catch(() => setError('로그인에 실패했어요. 다시 시도해주세요.'));
     // eslint-disable-next-line react-hooks/exhaustive-deps

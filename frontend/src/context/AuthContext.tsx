@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { getMe } from '../api/auth';
+import { getMe, refreshAccessToken, logoutServer } from '../api/auth';
 import type { User } from '../types';
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   loginUser: (token: string, userData: User) => void;
-  loginWithToken: (token: string) => Promise<void>;
+  loginFromCallback: () => Promise<void>;
   logout: () => void;
 }
 
@@ -34,20 +34,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userData);
   };
 
-  // 구글 로그인 콜백(/auth?token=) 처럼 토큰만 받고 사용자 정보는 /api/users/me로 따로 가져와야 할 때 사용
-  const loginWithToken = async (token: string) => {
-    localStorage.setItem('token', token);
+  // C6: 소셜 로그인 콜백(/auth) — 백엔드가 심어준 refresh 쿠키(HttpOnly)로
+  // access token을 교환한 뒤 사용자 정보를 가져온다 (URL에 토큰이 실리지 않음).
+  const loginFromCallback = async () => {
+    const refreshRes = await refreshAccessToken();
+    localStorage.setItem('token', refreshRes.data.data.token);
     const res = await getMe();
     setUser(res.data.data);
   };
 
+  // C4/M9: 서버측 refresh token도 폐기 (실패해도 로컬 로그아웃은 진행)
   const logout = () => {
+    logoutServer().catch(() => {});
     localStorage.removeItem('token');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginUser, loginWithToken, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginUser, loginFromCallback, logout }}>
       {children}
     </AuthContext.Provider>
   );

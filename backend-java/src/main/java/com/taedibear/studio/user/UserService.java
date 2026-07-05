@@ -5,6 +5,7 @@ import com.taedibear.studio.domain.Plan;
 import com.taedibear.studio.domain.User;
 import com.taedibear.studio.repository.InstagramAccountRepository;
 import com.taedibear.studio.repository.PostRepository;
+import com.taedibear.studio.repository.RefreshTokenRepository;
 import com.taedibear.studio.repository.ScheduledPostRepository;
 import com.taedibear.studio.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class UserService {
 	private final PostRepository postRepository;
 	private final ScheduledPostRepository scheduledPostRepository;
 	private final InstagramAccountRepository instagramAccountRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	public User getById(Long id) {
 		return userRepository.findById(id)
@@ -129,6 +131,7 @@ public class UserService {
 		scheduledPostRepository.deleteAllByPostUserId(userId);
 		postRepository.deleteAllByUserId(userId);
 		instagramAccountRepository.deleteAllByUserId(userId);
+		refreshTokenRepository.deleteAllByUserId(userId);  // C4: 모든 로그인 세션 폐기
 		userRepository.delete(user);
 
 		log.info("[회원 탈퇴] userId={} 및 연관 데이터 삭제 완료 (결제 내역은 보관)", userId);

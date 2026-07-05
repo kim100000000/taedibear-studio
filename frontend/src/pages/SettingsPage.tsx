@@ -161,8 +161,17 @@ export default function SettingsPage() {
           <button
             type="button"
             className="btn-outline"
-            onClick={() => {
-              window.location.href = getInstagramConnectUrl();
+            onClick={async () => {
+              try {
+                // C6: 인증된 API로 연동 URL(nonce state)을 받아 이동 — JWT를 URL에 노출하지 않는다
+                const res = await getInstagramConnectUrl();
+                window.location.href = res.data.data.url;
+              } catch (err: any) {
+                const msg = err.isNetworkError
+                  ? t('error.network')
+                  : err.response?.data?.error || t('error.loadFailed');
+                setToast({ type: 'error', message: msg });
+              }
             }}
           >
             {t('settings.instagram.connect')}

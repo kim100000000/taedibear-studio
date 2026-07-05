@@ -11,8 +11,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
 
-// 카카오는 REST API 키만 사용하는 클라이언트 시크릿 미사용 앱도 많아 client-secret 없이 구현한다.
-// (Node 버전의 passport-kakao와 동일한 흐름)
+// 카카오 Client Secret은 콘솔 [보안] 탭 설정에 따라 선택 사항 —
+// "사용함" 상태인 앱은 토큰 요청에 client_secret이 없으면 KOE010(invalid_client)으로 거부된다.
+// KAKAO_CLIENT_SECRET 환경변수가 설정된 경우에만 함께 전송한다.
 @Component
 public class KakaoOAuthClient {
 
@@ -22,14 +23,17 @@ public class KakaoOAuthClient {
 
 	private final WebClient webClient;
 	private final String clientId;
+	private final String clientSecret;
 	private final String redirectUri;
 
 	public KakaoOAuthClient(
 			WebClient.Builder webClientBuilder,
 			@Value("${app.oauth.kakao.client-id}") String clientId,
+			@Value("${app.oauth.kakao.client-secret:}") String clientSecret,
 			@Value("${app.oauth.kakao.redirect-uri}") String redirectUri) {
 		this.webClient = webClientBuilder.build();
 		this.clientId = clientId;
+		this.clientSecret = clientSecret;
 		this.redirectUri = redirectUri;
 	}
 
@@ -53,6 +57,10 @@ public class KakaoOAuthClient {
 		form.add("client_id", clientId);
 		form.add("redirect_uri", redirectUri);
 		form.add("code", code);
+		// 콘솔에서 Client Secret "사용함"인 앱은 필수 (미전송 시 KOE010)
+		if (clientSecret != null && !clientSecret.isBlank()) {
+			form.add("client_secret", clientSecret);
+		}
 
 		JsonNode tokenRes = webClient.post()
 				.uri(TOKEN_URL)

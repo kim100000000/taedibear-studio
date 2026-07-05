@@ -1,8 +1,8 @@
 # Taedibear Studio — API 명세서
 
-**버전:** v1.3  
+**버전:** v1.4  
 **작성일:** 2026-06-27  
-**수정일:** 2026-07-01 — 백엔드 Spring Boot 이전 반영 / 분석 API 추가  
+**수정일:** 2026-07-05 — C4 refresh token 체계 / C6 JWT URL 노출 제거 반영  
 **Base URL:** `https://api.taedibear.com` (개발: `http://localhost:8080`)  
 **인증 방식:** JWT Bearer Token
 
@@ -139,7 +139,7 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 구글 OAuth 콜백 처리 후 JWT를 발급합니다.
 
 **인증:** 불필요  
-**Response:** 프론트엔드로 리다이렉트 (`/auth?token=<JWT>`)
+**Response:** refresh token을 HttpOnly 쿠키(`refresh_token`)로 발급 후 프론트엔드 `/auth`로 리다이렉트 (C6: JWT를 URL에 노출하지 않음 — 프론트가 `POST /api/auth/refresh`로 access token 교환)
 
 ---
 
@@ -157,7 +157,7 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 카카오 OAuth 콜백 처리 후 JWT를 발급합니다.
 
 **인증:** 불필요  
-**Response:** 프론트엔드로 리다이렉트 (`/auth?token=<JWT>`)
+**Response:** refresh token을 HttpOnly 쿠키(`refresh_token`)로 발급 후 프론트엔드 `/auth`로 리다이렉트 (C6: JWT를 URL에 노출하지 않음 — 프론트가 `POST /api/auth/refresh`로 access token 교환)
 
 **참고:** 카카오 비즈니스 채널 연동 전에는 email scope가 제공되지 않을 수 있어, 이 경우 `kakao_<id>@kakao.taedibear.local` 형식의 내부용 이메일을 생성해 저장합니다.
 
@@ -178,7 +178,7 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 네이버 OAuth 콜백 처리 후 JWT를 발급합니다.
 
 **인증:** 불필요  
-**Response:** 프론트엔드로 리다이렉트 (`/auth?token=<JWT>`)
+**Response:** refresh token을 HttpOnly 쿠키(`refresh_token`)로 발급 후 프론트엔드 `/auth`로 리다이렉트 (C6: JWT를 URL에 노출하지 않음 — 프론트가 `POST /api/auth/refresh`로 access token 교환)
 
 **참고:** 이메일 제공 동의를 받지 못한 경우 `naver_<id>@naver.taedibear.local` 형식의 내부용 이메일을 생성해 저장합니다.
 
@@ -186,9 +186,12 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 
 ### POST /api/auth/refresh
 
-JWT 토큰을 갱신합니다.
+refresh token으로 새 access token을 발급합니다. (C4)
 
-**인증:** 필요 (만료 토큰도 허용)
+**인증:** HttpOnly 쿠키 `refresh_token` (요청 시 `withCredentials` 필요)  
+**동작:** DB에 저장된 refresh token을 검증 후 **회전(rotation)** — 사용한 토큰은 즉시 폐기되고 새 refresh 쿠키가 재발급됩니다. 유효하지 않거나 만료된 경우 401.
+
+> 로그인/회원가입/소셜 로그인 시 refresh token(기본 14일)이 HttpOnly 쿠키로 발급됩니다. access token 수명은 30분으로 단축되었습니다.
 
 **Response 200:**
 ```json
@@ -198,13 +201,18 @@ JWT 토큰을 갱신합니다.
 }
 ```
 
+**Error 401:**
+```json
+{ "success": false, "error": "세션이 만료됐어요. 다시 로그인해주세요." }
+```
+
 ---
 
 ### POST /api/auth/logout
 
-로그아웃합니다. (클라이언트에서 토큰 삭제 유도)
+로그아웃합니다. 서버에서 refresh token을 폐기하고 쿠키를 삭제합니다. (C4/M9)
 
-**인증:** 필요
+**인증:** HttpOnly 쿠키 `refresh_token` (없어도 200 — 쿠키 삭제만 수행)
 
 **Response 200:**
 ```json
@@ -217,12 +225,20 @@ JWT 토큰을 갱신합니다.
 
 ---
 
-### GET /api/instagram/connect
+### GET /api/instagram/connect-url
 
-Meta OAuth 연동 페이지로 리다이렉트합니다.
+Meta OAuth 연동 URL을 반환합니다. (C6: 기존 `GET /connect?token=<JWT>` 방식은 JWT URL 노출 문제로 제거)
 
-**인증:** 필요 — 단, 브라우저 전체 페이지 리다이렉트이므로 Authorization 헤더 대신 `?token=<JWT>` 쿼리 파라미터로 JWT를 전달합니다.  
-**Response:** Meta 권한 승인 페이지로 302 리다이렉트
+**인증:** 필요 (Authorization 헤더)  
+**동작:** 일회성 랜덤 nonce(TTL 10분)를 state로 심은 Meta 로그인 URL을 반환하며, 프론트가 이 URL로 이동합니다.
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": { "url": "https://www.facebook.com/v19.0/dialog/oauth?..." }
+}
+```
 
 ---
 
@@ -230,8 +246,8 @@ Meta OAuth 연동 페이지로 리다이렉트합니다.
 
 Meta OAuth 콜백 처리 후 계정을 저장합니다.
 
-**인증:** 필요  
-**Response:** 설정 페이지로 리다이렉트 (`/settings?connected=true`)
+**인증:** 불필요 (state nonce로 사용자 복원 — 유효하지 않으면 연동 실패)  
+**Response:** 설정 페이지로 리다이렉트 (`/settings?connected=true`, 실패 시 `connected=false`)
 
 ---
 
@@ -701,3 +717,4 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 | v1.1 | 2026-06-27 | AI 캡션 생성 모델 ChatGPT → Gemini 변경 | @taedibear |
 | v1.2 | 2026-07-01 | 개발 서버 포트 4000 → 8080 (Spring Boot) / GET /api/auth/naver 구현 방식 Node.js/passport → Spring NaverOAuthClient.java 수정 / GET /api/instagram/connect 인증 방식 명시 (?token= 쿼리 파라미터) | @taedibear |
 | v1.3 | 2026-07-01 | GET /api/analytics/summary 신규 추가 (Phase 1-3 분석 대시보드) | @taedibear |
+| v1.4 | 2026-07-05 | C4: POST /auth/refresh를 HttpOnly 쿠키 기반 refresh token 회전 방식으로 변경, logout 서버측 폐기 / C6: 소셜 콜백 `/auth?token=` → refresh 쿠키 + `/auth`, GET /instagram/connect 제거 → GET /instagram/connect-url 신규 | @taedibear |
