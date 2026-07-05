@@ -34,7 +34,7 @@ export default function UpgradeModal({ open, onClose }: UpgradeModalProps) {
           <div className="upgrade-plan-card upgrade-plan-pro">
             <span className="upgrade-plan-badge">PRO</span>
             <span className="upgrade-plan-name">{t('plan.pro.name')}</span>
-            <span className="upgrade-plan-price">₩29,000<small>/월</small></span>
+            <span className="upgrade-plan-price">₩9,900<small>/월</small></span>
             <span className="upgrade-plan-feature">{t('plan.limitReachedProFeature')}</span>
           </div>
         </div>

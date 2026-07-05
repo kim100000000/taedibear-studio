@@ -40,7 +40,7 @@ export default function PlanSection({ onToast, refreshTrigger }: PlanSectionProp
     const orderId = `order_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     tossPayments.requestPayment('카드', {
-      amount: 29000,
+      amount: 9900, // 백엔드 PaymentService.PRO_PLAN_PRICE와 반드시 동일하게 유지
       orderId,
       orderName: 'Taedibear Studio Pro 구독 (1개월)',
       customerName: '',
@@ -79,7 +79,7 @@ export default function PlanSection({ onToast, refreshTrigger }: PlanSectionProp
     {
       id: 'pro' as const,
       name: t('plan.pro.name'),
-      price: '₩29,000',
+      price: '₩9,900',
       priceSuffix: t('plan.priceSuffix'),
       features: t('plan.pro.features', { returnObjects: true }) as string[],
     },

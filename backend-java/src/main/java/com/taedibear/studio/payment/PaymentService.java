@@ -46,10 +46,10 @@ public class PaymentService {
 
     private static final int FREE_LIMIT = 10;
 
-    // C1: Pro 플랜 가격 (frontend PlanSection.tsx의 amount: 29000과 동일하게 유지)
+    // C1: Pro 플랜 가격 (frontend PlanSection.tsx의 amount: 9900과 동일하게 유지)
     // 결제 금액은 반드시 서버가 아는 가격과 대조해야 한다 — 클라이언트가 보낸 amount를
     // 그대로 믿으면 조작된 소액 결제(예: 100원)로도 Pro 승인이 가능하다.
-    private static final int PRO_PLAN_PRICE = 29000;
+    private static final int PRO_PLAN_PRICE = 9900;
 
     private static final String TOSS_CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
     private static final String TOSS_CANCEL_URL = "https://api.tosspayments.com/v1/payments/{paymentKey}/cancel";

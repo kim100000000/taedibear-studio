@@ -56,10 +56,10 @@ public class User {
 	@Builder.Default
 	private Plan plan = Plan.free;
 
-	// Phase 2-1: 크레딧 시스템
+	// Phase 2-1: 크레딧 시스템 (보유 상한 10 — UserService.MAX_CREDITS)
 	@Column(nullable = false)
 	@Builder.Default
-	private int credits = 3;  // 가입 시 기본 3개
+	private int credits = 5;  // 가입 시 기본 5개 — 가치를 느끼기 전에 소진되지 않도록
 
 	// 광고 시청 충전 — 하루 2회 제한
 	@Column(name = "ad_watch_count")

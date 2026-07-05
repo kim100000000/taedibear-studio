@@ -38,4 +38,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Modifying(clearAutomatically = true)
 	@Query("update User u set u.credits = u.credits - 1 where u.id = :id and u.credits > 0")
 	int deductOneCredit(@Param("id") Long id);
+
+	/**
+	 * 매월 무료 크레딧 지급 (Free 플랜만). LEAST로 보유 상한을 넘지 않게 지급하며,
+	 * 이미 상한 이상인 사용자는 WHERE에서 제외한다. (native — JPQL에 LEAST 없음)
+	 * @return 지급된 사용자 수
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE users SET credits = LEAST(credits + :amount, :cap) "
+			+ "WHERE plan = 'free' AND credits < :cap", nativeQuery = true)
+	int grantMonthlyCredits(@Param("amount") int amount, @Param("cap") int cap);
 }

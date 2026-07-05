@@ -25,6 +25,10 @@ public class UserService {
 	// 광고 시청 최소 간격(초) — 리워드 광고 최소 재생 시간 기준
 	private static final long MIN_AD_INTERVAL_SECONDS = 30;
 
+	// 크레딧 보유 상한 — 쌓아두기만 하고 결제하지 않는 것을 방지.
+	// 광고 충전(하루 2회)을 한 달 내내 돌려도 이 이상 쌓이지 않는다.
+	public static final int MAX_CREDITS = 10;
+
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
 	private final ScheduledPostRepository scheduledPostRepository;
@@ -67,7 +71,7 @@ public class UserService {
 			return user.getCredits();
 		}
 		user.setOnboardingCompleted(true);
-		user.setCredits(user.getCredits() + 2);
+		user.setCredits(Math.min(user.getCredits() + 2, MAX_CREDITS));
 		return user.getCredits();
 	}
 
@@ -86,6 +90,11 @@ public class UserService {
 			throw ApiException.badRequest("광고 시청 후 잠시 뒤에 다시 시도해주세요.");
 		}
 
+		// 보유 상한: 가득 찬 상태에서 광고만 보고 크레딧을 못 받는 일이 없도록 사전 차단
+		if (user.getCredits() >= MAX_CREDITS) {
+			throw ApiException.badRequest("크레딧이 가득 찼어요. (최대 " + MAX_CREDITS + "개)");
+		}
+
 		if (today.equals(user.getLastAdWatchDate())) {
 			if (user.getAdWatchCount() >= 2) {
 				throw ApiException.badRequest("광고 충전은 하루 최대 2회까지 가능해요.");
@@ -97,7 +106,7 @@ public class UserService {
 		}
 
 		user.setLastAdWatchAt(now);
-		user.setCredits(user.getCredits() + 1);
+		user.setCredits(Math.min(user.getCredits() + 1, MAX_CREDITS));
 		return user.getCredits();
 	}
 
