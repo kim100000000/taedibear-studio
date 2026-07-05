@@ -58,4 +58,11 @@ public class UserController {
 		User user = userService.updateName(principal.getId(), request.name());
 		return ApiResponse.ok(Map.of("id", user.getId(), "name", user.getName()));
 	}
+
+	// DELETE /api/users/me — 회원 탈퇴 (연관 데이터 삭제, 결제 내역은 보관)
+	@DeleteMapping("/me")
+	public ApiResponse<Void> deleteMe(@AuthenticationPrincipal UserPrincipal principal) {
+		userService.deleteAccount(principal.getId());
+		return ApiResponse.ok();
+	}
 }

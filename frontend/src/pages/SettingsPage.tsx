@@ -7,7 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import Toast from '../components/Toast';
 import PlanSection from '../components/PlanSection';
 import { useAuth } from '../context/AuthContext';
-import { updateMe } from '../api/users';
+import { updateMe, deleteAccount } from '../api/users';
 import { listInstagramAccounts, disconnectInstagramAccount, getInstagramConnectUrl } from '../api/instagram';
 import type { InstagramAccount, ToastData } from '../types';
 
@@ -25,6 +25,8 @@ export default function SettingsPage() {
   const [disconnectTarget, setDisconnectTarget] = useState<number | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [planRefresh, setPlanRefresh] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     listInstagramAccounts()
@@ -93,6 +95,24 @@ export default function SettingsPage() {
     navigate('/login');
   };
 
+  const confirmDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      // 탈퇴 성공 → 토큰 제거 후 로그인 페이지로 (탈퇴 안내 플래그 전달)
+      logout();
+      navigate('/login?withdrawn=true', { replace: true });
+    } catch (err: any) {
+      const msg = err.isNetworkError
+        ? t('error.network')
+        : err.response?.data?.error || t('settings.account.deleteFailed');
+      setToast({ type: 'error', message: msg });
+      setShowDeleteModal(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="page-with-nav">
       <NavBar />
@@ -157,7 +177,7 @@ export default function SettingsPage() {
           <button type="button" className="btn-outline" disabled title={t('settings.account.notSupported')}>
             {t('settings.account.changePassword')}
           </button>
-          <button type="button" className="btn-danger" disabled title={t('settings.account.notSupported')}>
+          <button type="button" className="btn-danger" onClick={() => setShowDeleteModal(true)}>
             {t('settings.account.deleteAccount')}
           </button>
         </section>
@@ -169,6 +189,13 @@ export default function SettingsPage() {
         message={t('settings.instagram.modal.message')}
         onConfirm={confirmDisconnect}
         onCancel={() => setDisconnectTarget(null)}
+      />
+      <ConfirmModal
+        open={showDeleteModal}
+        title={t('settings.account.deleteModal.title')}
+        message={t('settings.account.deleteModal.message')}
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => !deleting && setShowDeleteModal(false)}
       />
       <Toast toast={toast} onClose={() => setToast(null)} />
     </div>

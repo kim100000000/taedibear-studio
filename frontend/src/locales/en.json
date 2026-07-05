@@ -58,6 +58,7 @@
       "submit": "Log in",
       "submitting": "Logging in...",
       "failed": "Login failed.",
+      "withdrawn": "Your account has been deleted. Thank you for using our service.",
       "forgotPassword": "Forgot your password?",
       "noAccount": "Don't have an account?",
       "signupLink": "Sign up",
@@ -263,6 +264,11 @@
       "logout": "Log out",
       "changePassword": "Change password",
       "deleteAccount": "Delete account",
+      "deleteFailed": "Failed to delete account. Please try again later.",
+      "deleteModal": {
+        "title": "Delete your account?",
+        "message": "Deleting your account permanently removes your posts, schedules, and Instagram connections. This cannot be undone. Payment records are retained as required by law."
+      },
       "notSupported": "Not available yet."
     }
   },

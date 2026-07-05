@@ -845,6 +845,18 @@ button {
   color: #f5c97a;
 }
 
+.banner-info {
+  background: #e8f2ff;
+  border-color: #3b82f6;
+  color: #1e457a;
+}
+
+[data-theme='dark'] .banner-info {
+  background: #142b45;
+  border-color: #3b82f6;
+  color: #9ec5ff;
+}
+
 /* Phase 2-5: 이용약관 / 개인정보처리방침 페이지 */
 .legal-page {
   max-width: 720px;

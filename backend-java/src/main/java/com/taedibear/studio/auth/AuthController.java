@@ -9,16 +9,20 @@ import com.taedibear.studio.auth.oauth.NaverOAuthClient;
 import com.taedibear.studio.common.ApiResponse;
 import com.taedibear.studio.common.exception.ApiException;
 import com.taedibear.studio.domain.User;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Base64;
 
 @Slf4j
@@ -35,12 +39,52 @@ public class AuthController {
 	@Value("${app.client-url}")
 	private String clientUrl;
 
+	// C5: 운영(HTTPS)에서는 true로 설정해 state 쿠키를 Secure로 발급. 로컬(http)은 false.
+	@Value("${app.oauth.cookie-secure:false}")
+	private boolean cookieSecure;
+
 	private static final SecureRandom RANDOM = new SecureRandom();
+	private static final String STATE_COOKIE = "oauth_state";
 
 	private String randomState() {
 		byte[] bytes = new byte[16];
 		RANDOM.nextBytes(bytes);
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+	}
+
+	// C5: OAuth state를 생성해 HttpOnly 쿠키로 심고 그 값을 반환한다.
+	// 콜백에서 쿼리의 state와 이 쿠키를 대조해 CSRF(공격자 계정 강제 연결)를 차단한다.
+	private String issueOAuthState(HttpServletResponse response) {
+		String state = randomState();
+		ResponseCookie cookie = ResponseCookie.from(STATE_COOKIE, state)
+				.httpOnly(true)
+				.secure(cookieSecure)
+				.path("/")
+				.sameSite("Lax")
+				.maxAge(Duration.ofMinutes(5))
+				.build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+		return state;
+	}
+
+	// C5: 쿠키의 state와 콜백으로 돌아온 state 파라미터를 대조하고, 검증 후 쿠키를 삭제한다.
+	private boolean isValidOAuthState(HttpServletRequest request, HttpServletResponse response, String stateParam) {
+		String cookieState = null;
+		if (request.getCookies() != null) {
+			for (Cookie c : request.getCookies()) {
+				if (STATE_COOKIE.equals(c.getName())) {
+					cookieState = c.getValue();
+					break;
+				}
+			}
+		}
+		// 일회성: 검증 여부와 무관하게 쿠키를 즉시 만료시켜 재사용을 막는다.
+		ResponseCookie cleared = ResponseCookie.from(STATE_COOKIE, "")
+				.httpOnly(true).secure(cookieSecure).path("/").sameSite("Lax").maxAge(0).build();
+		response.addHeader(HttpHeaders.SET_COOKIE, cleared.toString());
+
+		return stateParam != null && !stateParam.isBlank()
+				&& cookieState != null && cookieState.equals(stateParam);
 	}
 
 	// POST /api/auth/register
@@ -75,13 +119,17 @@ public class AuthController {
 	// GET /api/auth/google
 	@GetMapping("/google")
 	public void googleLogin(HttpServletResponse response) throws java.io.IOException {
-		response.sendRedirect(googleOAuthClient.getLoginUrl(randomState()));
+		response.sendRedirect(googleOAuthClient.getLoginUrl(issueOAuthState(response)));
 	}
 
 	// GET /api/auth/google/callback
 	@GetMapping("/google/callback")
-	public void googleCallback(@RequestParam(required = false) String code, HttpServletResponse response) throws java.io.IOException {
-		if (code == null) {
+	public void googleCallback(
+			@RequestParam(required = false) String code,
+			@RequestParam(required = false) String state,
+			HttpServletRequest request,
+			HttpServletResponse response) throws java.io.IOException {
+		if (code == null || !isValidOAuthState(request, response, state)) {
 			response.sendRedirect(clientUrl + "/login?error=google");
 			return;
 		}
@@ -98,13 +146,17 @@ public class AuthController {
 	// GET /api/auth/kakao
 	@GetMapping("/kakao")
 	public void kakaoLogin(HttpServletResponse response) throws java.io.IOException {
-		response.sendRedirect(kakaoOAuthClient.getLoginUrl(randomState()));
+		response.sendRedirect(kakaoOAuthClient.getLoginUrl(issueOAuthState(response)));
 	}
 
 	// GET /api/auth/kakao/callback
 	@GetMapping("/kakao/callback")
-	public void kakaoCallback(@RequestParam(required = false) String code, HttpServletResponse response) throws java.io.IOException {
-		if (code == null) {
+	public void kakaoCallback(
+			@RequestParam(required = false) String code,
+			@RequestParam(required = false) String state,
+			HttpServletRequest request,
+			HttpServletResponse response) throws java.io.IOException {
+		if (code == null || !isValidOAuthState(request, response, state)) {
 			response.sendRedirect(clientUrl + "/login?error=kakao");
 			return;
 		}
@@ -122,7 +174,7 @@ public class AuthController {
 	// GET /api/auth/naver
 	@GetMapping("/naver")
 	public void naverLogin(HttpServletResponse response) throws java.io.IOException {
-		response.sendRedirect(naverOAuthClient.getLoginUrl(randomState()));
+		response.sendRedirect(naverOAuthClient.getLoginUrl(issueOAuthState(response)));
 	}
 
 	// GET /api/auth/naver/callback
@@ -130,8 +182,9 @@ public class AuthController {
 	public void naverCallback(
 			@RequestParam(required = false) String code,
 			@RequestParam(required = false) String state,
+			HttpServletRequest request,
 			HttpServletResponse response) throws java.io.IOException {
-		if (code == null) {
+		if (code == null || !isValidOAuthState(request, response, state)) {
 			response.sendRedirect(clientUrl + "/login?error=naver");
 			return;
 		}

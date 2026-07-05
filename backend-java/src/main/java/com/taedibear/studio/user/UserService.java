@@ -3,8 +3,12 @@ package com.taedibear.studio.user;
 import com.taedibear.studio.common.exception.ApiException;
 import com.taedibear.studio.domain.Plan;
 import com.taedibear.studio.domain.User;
+import com.taedibear.studio.repository.InstagramAccountRepository;
+import com.taedibear.studio.repository.PostRepository;
+import com.taedibear.studio.repository.ScheduledPostRepository;
 import com.taedibear.studio.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -20,6 +25,9 @@ public class UserService {
 	private static final long MIN_AD_INTERVAL_SECONDS = 30;
 
 	private final UserRepository userRepository;
+	private final PostRepository postRepository;
+	private final ScheduledPostRepository scheduledPostRepository;
+	private final InstagramAccountRepository instagramAccountRepository;
 
 	public User getById(Long id) {
 		return userRepository.findById(id)
@@ -107,5 +115,22 @@ public class UserService {
 	private User getByIdForUpdate(Long id) {
 		return userRepository.findByIdForUpdate(id)
 				.orElseThrow(() -> ApiException.notFound("사용자를 찾을 수 없어요."));
+	}
+
+	// 회원 탈퇴 — 연관 데이터를 FK 안전 순서로 삭제하고 사용자를 제거한다.
+	// 결제(payments)는 법적 보관 의무로 남긴다. payments.user_id는 FK가 아닌 단순 컬럼이라
+	// 사용자 삭제 후에도 과거 기록으로 유지되며, 조회할 사용자 행이 없으므로 사실상 익명화된다.
+	// 삭제 순서: scheduled_posts → posts → instagram_accounts → users
+	//   (posts는 users와 instagram_accounts를, scheduled_posts는 posts를 참조하므로 자식부터 삭제)
+	@Transactional
+	public void deleteAccount(Long userId) {
+		User user = getById(userId);
+
+		scheduledPostRepository.deleteAllByPostUserId(userId);
+		postRepository.deleteAllByUserId(userId);
+		instagramAccountRepository.deleteAllByUserId(userId);
+		userRepository.delete(user);
+
+		log.info("[회원 탈퇴] userId={} 및 연관 데이터 삭제 완료 (결제 내역은 보관)", userId);
 	}
 }

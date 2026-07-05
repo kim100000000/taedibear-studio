@@ -20,15 +20,19 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [withdrawn, setWithdrawn] = useState(false);
   const { loginUser } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  // Phase 2-6: 세션 만료로 인한 자동 로그아웃 안내
+  // Phase 2-6: 세션 만료로 인한 자동 로그아웃 안내 + 회원 탈퇴 완료 안내
   useState(() => {
     if (sessionStorage.getItem('session_expired')) {
       setSessionExpired(true);
       sessionStorage.removeItem('session_expired');
+    }
+    if (new URLSearchParams(window.location.search).get('withdrawn') === 'true') {
+      setWithdrawn(true);
     }
   });
 
@@ -67,6 +71,9 @@ export default function LoginPage() {
       <Link to="/" className="auth-logo">🐻 Taedibear Studio</Link>
       {sessionExpired && (
         <div className="banner banner-warn">{t('error.sessionExpired')}</div>
+      )}
+      {withdrawn && (
+        <div className="banner banner-info">{t('auth.login.withdrawn')}</div>
       )}
       <h1>{t('auth.login.title')}</h1>
 

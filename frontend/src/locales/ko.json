@@ -58,6 +58,7 @@
       "submit": "로그인",
       "submitting": "로그인 중...",
       "failed": "로그인에 실패했어요.",
+      "withdrawn": "회원 탈퇴가 완료되었어요. 그동안 이용해주셔서 감사합니다.",
       "forgotPassword": "비밀번호를 잊으셨나요?",
       "noAccount": "아직 계정이 없으신가요?",
       "signupLink": "회원가입",
@@ -263,6 +264,11 @@
       "logout": "로그아웃",
       "changePassword": "비밀번호 변경",
       "deleteAccount": "회원 탈퇴",
+      "deleteFailed": "회원 탈퇴에 실패했어요. 잠시 후 다시 시도해주세요.",
+      "deleteModal": {
+        "title": "정말 탈퇴하시겠어요?",
+        "message": "탈퇴하면 게시물, 예약, 인스타그램 연동 정보가 모두 삭제되며 복구할 수 없어요. 결제 내역은 법적 보관 의무에 따라 보관됩니다."
+      },
       "notSupported": "아직 지원하지 않아요."
     }
   },

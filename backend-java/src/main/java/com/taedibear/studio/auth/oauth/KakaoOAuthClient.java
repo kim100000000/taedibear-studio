@@ -59,8 +59,16 @@ public class KakaoOAuthClient {
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.bodyValue(form)
 				.retrieve()
+				.onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+						response -> response.bodyToMono(String.class)
+								.map(body -> new RuntimeException("카카오 토큰 요청 실패: " + body)))
 				.bodyToMono(JsonNode.class)
 				.block();
+
+		if (tokenRes == null || !tokenRes.has("access_token")) {
+			String error = tokenRes != null ? tokenRes.path("error").asText("unknown") : "null response";
+			throw new RuntimeException("카카오 액세스 토큰 없음: " + error);
+		}
 
 		String accessToken = tokenRes.get("access_token").asText();
 

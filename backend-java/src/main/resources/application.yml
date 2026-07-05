@@ -78,6 +78,8 @@ app:
     dev-mode: ${TOSS_DEV_MODE:false}
 
   oauth:
+    # C5: OAuth state 쿠키 Secure 플래그 — 운영(HTTPS)은 true, 로컬(http)은 false
+    cookie-secure: ${OAUTH_COOKIE_SECURE:false}
     google:
       client-id: ${GOOGLE_CLIENT_ID:}
       client-secret: ${GOOGLE_CLIENT_SECRET:}

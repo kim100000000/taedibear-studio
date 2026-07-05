@@ -3,6 +3,7 @@ package com.taedibear.studio.repository;
 import com.taedibear.studio.domain.ScheduledPost;
 import com.taedibear.studio.domain.ScheduleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,4 +36,10 @@ public interface ScheduledPostRepository extends JpaRepository<ScheduledPost, Lo
 
 	// Phase 2-3 관리자 리포트: 날짜 범위 내 상태별 건수
 	long countByStatusAndScheduledAtBetween(ScheduleStatus status, LocalDateTime from, LocalDateTime to);
+
+	// 회원 탈퇴: 사용자 소유 게시물에 연결된 예약 전체 삭제 (posts보다 먼저 삭제되어야 FK 위반 방지)
+	@Modifying
+	@Query("delete from ScheduledPost sp where sp.postId in " +
+			"(select p.id from Post p where p.userId = :userId)")
+	void deleteAllByPostUserId(@Param("userId") Long userId);
 }

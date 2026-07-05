@@ -5,6 +5,7 @@ import com.taedibear.studio.domain.PostStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -56,4 +57,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// Phase 2-3 관리자 리포트: 날짜 범위 내 posted 상태 건수 (재시도 성공 카운트용)
 	long countByStatusAndPostedAtBetween(PostStatus status, LocalDateTime from, LocalDateTime to);
+
+	// 회원 탈퇴: 사용자의 모든 게시물 삭제 (scheduled_posts 삭제 후, instagram_accounts 삭제 전)
+	@Modifying
+	@Query("delete from Post p where p.userId = :userId")
+	void deleteAllByUserId(@Param("userId") Long userId);
 }

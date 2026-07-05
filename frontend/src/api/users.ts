@@ -21,3 +21,7 @@ export const completeOnboarding = () =>
 // POST /api/users/me/credits/ad-watch — 광고 시청 +1 크레딧 (Phase 2-1)
 export const watchAd = () =>
   apiClient.post<ApiResponse<{ credits: number }>>('/api/users/me/credits/ad-watch');
+
+// DELETE /api/users/me — 회원 탈퇴 (연관 데이터 삭제, 결제 내역은 보관)
+export const deleteAccount = () =>
+  apiClient.delete<ApiResponse<null>>('/api/users/me');
