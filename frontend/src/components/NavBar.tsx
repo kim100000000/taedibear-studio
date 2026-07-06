@@ -17,7 +17,8 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-logo">
+      {/* 로그인 상태에서 로고 클릭 → 대시보드 (랜딩으로 나가면 로그아웃처럼 보이는 문제 방지) */}
+      <Link to="/dashboard" className="navbar-logo">
         🐻 Taedibear Studio
       </Link>
       <div className="navbar-menu">
@@ -25,6 +26,7 @@ export default function NavBar() {
         <Link to="/history">{t('nav.history')}</Link>
         <Link to="/calendar">{t('nav.calendar')}</Link>
         <Link to="/analytics">{t('nav.analytics')}</Link>
+        <Link to="/reviews">{t('nav.reviews')}</Link>
         <Link to="/settings">{t('nav.settings')}</Link>
       </div>
       <div className="navbar-profile">

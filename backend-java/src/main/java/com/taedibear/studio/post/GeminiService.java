@@ -132,6 +132,56 @@ public class GeminiService {
 		}
 	}
 
+	// Phase 4-3: 리뷰(댓글) 자동 답글 생성 — 이미지 없이 텍스트만으로 호출
+	private static final String REPLY_SYSTEM_INSTRUCTION =
+			"당신은 소상공인을 대신해 인스타그램 댓글에 답글을 다는 SNS 매니저입니다. " +
+					"고객이 남긴 댓글에 친절하고 짧게(1~2문장) 한국어로 답글을 작성하세요. " +
+					"반드시 다른 설명 없이 아래 형식의 순수 JSON으로만 응답하세요: " +
+					"{\"reply\": \"답글 내용\"}";
+
+	public String generateCommentReply(String commentText, String businessType) {
+		String prompt = "업종: " + (businessType == null || businessType.isBlank() ? "가게" : businessType) + "\n" +
+				"고객 댓글: " + commentText + "\n" +
+				"위 댓글에 대한 답글을 만들어줘.";
+
+		Map<String, Object> requestBody = Map.of(
+				"systemInstruction", Map.of("parts", List.of(Map.of("text", REPLY_SYSTEM_INSTRUCTION))),
+				"contents", List.of(Map.of(
+						"role", "user",
+						"parts", List.of(Map.of("text", prompt))
+				))
+		);
+
+		JsonNode response;
+		try {
+			response = webClient.post()
+					.uri("/v1beta/models/{model}:generateContent?key={key}", model, apiKey)
+					.bodyValue(requestBody)
+					.retrieve()
+					.bodyToMono(JsonNode.class)
+					.block();
+		} catch (WebClientResponseException ex) {
+			log.error("[Gemini reply error] status={} body={}", ex.getStatusCode(), ex.getResponseBodyAsString());
+			if (ex.getStatusCode() == HttpStatusCode.valueOf(429)) {
+				throw ApiException.tooManyRequests("잠시 후 다시 시도해주세요.");
+			}
+			throw ApiException.internal("AI 답글 생성에 실패했어요.");
+		}
+
+		try {
+			String text = response
+					.path("candidates").get(0)
+					.path("content").path("parts").get(0)
+					.path("text").asText();
+			String cleaned = text.replaceAll("```json\\s*|```\\s*", "").trim();
+			JsonNode parsed = objectMapper.readTree(cleaned);
+			return parsed.path("reply").asText(null);
+		} catch (Exception ex) {
+			log.error("[Gemini reply parse error]", ex);
+			throw ApiException.internal("AI 답글 생성에 실패했어요.");
+		}
+	}
+
 	private byte[] downloadImage(String imageUrl) {
 		return webClient.get()
 				.uri(imageUrl)

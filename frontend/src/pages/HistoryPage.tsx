@@ -6,8 +6,10 @@ import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
 import ConfirmModal from '../components/ConfirmModal';
 import Toast from '../components/Toast';
-import { listPosts, updatePost, deletePost, publishPost } from '../api/posts';
-import type { Post, PostStatus, ToastData } from '../types';
+import { listPosts, updatePost, deletePost, publishPost, getPostInsights } from '../api/posts';
+import type { PostInsights, ListPostsParams } from '../api/posts';
+import { listInstagramAccounts } from '../api/instagram';
+import type { Post, PostStatus, ToastData, InstagramAccount } from '../types';
 
 // P-09 히스토리 (docs/03_화면설계서.md)
 export default function HistoryPage() {
@@ -21,6 +23,12 @@ export default function HistoryPage() {
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
+  // Phase 4-1: 계정별 히스토리 필터링
+  const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
+  const [accountFilter, setAccountFilter] = useState<number | ''>('');
+  // Phase 4-2: 게시물 인사이트 (post.id -> 조회 결과, null이면 조회 실패)
+  const [insightsMap, setInsightsMap] = useState<Record<number, PostInsights | null>>({});
+  const [insightsLoadingId, setInsightsLoadingId] = useState<number | null>(null);
 
   const TABS = [
     { key: '', label: t('history.tabs.all') },
@@ -36,17 +44,37 @@ export default function HistoryPage() {
     failed: t('history.status.failed'),
   };
 
-  const load = (status: string) => {
+  const load = (status: string, accountId: number | '') => {
     setLoading(true);
-    listPosts(status ? { status, limit: 100 } : { limit: 100 })
+    const params: ListPostsParams = { limit: 100 };
+    if (status) params.status = status;
+    if (accountId !== '') params.instagram_account_id = accountId;
+    listPosts(params)
       .then((res) => setPosts(res.data.data.posts))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    load(tab);
+    listInstagramAccounts().then((res) => setAccounts(res.data.data));
+  }, []);
+
+  useEffect(() => {
+    load(tab, accountFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
+  }, [tab, accountFilter]);
+
+  const viewInsights = async (postId: number) => {
+    setInsightsLoadingId(postId);
+    try {
+      const { data } = await getPostInsights(postId);
+      setInsightsMap((prev) => ({ ...prev, [postId]: data.data }));
+    } catch (err: any) {
+      setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.insightsFailed') });
+      setInsightsMap((prev) => ({ ...prev, [postId]: null }));
+    } finally {
+      setInsightsLoadingId(null);
+    }
+  };
 
   const startEdit = (post: Post) => {
     setEditingId(post.id);
@@ -58,7 +86,7 @@ export default function HistoryPage() {
       await updatePost(id, { caption: editCaption });
       setEditingId(null);
       setToast({ type: 'success', message: t('history.toast.captionSaved') });
-      load(tab);
+      load(tab, accountFilter);
     } catch (err: any) {
       setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.saveFailed') });
     }
@@ -69,7 +97,7 @@ export default function HistoryPage() {
     try {
       await deletePost(deleteTarget);
       setToast({ type: 'success', message: t('history.toast.deleted') });
-      load(tab);
+      load(tab, accountFilter);
     } catch (err: any) {
       setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.deleteFailed') });
     } finally {
@@ -82,7 +110,7 @@ export default function HistoryPage() {
     try {
       await publishPost(id);
       setToast({ type: 'success', message: t('history.toast.retried') });
-      load(tab);
+      load(tab, accountFilter);
     } catch (err: any) {
       setToast({ type: 'error', message: err.response?.data?.error || t('history.toast.retryFailed') });
     } finally {
@@ -109,6 +137,23 @@ export default function HistoryPage() {
           ))}
         </div>
 
+        {/* Phase 4-1: 계정별 히스토리 필터링 */}
+        {accounts.length > 1 && (
+          <div className="form-field">
+            <select
+              value={accountFilter}
+              onChange={(e) => setAccountFilter(e.target.value === '' ? '' : Number(e.target.value))}
+            >
+              <option value="">{t('history.accountFilterAll')}</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  @{acc.username}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {loading ? (
           <Spinner label={t('common.loading')} />
         ) : posts.length === 0 ? (
@@ -131,6 +176,16 @@ export default function HistoryPage() {
                   <span className={`status-badge status-${post.status}`}>
                     {STATUS_LABEL[post.status]}
                   </span>
+                  {/* Phase 4-2: 게시물 인사이트 */}
+                  {post.status === 'posted' && insightsMap[post.id] && (
+                    <ul className="post-insights">
+                      <li>{t('history.insightsModal.engagement')}: {insightsMap[post.id]!.engagement}</li>
+                      <li>{t('history.insightsModal.impressions')}: {insightsMap[post.id]!.impressions}</li>
+                      <li>{t('history.insightsModal.reach')}: {insightsMap[post.id]!.reach}</li>
+                      <li>{t('history.insightsModal.likeCount')}: {insightsMap[post.id]!.like_count}</li>
+                      <li>{t('history.insightsModal.commentsCount')}: {insightsMap[post.id]!.comments_count}</li>
+                    </ul>
+                  )}
                 </div>
                 <div className="history-card-actions">
                   {editingId === post.id ? (
@@ -172,6 +227,17 @@ export default function HistoryPage() {
                           }
                         >
                           {t('history.regenerate')}
+                        </button>
+                      )}
+                      {/* Phase 4-2: 게시물 인사이트 보기 */}
+                      {post.status === 'posted' && !insightsMap[post.id] && (
+                        <button
+                          type="button"
+                          className="btn-outline"
+                          disabled={insightsLoadingId === post.id}
+                          onClick={() => viewInsights(post.id)}
+                        >
+                          {t('history.insights')}
                         </button>
                       )}
                       <button

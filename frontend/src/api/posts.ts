@@ -24,8 +24,19 @@ export interface UpdatePostPayload {
 
 export interface ListPostsParams {
   status?: string;
+  // Phase 4-1: 계정별 히스토리 필터링
+  instagram_account_id?: number;
   page?: number;
   limit?: number;
+}
+
+// Phase 4-2: GET /api/posts/:id/insights 응답
+export interface PostInsights {
+  engagement: number;
+  impressions: number;
+  reach: number;
+  like_count: number;
+  comments_count: number;
 }
 
 // POST /api/posts/upload (multipart/form-data)
@@ -72,3 +83,7 @@ export const deletePost = (id: number) => apiClient.delete<ApiResponse<null>>(`/
 // POST /api/posts/:id/publish — 즉시 업로드
 export const publishPost = (id: number) =>
   apiClient.post<ApiResponse<Post>>(`/api/posts/${id}/publish`);
+
+// GET /api/posts/:id/insights — Phase 4-2: 게시물 조회수/좋아요/저장 등 인사이트
+export const getPostInsights = (id: number) =>
+  apiClient.get<ApiResponse<PostInsights>>(`/api/posts/${id}/insights`);

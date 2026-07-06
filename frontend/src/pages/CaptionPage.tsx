@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
 import UpgradeModal from '../components/UpgradeModal';
-import { generateCaption, createPost } from '../api/posts';
+import { generateCaption, createPost, publishPost } from '../api/posts';
 import { getMe, watchAd } from '../api/users';
 
 // API로 전달되는 값은 한국어 그대로 유지 (Gemini 프롬프트와 맞춰야 함).
@@ -124,6 +124,13 @@ export default function CaptionPage() {
       const postId = data.data.id;
 
       if (mode === 'immediate') {
+        // draft로 저장된 게시물을 실제로 인스타그램에 발행 (POST /api/posts/:id/publish)
+        try {
+          await publishPost(postId);
+        } catch (publishErr: any) {
+          setError(publishErr.response?.data?.error || t('caption.err.publishFailed'));
+          return;
+        }
         navigate('/upload/done', { state: { mode: 'immediate', imageUrl, postId } });
       } else {
         navigate('/upload/schedule', { state: { postId, imageUrl, caption } });

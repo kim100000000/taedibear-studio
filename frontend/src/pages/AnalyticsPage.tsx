@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -18,7 +20,8 @@ import Spinner from '../components/Spinner';
 import EmptyState from '../components/EmptyState';
 import { getAnalyticsSummary } from '../api/analytics';
 import type { AnalyticsSummary } from '../api/analytics';
-import type { ToastData } from '../types';
+import { listInstagramAccounts } from '../api/instagram';
+import type { ToastData, InstagramAccount } from '../types';
 import Toast from '../components/Toast';
 
 // P-13 분석 대시보드 (/analytics) — Phase 1-3
@@ -36,9 +39,17 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastData | null>(null);
+  // Phase 4-1: 계정별 통계 필터링
+  const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
+  const [accountFilter, setAccountFilter] = useState<number | ''>('');
 
   useEffect(() => {
-    getAnalyticsSummary()
+    listInstagramAccounts().then((res) => setAccounts(res.data.data));
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    getAnalyticsSummary(accountFilter === '' ? undefined : accountFilter)
       .then((res) => setData(res.data.data))
       .catch((err: any) => {
         const msg = err.isNetworkError
@@ -47,7 +58,7 @@ export default function AnalyticsPage() {
         setToast({ type: 'error', message: msg });
       })
       .finally(() => setLoading(false));
-  }, [t]);
+  }, [t, accountFilter]);
 
   const pieColors = isDark() ? PIE_COLORS_DARK : PIE_COLORS_LIGHT;
 
@@ -76,6 +87,23 @@ export default function AnalyticsPage() {
       <NavBar />
       <div className="page-content analytics-page">
         <h1>{t('analytics.title')}</h1>
+
+        {/* Phase 4-1: 계정별 통계 필터링 */}
+        {accounts.length > 1 && (
+          <div className="form-field">
+            <select
+              value={accountFilter}
+              onChange={(e) => setAccountFilter(e.target.value === '' ? '' : Number(e.target.value))}
+            >
+              <option value="">{t('analytics.accountFilterAll')}</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  @{acc.username}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {loading ? (
           <Spinner label={t('common.loading')} />
@@ -134,6 +162,43 @@ export default function AnalyticsPage() {
                   <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            </section>
+
+            {/* ── Phase 4-2: 팔로워 증가 추이 ── */}
+            <section className="analytics-section analytics-section-full">
+              <h2 className="analytics-section-title">{t('analytics.followerTrendTitle')}</h2>
+              {data.follower_trend.length === 0 ? (
+                <p className="muted analytics-no-data">{t('analytics.noData')}</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={data.follower_trend}
+                    margin={{ top: 4, right: 16, left: -10, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
+                      tickFormatter={(v: string) => v.slice(5)}  // "YYYY-MM-DD" → "MM-DD"
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 8,
+                        color: 'var(--text-primary)',
+                        fontSize: 13,
+                      }}
+                      formatter={(v) => [v, t('analytics.followers')]}
+                    />
+                    <Line type="monotone" dataKey="followers" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </section>
 
             {/* ── 요일별 업로드 패턴 ── */}

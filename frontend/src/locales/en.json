@@ -14,6 +14,7 @@
     "history": "History",
     "calendar": "Calendar",
     "analytics": "Analytics",
+    "reviews": "Reviews",
     "settings": "Settings",
     "greeting": "Hi, {{name}}"
   },
@@ -28,9 +29,18 @@
       "hint": "Free plan · 10 uploads/month · Cancel anytime"
     },
     "howTitle": "Done in 3 steps",
-    "step1": { "title": "Upload a photo", "desc": "Drag and drop or click to upload the photo you took today." },
-    "step2": { "title": "AI caption", "desc": "Pick your business type and vibe — Gemini AI writes captions and hashtags for you." },
-    "step3": { "title": "Auto upload", "desc": "Post right now or schedule for later — it uploads automatically to Instagram." },
+    "step1": {
+      "title": "Upload a photo",
+      "desc": "Drag and drop or click to upload the photo you took today."
+    },
+    "step2": {
+      "title": "AI caption",
+      "desc": "Pick your business type and vibe — Gemini AI writes captions and hashtags for you."
+    },
+    "step3": {
+      "title": "Auto upload",
+      "desc": "Post right now or schedule for later — it uploads automatically to Instagram."
+    },
     "mockGenerate": "✨ Generate with AI",
     "mockCaptionText": "Start your day with a warm latte ☕ The perfect moment by the window...",
     "audience": {
@@ -50,7 +60,8 @@
     },
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
-    "contact": "Contact"
+    "contact": "Contact",
+    "goDashboard": "Go to dashboard"
   },
   "auth": {
     "login": {
@@ -165,6 +176,7 @@
     "err": {
       "generateFailed": "Caption generation failed.",
       "saveFailed": "Save failed.",
+      "publishFailed": "Instagram upload failed. Please retry from History.",
       "adFailed": "Failed to watch ad."
     },
     "businessTypes": {
@@ -222,6 +234,16 @@
     "empty": "No posts found.",
     "noCaption": "(No caption)",
     "regenerate": "Regenerate with this style",
+    "accountFilterAll": "All accounts",
+    "insights": "View insights",
+    "insightsModal": {
+      "title": "Post insights",
+      "engagement": "Engagement",
+      "impressions": "Impressions",
+      "reach": "Reach",
+      "likeCount": "Likes",
+      "commentsCount": "Comments"
+    },
     "modal": {
       "title": "Delete post",
       "message": "Delete this post? This action cannot be undone."
@@ -232,7 +254,8 @@
       "deleted": "Post deleted.",
       "deleteFailed": "Delete failed.",
       "retried": "Retrying upload.",
-      "retryFailed": "Retry failed."
+      "retryFailed": "Retry failed.",
+      "insightsFailed": "Could not load insights."
     }
   },
   "settings": {
@@ -257,7 +280,12 @@
         "message": "Disconnect this Instagram account?"
       },
       "disconnected": "Account disconnected.",
-      "disconnectFailed": "Disconnect failed."
+      "disconnectFailed": "Disconnect failed.",
+      "autoReplyLabel": "Auto-reply to reviews",
+      "autoReplyOn": "Auto-post",
+      "autoReplyOff": "Approve before posting",
+      "autoReplyChanged": "Auto-reply setting updated.",
+      "autoReplyChangeFailed": "Could not update the setting."
     },
     "account": {
       "title": "Account",
@@ -296,12 +324,21 @@
     "free": {
       "name": "Free",
       "price": "₩0",
-      "features": ["10 uploads/month", "1 Instagram account", "AI caption (basic)"]
+      "features": [
+        "10 uploads/month",
+        "1 Instagram account",
+        "AI caption (basic)"
+      ]
     },
     "pro": {
       "name": "Pro",
       "price": "₩9,900",
-      "features": ["Unlimited uploads", "Multiple Instagram accounts", "AI caption (advanced)", "Priority scheduling"]
+      "features": [
+        "Unlimited uploads",
+        "Multiple Instagram accounts",
+        "AI caption (advanced)",
+        "Priority scheduling"
+      ]
     }
   },
   "onboarding": {
@@ -346,7 +383,27 @@
     "failed": "Failed",
     "scheduled": "Scheduled",
     "immediate": "Immediate",
-    "noData": "No data yet."
+    "noData": "No data yet.",
+    "accountFilterAll": "All accounts",
+    "followerTrendTitle": "Follower growth (last 30 days)",
+    "followers": "Followers"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "accountFilterAll": "Select an account",
+    "empty": "No comments yet.",
+    "suggestedReply": "AI suggested reply",
+    "send": "Send reply",
+    "skip": "Skip",
+    "replied": "Replied",
+    "skipped": "Skipped",
+    "toast": {
+      "replySuccess": "Reply posted.",
+      "replyFailed": "Failed to post reply.",
+      "skipSuccess": "Skipped.",
+      "skipFailed": "Failed to update.",
+      "loadFailed": "Could not load comments."
+    }
   },
   "editor": {
     "title": "Edit Image",
@@ -377,7 +434,15 @@
     }
   },
   "calendar": {
-    "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "weekdays": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
     "prev": "Previous month",
     "next": "Next month",
     "legend": {

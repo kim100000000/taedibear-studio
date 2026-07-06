@@ -266,7 +266,8 @@ Meta OAuth 콜백 처리 후 계정을 저장합니다.
       "id": 1,
       "instagram_user_id": "12345678",
       "username": "my_cafe_seoul",
-      "connected_at": "2025-03-01T10:00:00Z"
+      "connected_at": "2025-03-01T10:00:00Z",
+      "auto_reply_enabled": false
     }
   ]
 }
@@ -289,6 +290,85 @@ Meta OAuth 콜백 처리 후 계정을 저장합니다.
 ```json
 { "success": false, "error": "본인 계정만 해제할 수 있어요." }
 ```
+
+---
+
+### PUT /api/instagram/accounts/:id/auto-reply
+
+Phase 4-3: 리뷰(댓글) 자동 답글 사용 여부를 계정별로 켜고 끕니다.
+
+**인증:** 필요
+
+**Request Body:**
+```json
+{ "enabled": true }
+```
+
+**Response 200:**
+```json
+{ "success": true, "data": { "auto_reply_enabled": true } }
+```
+
+---
+
+### GET /api/instagram/accounts/:id/comments
+
+Phase 4-3: 최근 게시물 5개의 댓글을 Meta에서 가져와 로컬(`review_comments`)에 동기화하고, AI 제안 답글과 함께 목록으로 반환합니다.
+
+**인증:** 필요
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 10,
+      "media_id": "1784...",
+      "comment_text": "여기 진짜 맛있어요!",
+      "username": "customer_a",
+      "suggested_reply": "방문해주셔서 감사해요! 다음에 또 뵙길 바라요 :)",
+      "status": "pending",
+      "created_at": "2026-07-06T09:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### POST /api/instagram/comments/:id/reply
+
+승인(또는 수정)한 답글 내용을 실제로 Meta에 발행합니다. `:id`는 위 댓글 목록의 `id`(로컬 review_comments PK)입니다.
+
+**인증:** 필요
+
+**Request Body:**
+```json
+{ "message": "방문해주셔서 감사해요! 다음에 또 뵙길 바라요 :)" }
+```
+
+**Response 200:**
+```json
+{ "success": true, "data": { "success": true } }
+```
+
+---
+
+### POST /api/instagram/comments/:id/skip
+
+이 댓글은 답글을 달지 않고 건너뜁니다.
+
+**인증:** 필요
+
+**Response 200:**
+```json
+{ "success": true, "data": { "success": true } }
+```
+
+---
+
+**Meta 권한 참고 (Phase 4-2/4-3 추가):** 이 기능을 쓰려면 Meta 앱 대시보드의 "Facebook 로그인이 포함된 API 설정 > 권한 및 기능"에 `instagram_manage_insights`(인사이트), `instagram_manage_comments`(댓글 답글) 권한을 추가하고, 기존에 연동된 계정은 **다시 연동(재연결)**해야 새 권한이 반영된 토큰을 받습니다. (`MetaApiClient.getLoginUrl`의 scope 목록에 두 권한을 이미 추가해둠)
 
 ---
 
@@ -400,6 +480,7 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 | 파라미터 | 타입 | 기본값 | 설명 |
 |---------|------|--------|------|
 | `status` | string | 전체 | draft / scheduled / posted / failed |
+| `instagram_account_id` | int | 전체 계정 | Phase 4-1: 특정 계정의 게시물만 조회 |
 | `page` | int | 1 | 페이지 번호 |
 | `limit` | int | 20 | 페이지당 개수 |
 
@@ -411,9 +492,11 @@ Gemini API로 캡션과 해시태그를 생성합니다.
     "posts": [
       {
         "id": 42,
+        "instagram_account_id": 1,
         "image_url": "https://...",
         "caption": "오늘도 한 잔의...",
         "status": "posted",
+        "instagram_post_id": "17854360229135492",
         "posted_at": "2025-03-15T10:00:00Z",
         "scheduled_at": null
       }
@@ -423,6 +506,38 @@ Gemini API로 캡션과 해시태그를 생성합니다.
     "limit": 20
   }
 }
+```
+
+---
+
+### GET /api/posts/:id/insights
+
+Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수를 Meta에서 조회합니다.
+
+**인증:** 필요
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "engagement": 12,
+    "impressions": 340,
+    "reach": 210,
+    "like_count": 9,
+    "comments_count": 3
+  }
+}
+```
+
+**Error 400:**
+```json
+{ "success": false, "error": "인스타그램에 업로드된 게시물만 인사이트를 볼 수 있어요." }
+```
+
+**Error 500 (권한 미등록):**
+```json
+{ "success": false, "error": "인사이트를 불러오지 못했어요. 계정에 instagram_manage_insights 권한이 있는지 확인하고, 권한을 새로 추가했다면 설정에서 인스타그램 계정을 다시 연동해주세요." }
 ```
 
 ---
@@ -657,7 +772,11 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 
 **인증:** 필요 (Bearer Token)
 
-**요청 파라미터:** 없음
+**Query Parameters:**
+
+| 파라미터 | 타입 | 기본값 | 설명 |
+|---------|------|--------|------|
+| `instagram_account_id` | int | 전체 계정 합산 | Phase 4-1: 특정 계정만 집계 |
 
 **응답 예시:**
 
@@ -682,7 +801,12 @@ Gemini API로 캡션과 해시태그를 생성합니다.
       { "day": "Fri", "count": 6 },
       { "day": "Sat", "count": 1 }
     ],
-    "this_month_used": 5
+    "this_month_used": 5,
+    "follower_trend": [
+      { "date": "2026-06-07", "followers": 512 },
+      { "date": "2026-06-08", "followers": 515 },
+      "...(최근 30일 스냅샷)"
+    ]
   }
 }
 ```
@@ -700,12 +824,16 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 | `daily_pattern[].day` | string | "Sun" ~ "Sat" |
 | `daily_pattern[].count` | number | 해당 요일 업로드 완료 수 |
 | `this_month_used` | number | 이번 달 총 게시물 수 |
+| `follower_trend` | array | Phase 4-2: 최근 30일 팔로워 수 스냅샷 (매일 새벽 3시 `FollowerSnapshotScheduler`가 기록) |
+| `follower_trend[].date` | string | "YYYY-MM-DD" |
+| `follower_trend[].followers` | number | 해당 날짜 팔로워 수 (계정 미지정 시 전체 계정 합산) |
 
 **구현 참고:**
 - `monthly_uploads`: `YEAR(p.createdAt)`, `MONTH(p.createdAt)` grouping, 12개월 LinkedHashMap으로 빈 달 보정
 - `success_rate`: `PostStatus.posted / (posted + failed)` — 0건이면 0.0 반환
 - `scheduled_ratio`: `COUNT(DISTINCT sp.postId) / total_posts` — `ScheduledPostRepository` 활용
 - `daily_pattern`: MySQL `FUNCTION('DAYOFWEEK', p.postedAt)` (1=Sun ~ 7=Sat)
+- `follower_trend`: Meta Insights API는 팔로워 수 추이를 직접 제공하지 않아, 매일 현재 값을 `follower_snapshots` 테이블에 기록해 누적 (instagram_manage_insights 권한 필요 — 없는 계정은 스냅샷 실패, 로그만 남기고 계속 진행)
 
 ---
 
@@ -717,4 +845,5 @@ Gemini API로 캡션과 해시태그를 생성합니다.
 | v1.1 | 2026-06-27 | AI 캡션 생성 모델 ChatGPT → Gemini 변경 | @taedibear |
 | v1.2 | 2026-07-01 | 개발 서버 포트 4000 → 8080 (Spring Boot) / GET /api/auth/naver 구현 방식 Node.js/passport → Spring NaverOAuthClient.java 수정 / GET /api/instagram/connect 인증 방식 명시 (?token= 쿼리 파라미터) | @taedibear |
 | v1.3 | 2026-07-01 | GET /api/analytics/summary 신규 추가 (Phase 1-3 분석 대시보드) | @taedibear |
+| v1.4 | 2026-07-06 | Phase 4-1: GET /api/posts, GET /api/analytics/summary에 instagram_account_id 필터 추가 / Phase 4-2: GET /api/posts/:id/insights 신규, follower_trend 필드 추가 / Phase 4-3: GET /api/instagram/accounts/:id/comments, POST /api/instagram/comments/:id/reply, POST /api/instagram/comments/:id/skip, PUT /api/instagram/accounts/:id/auto-reply 신규, OAuth scope에 instagram_manage_insights·instagram_manage_comments 추가 | @taedibear |
 | v1.4 | 2026-07-05 | C4: POST /auth/refresh를 HttpOnly 쿠키 기반 refresh token 회전 방식으로 변경, logout 서버측 폐기 / C6: 소셜 콜백 `/auth?token=` → refresh 쿠키 + `/auth`, GET /instagram/connect 제거 → GET /instagram/connect-url 신규 | @taedibear |

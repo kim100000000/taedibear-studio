@@ -226,6 +226,17 @@ button {
 }
 
 .btn-primary {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
   background: var(--color-primary);
   color: #fff;
   transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
@@ -1255,6 +1266,18 @@ button {
 
 .history-card-body {
   flex: 1;
+}
+
+/* Phase 4-2: 게시물 인사이트 목록 */
+.post-insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .history-card-actions {

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -20,9 +21,11 @@ public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
 
+    // Phase 4-1: instagram_account_id 쿼리 파라미터로 계정별 통계 분리 조회 (없으면 전체 계정 합산)
     @GetMapping("/summary")
     public ApiResponse<AnalyticsSummaryResponse> getSummary(
-            @AuthenticationPrincipal UserPrincipal principal) {
-        return ApiResponse.ok(analyticsService.getSummary(principal.getId()));
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) Long instagram_account_id) {
+        return ApiResponse.ok(analyticsService.getSummary(principal.getId(), instagram_account_id));
     }
 }

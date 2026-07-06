@@ -14,6 +14,7 @@
     "history": "히스토리",
     "calendar": "캘린더",
     "analytics": "분석",
+    "reviews": "리뷰",
     "settings": "설정",
     "greeting": "{{name}}님"
   },
@@ -28,9 +29,18 @@
       "hint": "무료 플랜 · 월 10회 업로드 · 언제든 취소 가능"
     },
     "howTitle": "3단계로 끝나는 인스타그램 관리",
-    "step1": { "title": "사진 업로드", "desc": "오늘 찍은 사진을 드래그하거나 클릭해서 올려주세요." },
-    "step2": { "title": "AI 캡션 생성", "desc": "업종과 분위기를 선택하면 Gemini AI가 캡션과 해시태그를 만들어드려요." },
-    "step3": { "title": "자동 업로드", "desc": "지금 바로, 또는 원하는 시간에 인스타그램에 자동으로 올라가요." },
+    "step1": {
+      "title": "사진 업로드",
+      "desc": "오늘 찍은 사진을 드래그하거나 클릭해서 올려주세요."
+    },
+    "step2": {
+      "title": "AI 캡션 생성",
+      "desc": "업종과 분위기를 선택하면 Gemini AI가 캡션과 해시태그를 만들어드려요."
+    },
+    "step3": {
+      "title": "자동 업로드",
+      "desc": "지금 바로, 또는 원하는 시간에 인스타그램에 자동으로 올라가요."
+    },
     "mockGenerate": "✨ AI 캡션 생성",
     "mockCaptionText": "오늘도 따뜻한 하루 보내세요 ☕ 창가 자리에서 마시는 라떼 한 잔이 주는 여유...",
     "audience": {
@@ -50,7 +60,8 @@
     },
     "terms": "이용약관",
     "privacy": "개인정보처리방침",
-    "contact": "문의하기"
+    "contact": "문의하기",
+    "goDashboard": "대시보드로 가기"
   },
   "auth": {
     "login": {
@@ -165,6 +176,7 @@
     "err": {
       "generateFailed": "캡션 생성에 실패했어요.",
       "saveFailed": "저장에 실패했어요.",
+      "publishFailed": "인스타그램 업로드에 실패했어요. 히스토리에서 다시 시도해주세요.",
       "adFailed": "광고 시청에 실패했어요."
     },
     "businessTypes": {
@@ -222,6 +234,16 @@
     "empty": "게시물이 없어요.",
     "noCaption": "(캡션 없음)",
     "regenerate": "이 스타일로 다시 생성",
+    "accountFilterAll": "전체 계정",
+    "insights": "인사이트 보기",
+    "insightsModal": {
+      "title": "게시물 인사이트",
+      "engagement": "인게이지먼트",
+      "impressions": "조회수",
+      "reach": "도달",
+      "likeCount": "좋아요",
+      "commentsCount": "댓글"
+    },
     "modal": {
       "title": "게시물 삭제",
       "message": "이 게시물을 삭제할까요? 삭제하면 되돌릴 수 없어요."
@@ -232,7 +254,8 @@
       "deleted": "삭제했어요.",
       "deleteFailed": "삭제에 실패했어요.",
       "retried": "다시 업로드를 시도했어요.",
-      "retryFailed": "재시도에 실패했어요."
+      "retryFailed": "재시도에 실패했어요.",
+      "insightsFailed": "인사이트를 불러오지 못했어요."
     }
   },
   "settings": {
@@ -257,7 +280,12 @@
         "message": "이 인스타그램 계정 연동을 해제할까요?"
       },
       "disconnected": "연동을 해제했어요.",
-      "disconnectFailed": "해제에 실패했어요."
+      "disconnectFailed": "해제에 실패했어요.",
+      "autoReplyLabel": "리뷰 자동 답글",
+      "autoReplyOn": "자동 발행",
+      "autoReplyOff": "승인 후 발행",
+      "autoReplyChanged": "리뷰 답글 설정을 변경했어요.",
+      "autoReplyChangeFailed": "설정 변경에 실패했어요."
     },
     "account": {
       "title": "계정 관리",
@@ -296,12 +324,21 @@
     "free": {
       "name": "Free",
       "price": "₩0",
-      "features": ["월 10회 업로드", "인스타그램 1개 계정 연동", "AI 캡션 생성 (기본)"]
+      "features": [
+        "월 10회 업로드",
+        "인스타그램 1개 계정 연동",
+        "AI 캡션 생성 (기본)"
+      ]
     },
     "pro": {
       "name": "Pro",
       "price": "₩9,900",
-      "features": ["업로드 무제한", "인스타그램 다중 계정 연동", "AI 캡션 생성 (고급)", "예약 업로드 우선 처리"]
+      "features": [
+        "업로드 무제한",
+        "인스타그램 다중 계정 연동",
+        "AI 캡션 생성 (고급)",
+        "예약 업로드 우선 처리"
+      ]
     }
   },
   "onboarding": {
@@ -346,7 +383,27 @@
     "failed": "실패",
     "scheduled": "예약",
     "immediate": "즉시",
-    "noData": "아직 데이터가 없어요."
+    "noData": "아직 데이터가 없어요.",
+    "accountFilterAll": "전체 계정",
+    "followerTrendTitle": "팔로워 증가 추이 (최근 30일)",
+    "followers": "팔로워"
+  },
+  "reviews": {
+    "title": "리뷰 관리",
+    "accountFilterAll": "계정을 선택해주세요",
+    "empty": "아직 댓글이 없어요.",
+    "suggestedReply": "AI 제안 답글",
+    "send": "답글 보내기",
+    "skip": "건너뛰기",
+    "replied": "답글 완료",
+    "skipped": "건너뜀",
+    "toast": {
+      "replySuccess": "답글을 발행했어요.",
+      "replyFailed": "답글 발행에 실패했어요.",
+      "skipSuccess": "건너뛰었어요.",
+      "skipFailed": "처리에 실패했어요.",
+      "loadFailed": "댓글을 불러오지 못했어요."
+    }
   },
   "editor": {
     "title": "이미지 편집",
@@ -377,7 +434,15 @@
     }
   },
   "calendar": {
-    "weekdays": ["일", "월", "화", "수", "목", "금", "토"],
+    "weekdays": [
+      "일",
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토"
+    ],
     "prev": "이전 달",
     "next": "다음 달",
     "legend": {

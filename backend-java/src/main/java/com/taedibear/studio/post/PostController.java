@@ -66,14 +66,15 @@ public class PostController {
 		return org.springframework.http.ResponseEntity.status(201).body(body);
 	}
 
-	// GET /api/posts — 히스토리 조회
+	// GET /api/posts — 히스토리 조회 (Phase 4-1: instagram_account_id로 계정별 필터링)
 	@GetMapping
 	public ApiResponse<PostListResponse> listPosts(
 			@AuthenticationPrincipal UserPrincipal principal,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false) Long instagram_account_id,
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "20") int limit) {
-		return ApiResponse.ok(postService.listPosts(principal.getId(), status, page, limit));
+		return ApiResponse.ok(postService.listPosts(principal.getId(), status, instagram_account_id, page, limit));
 	}
 
 	// GET /api/posts/:id
@@ -107,5 +108,12 @@ public class PostController {
 			@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long id) {
 		var result = instagramPublishService.publishNow(id, principal.getId());
 		return ApiResponse.ok(Map.of("instagram_post_id", result.instagramPostId(), "posted_at", result.postedAt()));
+	}
+
+	// GET /api/posts/:id/insights — Phase 4-2: 게시물 조회수/좋아요/저장 등 인사이트
+	@GetMapping("/{id}/insights")
+	public ApiResponse<PostInsightsResponse> getPostInsights(
+			@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long id) {
+		return ApiResponse.ok(postService.getPostInsights(id, principal.getId()));
 	}
 }

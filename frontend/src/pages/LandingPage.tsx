@@ -2,10 +2,12 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from '../components/ThemeToggle';
 import LangToggle from '../components/LangToggle';
+import { useAuth } from '../context/AuthContext';
 
 // P-01 랜딩 페이지 (Phase 2-4 완성판) — docs/03_화면설계서.md
 export default function LandingPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const freeFeatures: string[] = t('plan.free.features', { returnObjects: true }) as string[];
   const proFeatures: string[] = t('plan.pro.features', { returnObjects: true }) as string[];
@@ -18,9 +20,16 @@ export default function LandingPage() {
         <div className="landing-header-actions">
           <LangToggle />
           <ThemeToggle />
-          <Link to="/login" className="btn-outline landing-login-btn">
-            {t('landing.login')}
-          </Link>
+          {/* 로그인 상태면 로그인 버튼 대신 대시보드로 안내 */}
+          {user ? (
+            <Link to="/dashboard" className="btn-primary landing-login-btn">
+              {t('landing.goDashboard')}
+            </Link>
+          ) : (
+            <Link to="/login" className="btn-outline landing-login-btn">
+              {t('landing.login')}
+            </Link>
+          )}
         </div>
       </header>
 

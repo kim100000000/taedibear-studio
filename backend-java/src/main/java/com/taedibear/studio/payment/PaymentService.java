@@ -136,7 +136,7 @@ public class PaymentService {
     public UsageResponse getUsage(Long userId) {
         User user = getUser(userId);
         LocalDate today = LocalDate.now();
-        long used = postRepository.countThisMonth(userId, today.getYear(), today.getMonthValue());
+        long used = postRepository.countThisMonth(userId, null, today.getYear(), today.getMonthValue());
 
         // 다음 달 1일
         LocalDateTime resetAt = YearMonth.now().plusMonths(1)
@@ -161,7 +161,7 @@ public class PaymentService {
         if (user.getPlan() == Plan.pro) return;
 
         LocalDate today = LocalDate.now();
-        long used = postRepository.countThisMonth(userId, today.getYear(), today.getMonthValue());
+        long used = postRepository.countThisMonth(userId, null, today.getYear(), today.getMonthValue());
         if (used >= FREE_LIMIT) {
             throw ApiException.forbidden("이번 달 무료 업로드 " + FREE_LIMIT + "회를 모두 사용했어요. Pro 플랜으로 업그레이드하면 무제한으로 업로드할 수 있어요.");
         }

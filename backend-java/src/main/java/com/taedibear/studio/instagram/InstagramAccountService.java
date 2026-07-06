@@ -32,8 +32,17 @@ public class InstagramAccountService {
 
 	public List<InstagramAccountResponse> listAccounts(Long userId) {
 		return instagramAccountRepository.findAllByUserId(userId).stream()
-				.map(a -> new InstagramAccountResponse(a.getId(), a.getInstagramUserId(), a.getUsername(), a.getConnectedAt()))
+				.map(a -> new InstagramAccountResponse(
+						a.getId(), a.getInstagramUserId(), a.getUsername(), a.getConnectedAt(), a.isAutoReplyEnabled()))
 				.toList();
+	}
+
+	// Phase 4-3: 리뷰 자동 답글 사용 여부 토글 (계정별)
+	@Transactional
+	public void setAutoReplyEnabled(Long accountId, Long userId, boolean enabled) {
+		InstagramAccount account = instagramAccountRepository.findByIdAndUserId(accountId, userId)
+				.orElseThrow(() -> ApiException.notFound("계정을 찾을 수 없어요."));
+		account.setAutoReplyEnabled(enabled);
 	}
 
 	@Transactional

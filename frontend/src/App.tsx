@@ -12,6 +12,7 @@ import HistoryPage from './pages/HistoryPage';
 import CalendarPage from './pages/CalendarPage';
 import ImageEditorPage from './pages/ImageEditorPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import ReviewsPage from './pages/ReviewsPage';
 import SettingsPage from './pages/SettingsPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
@@ -97,6 +98,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <AnalyticsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reviews"
+        element={
+          <ProtectedRoute>
+            <ReviewsPage />
           </ProtectedRoute>
         }
       />

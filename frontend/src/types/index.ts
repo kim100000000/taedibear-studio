@@ -21,6 +21,8 @@ export interface InstagramAccount {
   username: string;
   instagram_user_id?: string;
   connected_at?: string;
+  // Phase 4-3: 리뷰 자동 답글 사용 여부
+  auto_reply_enabled?: boolean;
 }
 
 export interface Post {

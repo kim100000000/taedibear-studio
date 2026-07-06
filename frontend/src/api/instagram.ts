@@ -13,3 +13,7 @@ export const disconnectInstagramAccount = (id: number) =>
 // window.location으로 이동한다. (기존: JWT를 ?token= 쿼리로 노출하던 방식 제거)
 export const getInstagramConnectUrl = () =>
   apiClient.get<ApiResponse<{ url: string }>>('/api/instagram/connect-url');
+
+// PUT /api/instagram/accounts/:id/auto-reply — Phase 4-3: 리뷰 자동 답글 사용 여부 토글
+export const setAutoReply = (id: number, enabled: boolean) =>
+  apiClient.put<ApiResponse<{ auto_reply_enabled: boolean }>>(`/api/instagram/accounts/${id}/auto-reply`, { enabled });

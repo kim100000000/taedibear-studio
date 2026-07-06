@@ -30,9 +30,11 @@ public interface ScheduledPostRepository extends JpaRepository<ScheduledPost, Lo
 	Optional<ScheduledPost> findByIdAndPostUserId(@Param("id") Long id, @Param("userId") Long userId);
 
 	// Analytics: 사용자의 게시물 중 예약이 걸렸던 post 수 (중복 제거)
+	// Phase 4-1: accountId(nullable) 필터 추가 — null이면 전체 계정 합산
 	@Query("select count(distinct sp.postId) from ScheduledPost sp where sp.postId in " +
-			"(select p.id from Post p where p.userId = :userId)")
-	long countScheduledPostsByUserId(@Param("userId") Long userId);
+			"(select p.id from Post p where p.userId = :userId " +
+			"and (:accountId is null or p.instagramAccountId = :accountId))")
+	long countScheduledPostsByUserId(@Param("userId") Long userId, @Param("accountId") Long accountId);
 
 	// Phase 2-3 관리자 리포트: 날짜 범위 내 상태별 건수
 	long countByStatusAndScheduledAtBetween(ScheduleStatus status, LocalDateTime from, LocalDateTime to);

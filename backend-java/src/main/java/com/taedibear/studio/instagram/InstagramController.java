@@ -89,4 +89,15 @@ public class InstagramController {
 		instagramAccountService.disconnect(id, principal.getId());
 		return Map.of("success", true);
 	}
+
+	// PUT /api/instagram/accounts/:id/auto-reply — Phase 4-3: 리뷰 자동 답글 사용 여부 토글
+	@PutMapping("/accounts/{id}/auto-reply")
+	public ApiResponse<Map<String, Boolean>> setAutoReply(
+			@AuthenticationPrincipal UserPrincipal principal,
+			@PathVariable Long id,
+			@RequestBody Map<String, Boolean> body) {
+		boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
+		instagramAccountService.setAutoReplyEnabled(id, principal.getId(), enabled);
+		return ApiResponse.ok(Map.of("auto_reply_enabled", enabled));
+	}
 }

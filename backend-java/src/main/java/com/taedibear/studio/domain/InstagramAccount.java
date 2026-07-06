@@ -40,6 +40,11 @@ public class InstagramAccount {
 	@Column(name = "token_expires_at")
 	private LocalDateTime tokenExpiresAt;
 
+	// Phase 4-3: 리뷰(댓글) 답글을 Gemini가 자동으로 발행할지, 사용자 승인 후 발행할지 설정
+	@Column(name = "auto_reply_enabled", nullable = false)
+	@Builder.Default
+	private boolean autoReplyEnabled = false;
+
 	@CreationTimestamp
 	@Column(name = "connected_at", updatable = false)
 	private LocalDateTime connectedAt;

@@ -8,7 +8,7 @@ import Toast from '../components/Toast';
 import PlanSection from '../components/PlanSection';
 import { useAuth } from '../context/AuthContext';
 import { updateMe, deleteAccount } from '../api/users';
-import { listInstagramAccounts, disconnectInstagramAccount, getInstagramConnectUrl } from '../api/instagram';
+import { listInstagramAccounts, disconnectInstagramAccount, getInstagramConnectUrl, setAutoReply } from '../api/instagram';
 import type { InstagramAccount, ToastData } from '../types';
 
 // P-10 설정 (docs/03_화면설계서.md)
@@ -74,6 +74,18 @@ export default function SettingsPage() {
       setToast({ type: 'error', message: err.response?.data?.error || t('settings.profile.saveFailed') });
     } finally {
       setSavingName(false);
+    }
+  };
+
+  // Phase 4-3: 계정별 리뷰 자동 답글 사용 여부 토글
+  const toggleAutoReply = async (account: InstagramAccount) => {
+    const next = !account.auto_reply_enabled;
+    try {
+      await setAutoReply(account.id, next);
+      setAccounts((prev) => prev.map((a) => (a.id === account.id ? { ...a, auto_reply_enabled: next } : a)));
+      setToast({ type: 'success', message: t('settings.instagram.autoReplyChanged') });
+    } catch (err: any) {
+      setToast({ type: 'error', message: err.response?.data?.error || t('settings.instagram.autoReplyChangeFailed') });
     }
   };
 
@@ -147,6 +159,17 @@ export default function SettingsPage() {
               {accounts.map((acc) => (
                 <li key={acc.id} className="account-list-item">
                   <span>@{acc.username}</span>
+                  <button
+                    type="button"
+                    className="btn-outline"
+                    title={t('settings.instagram.autoReplyLabel')}
+                    onClick={() => toggleAutoReply(acc)}
+                  >
+                    {t('settings.instagram.autoReplyLabel')}:{' '}
+                    {acc.auto_reply_enabled
+                      ? t('settings.instagram.autoReplyOn')
+                      : t('settings.instagram.autoReplyOff')}
+                  </button>
                   <button
                     type="button"
                     className="btn-danger"
