@@ -25,7 +25,7 @@ public class UserController {
 	@GetMapping("/me")
 	public ApiResponse<MeResponse> me(@AuthenticationPrincipal UserPrincipal principal) {
 		User user = userService.getById(principal.getId());
-		return ApiResponse.ok(MeResponse.from(user));
+		return ApiResponse.ok(MeResponse.from(user, principal.isAdmin()));
 	}
 
 	// GET /api/users/me/usage — 플랜 + 이번 달 사용량 (Phase 2-1)

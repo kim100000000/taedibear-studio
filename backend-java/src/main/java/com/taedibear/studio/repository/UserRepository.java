@@ -1,17 +1,32 @@
 package com.taedibear.studio.repository;
 
+import com.taedibear.studio.domain.Plan;
 import com.taedibear.studio.domain.User;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
+
+	// ── Phase 5-1 관리자 대시보드 ────────────────────────────────────────────
+	/** 특정 시점 이후 가입한 유저 수 (최근 7일/30일 지표) */
+	long countByCreatedAtAfter(LocalDateTime since);
+
+	/** 플랜별 유저 수 (free/pro 분포) */
+	long countByPlan(Plan plan);
+
+	/** 이메일/이름 검색 (관리자 유저 목록) */
+	Page<User> findByEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+			String email, String name, Pageable pageable);
 
 	Optional<User> findByGoogleId(String googleId);
 

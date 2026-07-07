@@ -16,7 +16,8 @@
     "analytics": "분석",
     "reviews": "리뷰",
     "settings": "설정",
-    "greeting": "{{name}}님"
+    "greeting": "{{name}}님",
+    "admin": "관리자"
   },
   "landing": {
     "login": "로그인",
@@ -489,5 +490,35 @@
   },
   "protected": {
     "checkingLogin": "로그인 확인 중..."
+  },
+  "admin": {
+    "title": "관리자 대시보드",
+    "summaryTitle": "전체 현황",
+    "totalUsers": "전체 유저",
+    "newUsers7d": "최근 7일 가입",
+    "planSplit": "Free / Pro",
+    "totalPosts": "전체 게시물",
+    "pendingSchedules": "대기 중 예약",
+    "failedSchedules": "실패한 예약",
+    "monthRevenue": "이번 달 매출",
+    "activePro": "유효 Pro 구독",
+    "usersTitle": "유저 목록",
+    "paymentsTitle": "결제 내역",
+    "searchPlaceholder": "이메일 또는 이름 검색",
+    "search": "검색",
+    "noUsers": "유저가 없어요.",
+    "noPayments": "결제 내역이 없어요.",
+    "colName": "이름",
+    "colEmail": "이메일",
+    "colPlan": "플랜",
+    "colCredits": "크레딧",
+    "colPosts": "게시물",
+    "colJoined": "가입일",
+    "colAmount": "금액",
+    "colStatus": "상태",
+    "colValidUntil": "구독 만료",
+    "colPaidAt": "결제일",
+    "prev": "이전",
+    "next": "다음"
   }
 }

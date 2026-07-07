@@ -50,6 +50,8 @@ public class SecurityConfig {
 						// C6: /callback은 Meta가 브라우저 리다이렉트로 호출 — state nonce로 사용자를 복원하므로 permitAll.
 						// (기존 /connect?token= 엔드포인트는 제거됨 — /connect-url 은 일반 JWT 인증을 탄다)
 						.requestMatchers("/api/instagram/callback").permitAll()
+						// Phase 5-1: 관리자 대시보드 — ADMIN_EMAIL 계정만 접근 가능
+						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

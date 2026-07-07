@@ -78,6 +78,17 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	// Phase 2-3 관리자 리포트: 날짜 범위 내 posted 상태 건수 (재시도 성공 카운트용)
 	long countByStatusAndPostedAtBetween(PostStatus status, LocalDateTime from, LocalDateTime to);
 
+	// ── Phase 5-1 관리자 대시보드 ────────────────────────────────────────────
+	/** 특정 시점 이후 생성된 게시물 수 (최근 7일/30일 지표) */
+	long countByCreatedAtAfter(LocalDateTime since);
+
+	/** 전체 상태별 게시물 수 (posted/failed 등 전 유저 합산) */
+	long countByStatus(PostStatus status);
+
+	/** 유저 목록 페이지에 표시할 유저별 게시물 수: [userId, count] */
+	@Query("SELECT p.userId, COUNT(p) FROM Post p WHERE p.userId IN :userIds GROUP BY p.userId")
+	List<Object[]> countGroupByUserIds(@Param("userIds") List<Long> userIds);
+
 	// 회원 탈퇴: 사용자의 모든 게시물 삭제 (scheduled_posts 삭제 후, instagram_accounts 삭제 전)
 	@Modifying
 	@Query("delete from Post p where p.userId = :userId")

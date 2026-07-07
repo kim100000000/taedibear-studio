@@ -10,39 +10,32 @@
 
 ## 📌 현재 개발 상태
 
-- ✅ 백엔드 API 완료 — 인증(이메일/구글/카카오/네이버), 이미지 업로드, Gemini AI 캡션 생성, 게시물 CRUD, 예약 업로드(cron)
+- ✅ 백엔드 API 완료 — 인증(이메일/구글/카카오/네이버), 이미지 업로드, Gemini AI 캡션 생성, 게시물 CRUD, 예약 업로드, 크레딧 시스템
 - ✅ 프론트엔드 핵심 기능 완료 — 로그인/회원가입, 대시보드, 업로드→캡션→예약→완료 플로우, 히스토리, 설정
-- 🔨 Meta(인스타그램) 실제 연동 테스트 진행 중 — 코드는 완료, Meta 개발자 계정 인증 대기 중
-- 🚀 배포 예정 (Vercel + Railway)
+- ✅ Meta(인스타그램) 실연동 및 실제 업로드 확인 완료
+- ✅ 배포 완료 — Vercel(프론트) + Railway(백엔드)
+- 🔨 Phase 4 (멀티 계정 / 분석 고도화 / 리뷰 자동 답글) 코드 작성 완료, 실사용 테스트 진행 중
 
 ## 기술 스택
 
 - 프론트엔드: React (Vite, TypeScript) — Vercel 배포
-- 백엔드: Node.js + Express — Railway 배포 (Java/Spring Boot 버전은 `backend-java/` 참고, 동일한 API 명세를 따르는 대체 구현)
-- DB: MySQL (Sequelize ORM / 백엔드-Java는 Spring Data JPA)
-- 인증: JWT + Passport.js (Local / JWT / Google / Kakao 전략, Naver는 axios 기반 수동 구현)
+- 백엔드: Java 17 + Spring Boot 3.x — Railway 배포
+- DB: MySQL (Spring Data JPA)
+- 인증: JWT + OAuth2 (이메일 / 구글 / 카카오 / 네이버)
 - AI: Google Gemini API (gemini-2.5-flash)
 - SNS 연동: Meta Graph API (Facebook Page에 연결된 Instagram Business 계정)
-- 예약 업로드: node-cron (Java 버전은 Spring `@Scheduled`)
+- 예약 업로드: Spring `@Scheduled`
+
+> 초기에는 Node.js + Express로 구현했고, 이후 Spring Boot로 전면 재구현하며 전환했습니다. Node.js 버전은 git 태그 `backend-node-final`에서 확인할 수 있습니다.
 
 ## 폴더 구조
 
 ```
 taedibear-studio/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # DB(Sequelize), Passport 전략 설정
-│   │   ├── controllers/     # auth, user, instagram, posts, scheduled
-│   │   ├── middleware/      # JWT 인증 가드, 에러 핸들러
-│   │   ├── models/          # User, InstagramAccount, Post, ScheduledPost
-│   │   ├── routes/          # Express 라우터
-│   │   ├── services/        # gemini, meta, naver, cron
-│   │   └── server.js        # 앱 진입점
+├── backend-java/             # Spring Boot 백엔드 (운영)
+│   ├── src/main/java/...     # controller / service / domain / repository / config
 │   ├── .env.example
-│   ├── package.json
-│   ├── Procfile
-│   └── railway.json
-├── backend-java/             # Spring Boot로 재구현한 백엔드 (backend/와 동일한 API 명세, 참고용 README 포함)
+│   └── build.gradle
 ├── frontend/
 │   ├── src/
 │   │   ├── api/             # axios 클라이언트 + API 함수 (TypeScript)
@@ -54,18 +47,17 @@ taedibear-studio/
 │   │   ├── App.tsx
 │   │   └── main.tsx
 │   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
 │   └── vercel.json
 ├── docs/                    # 기획서/명세서/설계서/트러블슈팅 문서
+├── nixpacks.toml            # Railway 빌드 설정 (backend-java)
 └── .gitignore
 ```
 
 ## 로컬 개발 시작하기
 
 ### 사전 준비
-- Node.js 18+
+- JDK 17
+- Node.js 18+ (프론트엔드)
 - 로컬 또는 클라우드 MySQL 인스턴스
 - Google Gemini API Key
 - Google / Kakao / Naver OAuth 앱 키
@@ -74,10 +66,9 @@ taedibear-studio/
 ### 백엔드
 
 ```bash
-cd backend
+cd backend-java
 cp .env.example .env   # 값 채우기
-npm install
-npm run dev             # http://localhost:4000
+./gradlew bootRun       # http://localhost:4000
 ```
 
 ### 프론트엔드
@@ -105,21 +96,17 @@ npm run dev             # http://localhost:5173
 | POST | /api/posts/caption | Gemini로 캡션/해시태그 생성 |
 | POST, GET, PUT, DELETE | /api/posts | 게시물 CRUD |
 | POST | /api/posts/:id/publish | 즉시 발행 |
-| POST, GET, PUT, DELETE | /api/scheduled | 예약 업로드 등록/조회/수정/삭제 (cron이 1분마다 처리) |
+| GET | /api/posts/:id/insights | 게시물 인사이트 (조회수/좋아요/저장) |
+| POST, GET, PUT, DELETE | /api/scheduled | 예약 업로드 등록/조회/수정/삭제 |
 
 ## 배포
 
 - 프론트엔드: Vercel — `frontend/` 디렉토리를 프로젝트 루트로 지정, `vercel.json` 포함
-- 백엔드: Railway — `backend/` 디렉토리, `railway.json` / `Procfile` 포함, 환경변수는 Railway 대시보드에서 설정
+- 백엔드: Railway — 레포 루트의 `nixpacks.toml`이 `backend-java/`를 빌드·실행, 환경변수는 Railway 대시보드에서 설정
 
 ## 🚀 Roadmap
 
-현재 가장 큰 걸림돌은 Meta 연동입니다. 코드는 모두 완성했지만, 개발자 계정 인증 문제로 실제 연동 테스트를 진행하지 못하고 있습니다. 이 부분만 해결되면 바로 연동을 확인한 뒤, 다음 순서대로 프로젝트를 진행할 계획입니다.
-
-1. Meta 앱 등록 완료 및 실제 연동 테스트
-2. Kakao/Naver 앱 키 발급 및 로그인 테스트
-3. 운영 환경을 위한 마이그레이션 정리
-4. 테스트 코드 보강
-5. 프론트엔드 및 백엔드 배포
-
-진행 과정에서 예상치 못한 문제가 생기면 위 순서는 조금씩 바뀔 수 있습니다.
+1. Phase 4 실사용 테스트 — 계정 재연동 후 팔로워 추이 / 인사이트 / 리뷰 자동 답글 검증
+2. Meta 앱 심사(App Review) — 일반 사용자도 인스타그램 연동 가능하도록 Advanced Access 획득
+3. 수익화 — Google AdSense + Pro 구독(토스페이먼츠) 연동
+4. Phase 5 — 관리자 대시보드, 콘텐츠 추천, 팀 계정

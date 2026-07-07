@@ -16,7 +16,8 @@
     "analytics": "Analytics",
     "reviews": "Reviews",
     "settings": "Settings",
-    "greeting": "Hi, {{name}}"
+    "greeting": "Hi, {{name}}",
+    "admin": "Admin"
   },
   "landing": {
     "login": "Log in",
@@ -489,5 +490,35 @@
   },
   "protected": {
     "checkingLogin": "Checking login..."
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "summaryTitle": "Overview",
+    "totalUsers": "Total users",
+    "newUsers7d": "New (7 days)",
+    "planSplit": "Free / Pro",
+    "totalPosts": "Total posts",
+    "pendingSchedules": "Pending schedules",
+    "failedSchedules": "Failed schedules",
+    "monthRevenue": "Revenue (this month)",
+    "activePro": "Active Pro subs",
+    "usersTitle": "Users",
+    "paymentsTitle": "Payments",
+    "searchPlaceholder": "Search by email or name",
+    "search": "Search",
+    "noUsers": "No users found.",
+    "noPayments": "No payments yet.",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colPlan": "Plan",
+    "colCredits": "Credits",
+    "colPosts": "Posts",
+    "colJoined": "Joined",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "colValidUntil": "Valid until",
+    "colPaidAt": "Paid at",
+    "prev": "Prev",
+    "next": "Next"
   }
 }

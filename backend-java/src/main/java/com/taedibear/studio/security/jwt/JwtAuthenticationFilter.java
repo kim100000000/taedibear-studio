@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
+
+	// Phase 5-1: 관리자 판별 — ADMIN_EMAIL 환경변수(app.mail.admin)와 이메일 일치 여부.
+	// DB 컬럼 없이 운영자 1인을 지정하는 가장 단순한 방식. 비어 있으면 관리자가 없다.
+	@Value("${app.mail.admin:}")
+	private String adminEmail;
 
 	@Override
 	protected void doFilterInternal(
@@ -36,7 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				Long userId = jwtTokenProvider.getUserId(claims);
 				String email = claims.get("email", String.class);
 
-				UserPrincipal principal = new UserPrincipal(userId, email);
+				boolean isAdmin = adminEmail != null && !adminEmail.isBlank()
+						&& adminEmail.equalsIgnoreCase(email);
+				UserPrincipal principal = new UserPrincipal(userId, email, isAdmin);
 				UsernamePasswordAuthenticationToken authentication =
 						new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 				SecurityContextHolder.getContext().setAuthentication(authentication);

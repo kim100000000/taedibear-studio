@@ -39,6 +39,9 @@ public interface ScheduledPostRepository extends JpaRepository<ScheduledPost, Lo
 	// Phase 2-3 관리자 리포트: 날짜 범위 내 상태별 건수
 	long countByStatusAndScheduledAtBetween(ScheduleStatus status, LocalDateTime from, LocalDateTime to);
 
+	// Phase 5-1 관리자 대시보드: 전체 상태별 예약 건수 (대기/실패 현황)
+	long countByStatus(ScheduleStatus status);
+
 	// 회원 탈퇴: 사용자 소유 게시물에 연결된 예약 전체 삭제 (posts보다 먼저 삭제되어야 FK 위반 방지)
 	@Modifying
 	@Query("delete from ScheduledPost sp where sp.postId in " +

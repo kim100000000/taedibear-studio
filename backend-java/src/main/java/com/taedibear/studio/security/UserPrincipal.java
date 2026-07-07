@@ -19,10 +19,17 @@ public class UserPrincipal implements UserDetails {
 
 	private final Long id;
 	private final String email;
+	// Phase 5-1: 관리자 여부 — ADMIN_EMAIL 환경변수와 이메일이 일치하면 true
+	private final boolean admin;
 
 	public UserPrincipal(Long id, String email) {
+		this(id, email, false);
+	}
+
+	public UserPrincipal(Long id, String email, boolean admin) {
 		this.id = id;
 		this.email = email;
+		this.admin = admin;
 	}
 
 	public static UserPrincipal from(User user) {
@@ -31,6 +38,9 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if (admin) {
+			return List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_ADMIN"));
+		}
 		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 

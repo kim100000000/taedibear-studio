@@ -14,6 +14,7 @@ import ImageEditorPage from './pages/ImageEditorPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import ReviewsPage from './pages/ReviewsPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminPage from './pages/AdminPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import TermsPage from './pages/TermsPage';
@@ -114,6 +115,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Phase 5-1: 관리자 대시보드 — 프론트 가드는 AdminPage 내부, 실제 차단은 백엔드 ROLE_ADMIN */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminPage />
           </ProtectedRoute>
         }
       />

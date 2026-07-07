@@ -737,10 +737,13 @@ Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수�
     "name": "김성태",
     "email": "taedibear@email.com",
     "plan": "free",
-    "created_at": "2025-03-01T10:00:00Z"
+    "created_at": "2025-03-01T10:00:00Z",
+    "is_admin": false
   }
 }
 ```
+
+> Phase 5-1: `is_admin` — `ADMIN_EMAIL` 환경변수와 이메일이 일치하는 계정만 `true`. 프론트는 이 값으로 관리자 메뉴 노출 여부를 결정한다.
 
 ---
 
@@ -837,7 +840,89 @@ Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수�
 
 ---
 
-## 7. 변경 이력
+## 7. 관리자 API (`/api/admin`) — Phase 5-1
+
+> **인증:** 필요 + **관리자 전용.** JWT 이메일이 `ADMIN_EMAIL` 환경변수와 일치하는 계정만 접근 가능 (`ROLE_ADMIN`, SecurityConfig에서 `/api/admin/**` 전체 보호). 그 외 계정은 **403**.
+
+---
+
+### GET /api/admin/summary
+
+전체 유저/게시물/예약/매출 요약 지표.
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "users": { "total": 120, "new_7d": 8, "new_30d": 31, "free": 110, "pro": 10 },
+    "posts": { "total": 950, "posted": 800, "failed": 12, "new_7d": 60 },
+    "schedules": { "pending": 14, "failed": 3 },
+    "revenue": { "month_revenue": 99000, "active_pro": 10 }
+  }
+}
+```
+
+| 필드 | 설명 |
+|------|------|
+| `users.new_7d/new_30d` | 최근 7일/30일 가입자 수 |
+| `revenue.month_revenue` | 이번 달 1일 이후 PAID 결제 합계 (원) |
+| `revenue.active_pro` | 현재 유효한 Pro 구독 수 (PAID && valid_until > now) |
+
+---
+
+### GET /api/admin/users
+
+유저 목록 (가입일 내림차순).
+
+**Query Parameters:**
+
+| 파라미터 | 타입 | 기본값 | 설명 |
+|---------|------|--------|------|
+| `page` | int | 0 | 0-base 페이지 번호 |
+| `size` | int | 20 | 페이지 크기 (최대 100) |
+| `search` | string | - | 이메일 또는 이름 부분 일치 검색 |
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      { "id": 1, "name": "김성태", "email": "a@b.com", "plan": "pro",
+        "credits": 7, "post_count": 42, "created_at": "2026-06-01T10:00:00" }
+    ],
+    "page": 0, "size": 20, "total": 120, "total_pages": 6
+  }
+}
+```
+
+---
+
+### GET /api/admin/payments
+
+결제 내역 (최신순). `page`/`size` 파라미터는 users와 동일.
+
+**Response 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      { "id": 3, "user_id": 1, "user_email": "a@b.com", "order_id": "uuid",
+        "amount": 9900, "status": "PAID",
+        "valid_until": "2026-08-01T10:00:00", "created_at": "2026-07-02T10:00:00" }
+    ],
+    "page": 0, "size": 20, "total": 15, "total_pages": 1
+  }
+}
+```
+
+> 탈퇴한 유저의 결제는 `user_email: "(탈퇴)"`로 표시 (결제 내역은 탈퇴 후에도 보관).
+
+---
+
+## 8. 변경 이력
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|----------|--------|
@@ -847,3 +932,4 @@ Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수�
 | v1.3 | 2026-07-01 | GET /api/analytics/summary 신규 추가 (Phase 1-3 분석 대시보드) | @taedibear |
 | v1.4 | 2026-07-06 | Phase 4-1: GET /api/posts, GET /api/analytics/summary에 instagram_account_id 필터 추가 / Phase 4-2: GET /api/posts/:id/insights 신규, follower_trend 필드 추가 / Phase 4-3: GET /api/instagram/accounts/:id/comments, POST /api/instagram/comments/:id/reply, POST /api/instagram/comments/:id/skip, PUT /api/instagram/accounts/:id/auto-reply 신규, OAuth scope에 instagram_manage_insights·instagram_manage_comments 추가 | @taedibear |
 | v1.4 | 2026-07-05 | C4: POST /auth/refresh를 HttpOnly 쿠키 기반 refresh token 회전 방식으로 변경, logout 서버측 폐기 / C6: 소셜 콜백 `/auth?token=` → refresh 쿠키 + `/auth`, GET /instagram/connect 제거 → GET /instagram/connect-url 신규 | @taedibear |
+| v1.5 | 2026-07-06 | Phase 5-1: 관리자 API 신규 (GET /api/admin/summary·users·payments, ADMIN_EMAIL 기반 ROLE_ADMIN) / GET /api/users/me 응답에 is_admin 추가 | @taedibear |

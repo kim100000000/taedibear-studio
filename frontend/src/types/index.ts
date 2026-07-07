@@ -1,5 +1,5 @@
 // docs/04_DB설계서.md / docs/05_API명세서.md 기준 공통 타입.
-// 백엔드(Node, Java 둘 다) 응답의 필드명(snake_case)을 그대로 따른다.
+// 백엔드 응답의 필드명(snake_case)을 그대로 따른다.
 
 export type PostStatus = 'draft' | 'scheduled' | 'posted' | 'failed';
 export type ScheduleStatus = 'pending' | 'done' | 'failed';
@@ -14,6 +14,8 @@ export interface User {
   mood?: string | null;
   // Phase 2-1: 크레딧
   credits?: number;
+  // Phase 5-1: 관리자 여부 (ADMIN_EMAIL 계정만 true)
+  is_admin?: boolean;
 }
 
 export interface InstagramAccount {
