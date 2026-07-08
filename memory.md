@@ -3,6 +3,18 @@
 > 사용법: 세션이 끝날 때마다 "오늘 한 일 / 결정한 것 / 다음 할 일"을 여기에 추가.
 > Claude에게 "memory.md 읽고 이어서 하자"라고 하면 맥락이 이어짐.
 
+## 2026-07-08
+- 한 일:
+  - 버그 진단: `POST /api/posts/caption` 500 에러 — Railway 스택트레이스로 `GeminiService.downloadImage()`에서 터지는 것 확인. `S3Service.uploadImage()`가 객체를 public-read로 안 올리는데, `GeminiService`가 업로드된 이미지를 다시 받아올 때 인증 없는 공개 URL GET을 시도해서(버킷 비공개 시) S3 403 → 처리되지 않은 예외로 500.
+  - 버그 수정: `S3Service`에 `downloadImage(imageUrl)` 추가 — 서버가 이미 가진 AWS 자격증명으로 `S3Client.getObject()`를 직접 호출해 읽어오도록 변경(버킷 public-read 불필요, 더 안전). `GeminiService`는 이제 이 메서드를 사용, 자체 `webClient` 공개 GET 로직 제거.
+  - 점검: refresh token DB에 여러 행이 쌓이는 문제 — 원인은 `AUTH_COOKIE_SAME_SITE`가 cross-site(Vercel↔Railway)에서 쿠키가 전달되도록 `None`(+`AUTH_COOKIE_SECURE=true`)이어야 하는데, 확인 과정에서 값이 왔다갔다 보고돼 실제 값 재확인 필요 — Railway Variables 탭에서 직접 확인 요망.
+  - Gemini 관련: `gemini-2.5-flash`는 아직 서비스 중(공식 종료 예정일 2026-10-16), Google AI Pro(개인 구독) 해지와 API 키 사용은 무관 — 500 원인 아님으로 확인.
+
+- 다음:
+  - Railway Variables에서 `AUTH_COOKIE_SAME_SITE=None`, `AUTH_COOKIE_SECURE=true` 실제 값 확인·수정 (화면상 이름은 있으나 값 재확인 필요)
+  - 이번 수정 배포 후 캡션 생성 재테스트, 안 되면 새 스택트레이스로 재진단
+  - 리뷰 자동 답글이 특정 commentId(18236133076311924)에 30분마다 계속 400 Bad Request(Facebook Graph API)로 실패 중 — 별도로 원인 확인 필요(댓글 삭제됨/권한 부족 등)
+
 ## 2026-07-06
 - 한 일:
   - CLAUDE.md / memory.md 생성, 프로젝트 지침 체계 정리
