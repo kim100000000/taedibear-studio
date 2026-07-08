@@ -3,17 +3,25 @@
 > 사용법: 세션이 끝날 때마다 "오늘 한 일 / 결정한 것 / 다음 할 일"을 여기에 추가.
 > Claude에게 "memory.md 읽고 이어서 하자"라고 하면 맥락이 이어짐.
 
-## 2026-07-08
+## 2026-07-08 (계속)
 - 한 일:
+  - 캡션 500 수정 배포 확인 — AI 캡션 생성 정상 작동 확인됨.
+  - 새 버그 발견/수정: 즉시 업로드(`POST /api/posts/:id/publish`)가 500 — Railway 로그로 `WebClientResponseException$BadRequest: 400 ... POST .../media_publish` 확인. 미디어 컨테이너 생성 직후 바로 `media_publish`를 호출해서(폴링 없음) Meta가 이미지 다운로드/처리를 끝내기 전에 발행 시도 → "Media ID is not available"류 400.
+  - 수정: `MetaApiClient.publishToInstagram()`에 `waitUntilContainerReady()` 추가 — `status_code`가 `FINISHED`될 때까지 최대 15초(1초 간격) 폴링 후 `media_publish` 호출. `InstagramPublishService`는 `WebClientResponseException` 발생 시 Meta가 준 실제 응답 바디를 로그에 남기도록 catch 분기 추가(기존엔 body가 로그에 안 찍혀서 원인 파악이 어려웠음).
+  - Railway 리소스 이슈 발견: Metrics에서 메모리가 컨테이너 한도(1GB)에 계속 붙어있다가 한 번 죽었다 재시작하는 패턴 확인 — `nixpacks.toml`에 `-XX:MaxRAMPercentage=70.0` 추가. "Scale and grow - Upgrade to Hobby" 배너로 봐서 현재 플랜이 Hobby 미만(Trial 추정)이고 크레딧도 얼마 안 남음(당시 $2.91/21일) — 지속 모니터링 필요.
+
+- 이전 항목 (진단만, 아래 참고):
   - 버그 진단: `POST /api/posts/caption` 500 에러 — Railway 스택트레이스로 `GeminiService.downloadImage()`에서 터지는 것 확인. `S3Service.uploadImage()`가 객체를 public-read로 안 올리는데, `GeminiService`가 업로드된 이미지를 다시 받아올 때 인증 없는 공개 URL GET을 시도해서(버킷 비공개 시) S3 403 → 처리되지 않은 예외로 500.
   - 버그 수정: `S3Service`에 `downloadImage(imageUrl)` 추가 — 서버가 이미 가진 AWS 자격증명으로 `S3Client.getObject()`를 직접 호출해 읽어오도록 변경(버킷 public-read 불필요, 더 안전). `GeminiService`는 이제 이 메서드를 사용, 자체 `webClient` 공개 GET 로직 제거.
   - 점검: refresh token DB에 여러 행이 쌓이는 문제 — 원인은 `AUTH_COOKIE_SAME_SITE`가 cross-site(Vercel↔Railway)에서 쿠키가 전달되도록 `None`(+`AUTH_COOKIE_SECURE=true`)이어야 하는데, 확인 과정에서 값이 왔다갔다 보고돼 실제 값 재확인 필요 — Railway Variables 탭에서 직접 확인 요망.
   - Gemini 관련: `gemini-2.5-flash`는 아직 서비스 중(공식 종료 예정일 2026-10-16), Google AI Pro(개인 구독) 해지와 API 키 사용은 무관 — 500 원인 아님으로 확인.
 
 - 다음:
-  - Railway Variables에서 `AUTH_COOKIE_SAME_SITE=None`, `AUTH_COOKIE_SECURE=true` 실제 값 확인·수정 (화면상 이름은 있으나 값 재확인 필요)
-  - 이번 수정 배포 후 캡션 생성 재테스트, 안 되면 새 스택트레이스로 재진단
+  - 인스타그램 즉시 업로드 재배포 후 재테스트 (postId=6, 7 실패 건 — 컨테이너 폴링 수정으로 해결되는지 확인)
+  - Railway 플랜/크레딧 확인 — Metrics에 "Upgrade to Hobby" 배너, 잔여 크레딧 얼마 안 남음. 메모리도 한도 근접해서 크래시 이력 있음 → 플랜 업그레이드 검토
+  - Railway Variables `AUTH_COOKIE_SAME_SITE`/`AUTH_COOKIE_SECURE` 값 최종 확인 (대화 중 계속 값이 바뀌어 보고돼 혼선 있었음 — None + true로 확정 필요)
   - 리뷰 자동 답글이 특정 commentId(18236133076311924)에 30분마다 계속 400 Bad Request(Facebook Graph API)로 실패 중 — 별도로 원인 확인 필요(댓글 삭제됨/권한 부족 등)
+  - 상대방(테스터)을 Meta 앱 대시보드 "앱 역할 > 역할"에서 초대해서 실사용 테스트 진행 예정
 
 ## 2026-07-06
 - 한 일:
