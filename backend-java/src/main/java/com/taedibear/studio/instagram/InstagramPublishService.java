@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDateTime;
 
@@ -47,6 +48,12 @@ public class InstagramPublishService {
 			post.setInstagramPostId(instagramPostId);
 			post.setPostedAt(LocalDateTime.now());
 			return new PublishResult(instagramPostId, post.getPostedAt());
+		} catch (WebClientResponseException ex) {
+			// Meta가 보낸 실제 에러 바디(코드/메시지)를 남긴다 — 기본 예외 메시지엔 body가 안 찍힘.
+			log.error("[Instagram publish error] postId={} status={} body={}",
+					postId, ex.getStatusCode(), ex.getResponseBodyAsString());
+			post.setStatus(PostStatus.failed);
+			throw ApiException.internal("인스타그램 업로드에 실패했어요. 다시 시도해주세요.");
 		} catch (Exception ex) {
 			log.error("[Instagram publish error] postId={}", postId, ex);
 			post.setStatus(PostStatus.failed);

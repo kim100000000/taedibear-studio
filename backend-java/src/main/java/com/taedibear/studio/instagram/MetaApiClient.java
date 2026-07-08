@@ -115,7 +115,7 @@ public class MetaApiClient {
 	}
 
 	/**
-	 * Instagram Business 계정에 게시물을 발행한다. (1. 미디어 컨테이너 생성 -> 2. 게시)
+	 * Instagram Business 계정에 게시물을 발행한다. (1. 미디어 컨테이너 생성 -> 2. 상태 폴링 -> 3. 게시)
 	 */
 	public String publishToInstagram(String igUserId, String accessToken, String imageUrl, String caption) {
 		JsonNode createRes = webClient.post()
@@ -127,6 +127,11 @@ public class MetaApiClient {
 
 		String creationId = createRes.get("id").asText();
 
+		// Meta가 image_url을 다운로드/검증하는 데 시간이 걸려서, 컨테이너 생성 직후 바로
+		// media_publish를 부르면 "Media ID is not available"(400) 이 날 수 있다.
+		// status_code가 FINISHED가 될 때까지 최대 15초 폴링한 뒤 발행한다.
+		waitUntilContainerReady(creationId, accessToken);
+
 		JsonNode publishRes = webClient.post()
 				.uri(baseUrl + "/" + igUserId + "/media_publish")
 				.bodyValue(Map.of("creation_id", creationId, "access_token", accessToken))
@@ -135,6 +140,37 @@ public class MetaApiClient {
 				.block();
 
 		return publishRes.get("id").asText();
+	}
+
+	private void waitUntilContainerReady(String creationId, String accessToken) {
+		for (int attempt = 0; attempt < 15; attempt++) {
+			JsonNode statusRes = webClient.get()
+					.uri(uriBuilder -> UriComponentsBuilder.fromHttpUrl(baseUrl + "/" + creationId)
+							.queryParam("fields", "status_code")
+							.queryParam("access_token", accessToken)
+							.build()
+							.toUri())
+					.retrieve()
+					.bodyToMono(JsonNode.class)
+					.block();
+
+			String status = statusRes.path("status_code").asText("");
+			if ("FINISHED".equals(status)) {
+				return;
+			}
+			if ("ERROR".equals(status) || "EXPIRED".equals(status)) {
+				throw ApiException.internal("이미지 처리에 실패했어요. 다시 시도해주세요.");
+			}
+			// IN_PROGRESS/PUBLISHED 등 — 잠시 대기 후 재확인
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+		}
+		// 타임아웃 — 그냥 진행. 여전히 준비 안 됐으면 다음 media_publish 호출에서 그대로 실패해
+		// 원인이 로그(WebClientResponseException 응답 바디)에 남는다.
 	}
 
 	// ── Phase 4-2: 분석 대시보드 고도화 (Meta Graph API 인사이트) ──────────────────
