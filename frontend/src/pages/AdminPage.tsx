@@ -11,6 +11,8 @@ import {
   getAdminUsers,
   getAdminPayments,
 } from '../api/admin';
+import { listNotices, createNotice, deleteNotice } from '../api/notices';
+import type { Notice } from '../api/notices';
 import type { AdminSummary, AdminUserItem, AdminPaymentItem, AdminPage } from '../api/admin';
 import type { ToastData } from '../types';
 
@@ -34,6 +36,11 @@ export default function AdminPage() {
   const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastData | null>(null);
+  // 개선백로그 🟡: 공지사항 관리
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [noticeTitle, setNoticeTitle] = useState('');
+  const [noticeContent, setNoticeContent] = useState('');
+  const [noticeSubmitting, setNoticeSubmitting] = useState(false);
 
   const handleError = useCallback(
     (err: any) => {
@@ -73,6 +80,38 @@ export default function AdminPage() {
       .then((res) => setPayments(res.data.data))
       .catch(handleError);
   }, [paymentPage, handleError]);
+
+  useEffect(() => {
+    listNotices()
+      .then((res) => setNotices(res.data.data))
+      .catch(handleError);
+  }, [handleError]);
+
+  const submitNotice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!noticeTitle.trim() || !noticeContent.trim()) return;
+    setNoticeSubmitting(true);
+    try {
+      const { data } = await createNotice(noticeTitle.trim(), noticeContent.trim());
+      setNotices((prev) => [data.data, ...prev]);
+      setNoticeTitle('');
+      setNoticeContent('');
+      setToast({ type: 'success', message: t('admin.notices.created') });
+    } catch (err: any) {
+      handleError(err);
+    } finally {
+      setNoticeSubmitting(false);
+    }
+  };
+
+  const removeNotice = async (id: number) => {
+    try {
+      await deleteNotice(id);
+      setNotices((prev) => prev.filter((n) => n.id !== id));
+    } catch (err: any) {
+      handleError(err);
+    }
+  };
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,6 +306,44 @@ export default function AdminPage() {
                     {t('admin.next')}
                   </button>
                 </div>
+              )}
+            </section>
+            {/* 공지사항 관리 (개선백로그 🟡) */}
+            <section className="analytics-section analytics-section-full">
+              <h2 className="analytics-section-title">{t('admin.notices.title')}</h2>
+              <form className="admin-notice-form" onSubmit={submitNotice}>
+                <input
+                  type="text"
+                  value={noticeTitle}
+                  placeholder={t('admin.notices.titlePlaceholder')}
+                  onChange={(e) => setNoticeTitle(e.target.value)}
+                />
+                <textarea
+                  rows={4}
+                  value={noticeContent}
+                  placeholder={t('admin.notices.contentPlaceholder')}
+                  onChange={(e) => setNoticeContent(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={noticeSubmitting || !noticeTitle.trim() || !noticeContent.trim()}
+                >
+                  {noticeSubmitting ? t('admin.notices.publishing') : t('admin.notices.publish')}
+                </button>
+              </form>
+              {notices.length > 0 && (
+                <ul className="admin-notice-list">
+                  {notices.map((n) => (
+                    <li key={n.id} className="admin-notice-item">
+                      <span className="admin-notice-title">{n.title}</span>
+                      <span className="muted">{n.created_at.slice(0, 10)}</span>
+                      <button type="button" className="btn-danger" onClick={() => removeNotice(n.id)}>
+                        {t('common.delete')}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
             </section>
           </>

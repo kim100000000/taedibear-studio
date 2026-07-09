@@ -43,6 +43,7 @@ public class AdminService {
 	private final PostRepository postRepository;
 	private final ScheduledPostRepository scheduledPostRepository;
 	private final PaymentRepository paymentRepository;
+	private final com.taedibear.studio.repository.NoticeRepository noticeRepository;
 
 	public AdminSummaryResponse getSummary() {
 		LocalDateTime now = LocalDateTime.now();
@@ -125,5 +126,27 @@ public class AdminService {
 	private int clampSize(int size) {
 		if (size < 1) return 20;
 		return Math.min(size, MAX_PAGE_SIZE);
+	}
+
+	// ── 개선백로그 🟡: 공지사항 관리 ─────────────────────────────────────────
+
+	@Transactional
+	public com.taedibear.studio.notice.NoticeController.NoticeResponse createNotice(String title, String content) {
+		if (title == null || title.isBlank() || content == null || content.isBlank()) {
+			throw com.taedibear.studio.common.exception.ApiException.badRequest("제목과 내용을 입력해주세요.");
+		}
+		var notice = noticeRepository.save(com.taedibear.studio.domain.Notice.builder()
+				.title(title.trim())
+				.content(content.trim())
+				.build());
+		return com.taedibear.studio.notice.NoticeController.NoticeResponse.from(notice);
+	}
+
+	@Transactional
+	public void deleteNotice(Long id) {
+		if (!noticeRepository.existsById(id)) {
+			throw com.taedibear.studio.common.exception.ApiException.notFound("공지를 찾을 수 없어요.");
+		}
+		noticeRepository.deleteById(id);
 	}
 }

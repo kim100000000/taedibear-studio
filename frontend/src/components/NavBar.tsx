@@ -27,6 +27,7 @@ export default function NavBar() {
         <Link to="/calendar">{t('nav.calendar')}</Link>
         <Link to="/analytics">{t('nav.analytics')}</Link>
         <Link to="/reviews">{t('nav.reviews')}</Link>
+        <Link to="/notices">{t('nav.notices')}</Link>
         <Link to="/settings">{t('nav.settings')}</Link>
         {/* Phase 5-1: 관리자 전용 메뉴 */}
         {user?.is_admin && <Link to="/admin">{t('nav.admin')}</Link>}

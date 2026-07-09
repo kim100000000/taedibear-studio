@@ -44,4 +44,24 @@ public class AdminController {
 			@RequestParam(defaultValue = "20") int size) {
 		return ApiResponse.ok(adminService.getPayments(page, size));
 	}
+
+	// ── 개선백로그 🟡: 공지사항 관리 (조회는 NoticeController — 전체 유저) ──────
+
+	public record NoticeRequest(String title, String content) {
+	}
+
+	// POST /api/admin/notices — 공지 작성
+	@org.springframework.web.bind.annotation.PostMapping("/notices")
+	public ApiResponse<com.taedibear.studio.notice.NoticeController.NoticeResponse> createNotice(
+			@org.springframework.web.bind.annotation.RequestBody NoticeRequest request) {
+		return ApiResponse.ok(adminService.createNotice(request.title(), request.content()));
+	}
+
+	// DELETE /api/admin/notices/:id — 공지 삭제
+	@org.springframework.web.bind.annotation.DeleteMapping("/notices/{id}")
+	public ApiResponse<Void> deleteNotice(
+			@org.springframework.web.bind.annotation.PathVariable Long id) {
+		adminService.deleteNotice(id);
+		return ApiResponse.ok();
+	}
 }
