@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Phase 4-3: 리뷰(댓글) 자동 답글.
@@ -64,6 +66,19 @@ public class ReviewService {
 			} catch (Exception ex) {
 				log.warn("[리뷰 동기화] 댓글 조회 실패 mediaId={} — {}", media.id(), ex.getMessage());
 				continue;
+			}
+
+			// 개선백로그 🔴: 인스타에서 삭제된 댓글 정리 — Meta 응답에 없는 로컬 댓글은 함께 삭제.
+			// (조회 자체가 실패한 게시물은 위 continue로 건너뛰므로 오삭제 없음)
+			Set<String> liveCommentIds = comments.stream()
+					.map(MetaApiClient.Comment::id)
+					.collect(Collectors.toSet());
+			List<ReviewComment> stale = reviewCommentRepository.findAllByMediaId(media.id()).stream()
+					.filter(local -> !liveCommentIds.contains(local.getCommentId()))
+					.toList();
+			if (!stale.isEmpty()) {
+				log.info("[리뷰 동기화] 삭제된 댓글 {}건 정리 mediaId={}", stale.size(), media.id());
+				reviewCommentRepository.deleteAll(stale);
 			}
 
 			for (MetaApiClient.Comment comment : comments) {

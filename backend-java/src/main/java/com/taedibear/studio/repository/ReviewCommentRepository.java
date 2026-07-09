@@ -14,4 +14,7 @@ public interface ReviewCommentRepository extends JpaRepository<ReviewComment, Lo
 	List<ReviewComment> findAllByInstagramAccountIdOrderByCreatedAtDesc(Long instagramAccountId);
 
 	List<ReviewComment> findAllByInstagramAccountIdAndStatus(Long instagramAccountId, ReviewStatus status);
+
+	// 개선백로그 🔴: 인스타에서 삭제된 댓글 정리용 — 게시물 단위로 로컬 댓글 조회
+	List<ReviewComment> findAllByMediaId(String mediaId);
 }
