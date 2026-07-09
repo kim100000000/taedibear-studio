@@ -3,6 +3,37 @@
 > 사용법: 세션이 끝날 때마다 "오늘 한 일 / 결정한 것 / 다음 할 일"을 여기에 추가.
 > Claude에게 "memory.md 읽고 이어서 하자"라고 하면 맥락이 이어짐.
 
+## 2026-07-09
+- 한 일:
+  - 🔴 버그 수정: 리뷰 "@?" → "(알 수 없는 사용자)" 문구 / 인스타에서 삭제된 댓글을 동기화 시 정리(`ReviewService`, 조회 실패 게시물은 오삭제 방지로 건너뜀)
+  - 🟠 저비용 고효율 6건 구현:
+    - 업로드 진행률 바(`onUploadProgress`) + 편집본 10MB 초과 시 품질 0.75 자동 재인코딩 + 실패 원인별 메시지(네트워크/413/서버) — "바로 업로드 실패" 원인 후보: 서버 multipart 10MB 한도 초과(canvas 재인코딩으로 원본보다 커질 수 있음) 또는 네트워크 오류였는데 메시지가 뭉뚱그려져 있었음
+    - 리뷰 자동 답글 ON/OFF 토글 스위치 + 상태 설명 문구 (SettingsPage)
+    - 캘린더에 즉시 발행 게시물 표시(posted_at 기준, 예약 발행분 중복 제거)
+    - 캡션 화면 "임시 저장" 버튼 → 히스토리 "임시 저장" 탭(신규) + "지금 발행" 버튼
+    - 캡션 화면 좌측을 인스타 피드 스타일 실시간 미리보기로 교체(계정명/캡션/해시태그 라이브 반영)
+    - `spring.task.scheduling.pool.size=4` (스케줄러 잡 5종 단일 스레드 병목 해소)
+  - CHECKLIST에 Phase 6(UX/품질 개선) 신설 — 개선백로그 연동, 출시 전 필수(비밀번호 찾기/이메일 인증) 명시
+  - **비밀번호 찾기 구현**: `auth_tokens` 테이블(SHA-256 해시, 일회성) + `AuthTokenService`, POST /forgot-password(존재 여부 비노출)·/reset-password(성공 시 전 세션 폐기), 프론트 /forgot-password·/reset-password 페이지, 로그인 페이지 완료 배너
+  - **회원가입 이메일 인증 구현**: `users.email_verified`(columnDefinition default 1 → 기존 유저 잠금 방지, 소셜 가입 자동 true), 가입 시 인증 메일(24h), POST /verify-email·/resend-verification, 미인증 시 캡션 생성 403(`UserService.assertEmailVerified`), 대시보드 미인증 배너+재발송, /verify-email 페이지
+  - 리뷰 관리 게시글별 그룹핑 → 🟡 백로그 추가 (media_id 기반, 동의)
+  - frontend `tsc` 통과. 백엔드(Java)는 여전히 이 환경에서 컴파일 불가 — push 후 CI 확인 필요
+- 주의: 메일 발송은 MAIL_HOST/MAIL_USERNAME/MAIL_PASSWORD/MAIL_FROM 환경변수가 Railway에 설정돼 있어야 실제로 나감 — 배포 후 회원가입/비번찾기 메일 실발송 테스트 필요 (Gmail은 앱 비밀번호 필요)
+- 🔴 크레딧 버그 수정: `User.credits` 기본값 5 → 3 정정 (정책: 가입 3 + 온보딩 2 = 5인데 5+2=7이 지급되던 문제). 이미 7개 받은 기존 테스트 계정은 DB에서 수동 정정 필요
+- 🟡 중간 규모 3건 구현 (07-09 2차):
+  - 리뷰 게시글별 그룹핑 — ReviewsPage에서 media_id로 그룹, 게시물 썸네일/캡션 헤더(posts.instagram_post_id 매칭), 미답변 뱃지, 접기/펼치기
+  - 캡션 보관함 — `saved_captions` 테이블(쉼표 해시태그, 최대 50개) + `/api/captions` CRUD + 캡션 화면 "캡션 저장"/"보관함" 모달(사용·삭제). 탈퇴 시 정리 포함
+  - 공지사항+문의 — `notices` 테이블 + `GET /api/notices`(전체 유저) + 관리자 작성·삭제(`/api/admin/notices`, AdminPage 섹션) + `/notices` 페이지(아코디언+문의 이메일 링크) + NavBar "공지"
+- 쿠팡 파트너스/제휴 수익화 아이디어 논의 — 의견만 전달, 백로그 미반영 (사용자 결정 대기)
+- 브랜치 전략 확인: 작업/배포 기준은 **develop** (main은 구버전에 정체). CI를 main+develop 감시로 수정, 푸시는 `git push origin develop --tags`. 안정 시점에 develop→main 머지 권장
+  - 사용자 피드백 2차분 백로그 반영 (`docs/TODO/개선백로그.md`) — 비밀번호 찾기·이메일 인증(출시 전 필수), 캡차, 업로드 진행 표시, 다중 이미지/캐러셀, 스케줄러 스레드 풀, DM 일괄 발송(⚠️ Meta 정책 리스크로 대안 제시)
+  - 코드 확인 결과 기록: Gemini는 S3 이미지 1장을 base64로 받아 캡션 생성(다중 이미지 미지원), API 동시 처리는 Tomcat 풀 + 크레딧 원자적 차감, `@Scheduled` 잡 5종이 단일 스레드 공유(개선 필요)
+  - `docs/12_시스템아키텍처.md` 신규 — mermaid 구조도 + 컴포넌트/요청 흐름/동시성/보안
+  - `docs/13_CICD계획서.md` 신규 — 현재 상태(CI 파일 작성됨·미push, CD는 Vercel/Railway 연동 시 동작 중) + 3단계 도입 계획
+- 다음:
+  - git push → Actions 첫 CI 통과 확인 → main 브랜치 보호 설정
+  - Railway healthcheck(`/health`) 설정, Vercel/Railway GitHub 자동 배포 연동 여부 확인
+
 ## 2026-07-08 (계속)
 - 한 일:
   - 캡션 500 수정 배포 확인 — AI 캡션 생성 정상 작동 확인됨.

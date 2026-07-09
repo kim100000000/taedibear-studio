@@ -49,6 +49,8 @@ Authorization: Bearer <JWT토큰>  ← JWT 필요 API에만
 
 이메일로 회원가입합니다.
 
+> Phase 6: 가입 시 인증 메일이 자동 발송된다(24시간 유효). 인증 전에는 캡션 생성이 403으로 차단된다. 소셜 가입은 즉시 인증 처리.
+
 **인증:** 불필요
 
 **Request Body:**
@@ -218,6 +220,21 @@ refresh token으로 새 access token을 발급합니다. (C4)
 ```json
 { "success": true }
 ```
+
+---
+
+### Phase 6 — 비밀번호 찾기 / 이메일 인증
+
+| 메서드 | 경로 | 인증 | 설명 |
+|---|---|---|---|
+| POST | /api/auth/forgot-password | 불필요 | `{ "email" }` — 재설정 링크 메일 발송. **계정 존재 여부와 무관하게 항상 200** (이메일 존재 노출 방지). 링크 30분 유효 |
+| POST | /api/auth/reset-password | 불필요 | `{ "token", "password" }` — 새 비밀번호 설정(8자 이상). 성공 시 모든 refresh 세션 폐기. 소셜 전용 계정도 허용(비밀번호가 새로 생김) |
+| POST | /api/auth/verify-email | 불필요 | `{ "token" }` — 이메일 인증 완료 처리 |
+| POST | /api/auth/resend-verification | 필요 | 인증 메일 재발송. 이미 인증된 경우 400 |
+
+- 토큰은 일회성(사용 즉시 폐기), 같은 용도 재발급 시 이전 링크 무효화. DB에는 SHA-256 해시만 저장 (`auth_tokens` 테이블)
+- 미인증 상태에서 POST /api/posts/caption 호출 시 **403** `"이메일 인증 후 이용할 수 있어요..."`
+- GET /api/users/me 응답에 `email_verified` 필드 추가
 
 ---
 
@@ -840,6 +857,28 @@ Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수�
 
 ---
 
+## 6-2. 캡션 보관함 API (`/api/captions`) — 개선백로그 🟡
+
+**인증:** 필요. 사용자당 최대 50개.
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| POST | /api/captions | `{ "caption", "hashtags": [] }` — 캡션 저장 |
+| GET | /api/captions | 저장된 캡션 목록 (최신순) — `[{ id, caption, hashtags[], created_at }]` |
+| DELETE | /api/captions/:id | 삭제 (본인 것만) |
+
+---
+
+## 6-3. 공지사항 API (`/api/notices`) — 개선백로그 🟡
+
+| 메서드 | 경로 | 인증 | 설명 |
+|---|---|---|---|
+| GET | /api/notices | 필요 | 공지 목록 (최신순) — `[{ id, title, content, created_at }]` |
+| POST | /api/admin/notices | 관리자 | `{ "title", "content" }` — 공지 작성 |
+| DELETE | /api/admin/notices/:id | 관리자 | 공지 삭제 |
+
+---
+
 ## 7. 관리자 API (`/api/admin`) — Phase 5-1
 
 > **인증:** 필요 + **관리자 전용.** JWT 이메일이 `ADMIN_EMAIL` 환경변수와 일치하는 계정만 접근 가능 (`ROLE_ADMIN`, SecurityConfig에서 `/api/admin/**` 전체 보호). 그 외 계정은 **403**.
@@ -933,3 +972,5 @@ Phase 4-2: 발행된(posted) 게시물의 조회수/도달/좋아요/댓글 수�
 | v1.4 | 2026-07-06 | Phase 4-1: GET /api/posts, GET /api/analytics/summary에 instagram_account_id 필터 추가 / Phase 4-2: GET /api/posts/:id/insights 신규, follower_trend 필드 추가 / Phase 4-3: GET /api/instagram/accounts/:id/comments, POST /api/instagram/comments/:id/reply, POST /api/instagram/comments/:id/skip, PUT /api/instagram/accounts/:id/auto-reply 신규, OAuth scope에 instagram_manage_insights·instagram_manage_comments 추가 | @taedibear |
 | v1.4 | 2026-07-05 | C4: POST /auth/refresh를 HttpOnly 쿠키 기반 refresh token 회전 방식으로 변경, logout 서버측 폐기 / C6: 소셜 콜백 `/auth?token=` → refresh 쿠키 + `/auth`, GET /instagram/connect 제거 → GET /instagram/connect-url 신규 | @taedibear |
 | v1.5 | 2026-07-06 | Phase 5-1: 관리자 API 신규 (GET /api/admin/summary·users·payments, ADMIN_EMAIL 기반 ROLE_ADMIN) / GET /api/users/me 응답에 is_admin 추가 | @taedibear |
+| v1.6 | 2026-07-09 | Phase 6: forgot-password/reset-password/verify-email/resend-verification 신규, users.email_verified·auth_tokens 테이블 추가, 미인증 시 캡션 생성 403 | @taedibear |
+| v1.7 | 2026-07-09 | 캡션 보관함(/api/captions CRUD, saved_captions 테이블), 공지사항(/api/notices 조회 + /api/admin/notices 작성·삭제, notices 테이블) 신규 | @taedibear |
