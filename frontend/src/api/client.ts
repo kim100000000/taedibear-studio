@@ -41,21 +41,40 @@ const redirectToLogin = () => {
   }
 };
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const GATEWAY_ERROR_STATUSES = new Set([502, 503, 504]);
+const MAX_GATEWAY_RETRIES = 2;
+
 // 세션 만료(401) 공통 처리: 토큰을 들고 보낸 요청이 401을 받으면 refresh를 시도하고,
 // refresh까지 실패하면 로그인 페이지로 보낸다. 로그인/회원가입처럼 토큰 없이 보낸
 // 요청의 401(아이디/비번 오류 등)은 각 페이지의 에러 처리에 맡기고 건드리지 않는다.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // 네트워크 오류 (서버 응답 없음 — 오프라인 또는 서버 다운)
+    const originalRequest: (AxiosRequestConfig & { _retry?: boolean; _gatewayRetryCount?: number }) | undefined =
+      error.config;
+    const isRefreshCall = originalRequest?.url === '/api/auth/refresh';
+    const status = error.response?.status;
+    const isGatewayIssue = !error.response || GATEWAY_ERROR_STATUSES.has(status);
+
+    // 배포 직후 재시작 등으로 백엔드가 잠깐 응답을 못 줄 때(502/503/504, 또는 응답 자체가 없는 네트워크 오류)
+    // 바로 "실패" 토스트를 띄우는 대신 짧게 대기 후 같은 요청을 최대 2번 더 재시도한다.
+    // 게이트웨이가 백엔드에 요청을 아예 못 넘긴 상태라 재시도해도 중복 생성될 걱정은 없다.
+    if (isGatewayIssue && originalRequest && !isRefreshCall) {
+      originalRequest._gatewayRetryCount = (originalRequest._gatewayRetryCount || 0) + 1;
+      if (originalRequest._gatewayRetryCount <= MAX_GATEWAY_RETRIES) {
+        await sleep(1000 * originalRequest._gatewayRetryCount);
+        return apiClient.request(originalRequest);
+      }
+    }
+
+    // 네트워크 오류 (서버 응답 없음 — 오프라인 또는 서버 다운), 재시도까지 다 실패한 경우
     if (!error.response) {
       error.isNetworkError = true;
       return Promise.reject(error);
     }
 
-    const originalRequest: (AxiosRequestConfig & { _retry?: boolean }) | undefined = error.config;
     const hadToken = Boolean(originalRequest?.headers?.Authorization);
-    const isRefreshCall = originalRequest?.url === '/api/auth/refresh';
 
     if (error.response?.status === 401 && hadToken && !isRefreshCall) {
       if (originalRequest && !originalRequest._retry) {

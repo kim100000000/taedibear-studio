@@ -16,6 +16,8 @@ export interface User {
   credits?: number;
   // Phase 5-1: 관리자 여부 (ADMIN_EMAIL 계정만 true)
   is_admin?: boolean;
+  // Phase 6: 이메일 인증 여부 (미인증 시 캡션 생성 차단, 소셜 가입은 항상 true)
+  email_verified?: boolean;
 }
 
 export interface InstagramAccount {

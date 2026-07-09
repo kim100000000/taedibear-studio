@@ -59,7 +59,9 @@ public class User {
 	// Phase 2-1: 크레딧 시스템 (보유 상한 10 — UserService.MAX_CREDITS)
 	@Column(nullable = false)
 	@Builder.Default
-	private int credits = 5;  // 가입 시 기본 5개 — 가치를 느끼기 전에 소진되지 않도록
+	// 가입 시 기본 3개 + 온보딩 완료 보너스 +2 = 총 5개 (CHECKLIST 크레딧 정책).
+	// 버그 수정(2026-07-09): 기본값이 5로 잘못 들어가 온보딩 후 7개가 되던 문제 → 3으로 정정
+	private int credits = 3;
 
 	// 광고 시청 충전 — 하루 2회 제한
 	@Column(name = "ad_watch_count")
@@ -77,6 +79,14 @@ public class User {
 	@Column(name = "onboarding_completed", nullable = false)
 	@Builder.Default
 	private boolean onboardingCompleted = false;
+
+	// Phase 6: 이메일 인증 여부 — 크레딧 다계정 어뷰징 방어 (미인증 시 캡션 생성 차단).
+	// columnDefinition default 1: 컬럼 추가 마이그레이션 시 "기존 가입자"는 인증된 것으로 처리해
+	// 잠금을 방지한다. 신규 이메일 가입자는 엔티티 기본값 false로 저장되고, 소셜 가입은
+	// 제공자가 이메일을 이미 검증했으므로 가입 시 true로 저장한다 (AuthService).
+	@Column(name = "email_verified", nullable = false, columnDefinition = "tinyint(1) default 1")
+	@Builder.Default
+	private boolean emailVerified = false;
 
 	@CreationTimestamp
 	@Column(name = "created_at", updatable = false)

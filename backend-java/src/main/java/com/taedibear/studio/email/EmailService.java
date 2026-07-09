@@ -143,6 +143,62 @@ public class EmailService {
                 """.formatted(failedCount, retrySuccessCount, finalFailedCount);
     }
 
+    /** Phase 6: 비밀번호 재설정 링크 발송 (링크 유효 30분) */
+    @Async
+    public void sendPasswordResetEmail(String toEmail, String userName, String rawToken) {
+        String resetUrl = clientUrl + "/reset-password?token=" + rawToken;
+        sendSimpleAction(toEmail, "[Taedibear Studio] 비밀번호 재설정",
+                "🔑 비밀번호 재설정",
+                escapeHtml(userName) + "님, 아래 버튼을 눌러 새 비밀번호를 설정해주세요.<br>"
+                        + "이 링크는 <strong>30분</strong> 동안만 유효해요. 요청하지 않으셨다면 이 메일을 무시하셔도 돼요.",
+                resetUrl, "비밀번호 재설정하기");
+    }
+
+    /** Phase 6: 회원가입 이메일 인증 링크 발송 (링크 유효 24시간) */
+    @Async
+    public void sendVerificationEmail(String toEmail, String userName, String rawToken) {
+        String verifyUrl = clientUrl + "/verify-email?token=" + rawToken;
+        sendSimpleAction(toEmail, "[Taedibear Studio] 이메일 인증을 완료해주세요",
+                "✉️ 이메일 인증",
+                escapeHtml(userName) + "님, 가입을 환영해요!<br>"
+                        + "아래 버튼을 눌러 이메일 인증을 완료하면 AI 캡션 생성을 시작할 수 있어요. "
+                        + "링크는 <strong>24시간</strong> 동안 유효해요.",
+                verifyUrl, "이메일 인증하기");
+    }
+
+    private void sendSimpleAction(String to, String subject, String heading,
+                                  String bodyHtml, String actionUrl, String actionLabel) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText("""
+                    <!DOCTYPE html>
+                    <html lang="ko">
+                    <head><meta charset="UTF-8"></head>
+                    <body style="font-family:'Apple SD Gothic Neo',sans-serif;color:#222;max-width:480px;margin:0 auto;padding:24px;">
+                      <h2 style="font-size:20px;">%s</h2>
+                      <p>%s</p>
+                      <p style="margin-top:20px;">
+                        <a href="%s" style="display:inline-block;background:#6c47ff;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">
+                          %s
+                        </a>
+                      </p>
+                      <p style="font-size:12px;color:#999;">버튼이 동작하지 않으면 이 주소를 브라우저에 붙여넣어 주세요:<br>%s</p>
+                      <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+                      <p style="font-size:12px;color:#999;">Taedibear Studio · 문의: support@taedibear.studio</p>
+                    </body>
+                    </html>
+                    """.formatted(heading, bodyHtml, actionUrl, actionLabel, actionUrl), true);
+            mailSender.send(message);
+            log.info("[Email] {} 발송 완료 → {}", subject, to);
+        } catch (MessagingException e) {
+            log.error("[Email] {} 발송 실패 (to={}): {}", subject, to, e.getMessage());
+        }
+    }
+
     private String escapeHtml(String text) {
         return text.replace("&", "&amp;")
                    .replace("<", "&lt;")

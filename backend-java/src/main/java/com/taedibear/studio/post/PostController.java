@@ -44,6 +44,8 @@ public class PostController {
 		if (request.image_url() == null || request.business_type() == null || request.mood() == null) {
 			throw ApiException.badRequest("image_url, business_type, mood는 필수예요.");
 		}
+		// Phase 6: 이메일 인증 게이트 — 미인증 계정은 캡션 생성(크레딧 사용) 불가 (다계정 어뷰징 방어)
+		userService.assertEmailVerified(principal.getId());
 		// Phase 2-1: 크레딧 차감 (Free 플랜만, 부족하면 403)
 		userService.deductCreditForCaption(principal.getId());
 		// 업종/분위기 선택값을 users 테이블에 저장 → 다음 방문 시 자동 반영

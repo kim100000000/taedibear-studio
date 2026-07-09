@@ -152,6 +152,54 @@ public class AuthController {
 		return ApiResponse.ok(result.response());
 	}
 
+	// ── Phase 6: 비밀번호 찾기 / 이메일 인증 ─────────────────────────────────
+
+	// POST /api/auth/forgot-password — 계정 존재 여부와 무관하게 항상 200 (이메일 존재 노출 방지)
+	@PostMapping("/forgot-password")
+	public ApiResponse<Void> forgotPassword(@RequestBody java.util.Map<String, String> body) {
+		String email = body.get("email");
+		if (email == null || email.isBlank()) {
+			throw ApiException.badRequest("이메일을 입력해주세요.");
+		}
+		authService.forgotPassword(email.trim());
+		return ApiResponse.ok();
+	}
+
+	// POST /api/auth/reset-password — 메일 링크의 토큰으로 새 비밀번호 설정
+	@PostMapping("/reset-password")
+	public ApiResponse<Void> resetPassword(@RequestBody java.util.Map<String, String> body) {
+		String token = body.get("token");
+		if (token == null || token.isBlank()) {
+			throw ApiException.badRequest("유효하지 않거나 만료된 링크예요. 다시 요청해주세요.");
+		}
+		authService.resetPassword(token, body.get("password"));
+		return ApiResponse.ok();
+	}
+
+	// POST /api/auth/verify-email — 인증 메일 링크의 토큰 처리
+	@PostMapping("/verify-email")
+	public ApiResponse<Void> verifyEmail(@RequestBody java.util.Map<String, String> body) {
+		String token = body.get("token");
+		if (token == null || token.isBlank()) {
+			throw ApiException.badRequest("유효하지 않거나 만료된 링크예요. 다시 요청해주세요.");
+		}
+		authService.verifyEmail(token);
+		return ApiResponse.ok();
+	}
+
+	// POST /api/auth/resend-verification — 로그인 상태에서 인증 메일 재발송
+	// (/api/auth/**는 permitAll이라 principal이 null일 수 있어 직접 검증)
+	@PostMapping("/resend-verification")
+	public ApiResponse<Void> resendVerification(
+			@org.springframework.security.core.annotation.AuthenticationPrincipal
+			com.taedibear.studio.security.UserPrincipal principal) {
+		if (principal == null) {
+			throw ApiException.unauthorized("로그인이 필요해요.");
+		}
+		authService.resendVerification(principal.getId());
+		return ApiResponse.ok();
+	}
+
 	// POST /api/auth/refresh — C4: refresh 쿠키를 검증·회전하고 새 access token을 발급한다.
 	// (기존: 만료된 JWT도 서명만 맞으면 무기한 재발급 → 탈취 시 영구 유효 토큰이었음)
 	@PostMapping("/refresh")

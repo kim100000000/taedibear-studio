@@ -8,6 +8,7 @@ import Toast from '../components/Toast';
 import { listPosts } from '../api/posts';
 import { listInstagramAccounts } from '../api/instagram';
 import { getUsage, getMe } from '../api/users';
+import { resendVerification } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import type { Post, InstagramAccount, PostStatus, ToastData } from '../types';
 import type { UsageInfo } from '../api/payments';
@@ -23,6 +24,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // Phase 6: 이메일 미인증 배너 + 재발송
+  const [emailVerified, setEmailVerified] = useState(true);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     Promise.all([listPosts({ limit: 100 }), listInstagramAccounts(), getUsage(), getMe()])
@@ -31,6 +35,7 @@ export default function DashboardPage() {
         setAccounts(accountsRes.data.data);
         setUsage(usageRes.data.data);
         setCredits(meRes.data.data.credits ?? null);
+        setEmailVerified(meRes.data.data.email_verified ?? true);
       })
       .catch((err: any) => {
         const msg = err.isNetworkError
@@ -53,6 +58,22 @@ export default function DashboardPage() {
   const closeOnboarding = () => {
     if (user) localStorage.setItem(`onboarding_seen_${user.id}`, 'true');
     setShowOnboarding(false);
+  };
+
+  // Phase 6: 인증 메일 재발송
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await resendVerification();
+      setToast({ type: 'success', message: t('dashboard.verifyEmail.resent') });
+    } catch (err: any) {
+      setToast({
+        type: 'error',
+        message: err.isNetworkError ? t('error.network') : err.response?.data?.error || t('error.loadFailed'),
+      });
+    } finally {
+      setResending(false);
+    }
   };
 
   if (loading) return <Spinner label={t('common.loading')} />;
@@ -82,6 +103,21 @@ export default function DashboardPage() {
       <NavBar />
       <div className="page-content">
         <h1>{t('dashboard.greeting', { name: user?.name })}</h1>
+
+        {/* Phase 6: 이메일 미인증 안내 — 인증 전엔 캡션 생성 불가 */}
+        {!emailVerified && (
+          <div className="banner banner-warn">
+            {t('dashboard.verifyEmail.notice')}{' '}
+            <button
+              type="button"
+              className="banner-link-btn"
+              disabled={resending}
+              onClick={handleResend}
+            >
+              {resending ? t('dashboard.verifyEmail.resending') : t('dashboard.verifyEmail.resend')}
+            </button>
+          </div>
+        )}
 
         {accounts.length === 0 && (
           <div className="banner">

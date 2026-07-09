@@ -17,7 +17,8 @@
     "reviews": "Reviews",
     "settings": "Settings",
     "greeting": "Hi, {{name}}",
-    "admin": "Admin"
+    "admin": "Admin",
+    "notices": "Notices"
   },
   "landing": {
     "login": "Log in",
@@ -112,6 +113,34 @@
       "nameMin2": "Name must be at least 2 characters.",
       "passwordMatch": "Passwords do not match.",
       "agreeRequired": "Please agree to the Terms of Service."
+    },
+    "forgot": {
+      "title": "Forgot password",
+      "description": "Enter your email and we'll send you a reset link.",
+      "sent": "We sent a reset link to {{email}}. Check your inbox (and spam folder).",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "backToLogin": "Back to login"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "newPassword": "New password (8+ characters)",
+      "confirmPassword": "Confirm new password",
+      "submit": "Change password",
+      "submitting": "Changing...",
+      "mismatch": "Passwords don't match.",
+      "invalidLink": "Invalid link. Please request a new reset.",
+      "requestAgain": "Request reset again",
+      "done": "Password changed. Please log in with your new password."
+    },
+    "verify": {
+      "verifying": "Verifying your email...",
+      "successTitle": "Email verified!",
+      "successBody": "You can now use every feature, including AI captions.",
+      "goDashboard": "Go to dashboard",
+      "invalidLink": "Invalid link.",
+      "failed": "Verification failed. The link may have expired.",
+      "retryHint": "You can resend the verification email from the dashboard banner."
     }
   },
   "dashboard": {
@@ -132,6 +161,12 @@
       "scheduled": "Scheduled",
       "posted": "Posted",
       "failed": "Failed"
+    },
+    "verifyEmail": {
+      "notice": "Please verify your email. AI caption generation is locked until then.",
+      "resend": "Resend verification email",
+      "resending": "Sending...",
+      "resent": "Verification email sent. Check your inbox."
     }
   },
   "upload": {
@@ -191,6 +226,18 @@
       "lively": "Lively",
       "luxury": "Luxury",
       "friendly": "Friendly"
+    },
+    "saveDraft": "Save draft",
+    "previewAccount": "my account",
+    "previewEmpty": "Generate a caption to see the preview here",
+    "vault": {
+      "title": "Caption vault",
+      "open": "Vault",
+      "save": "Save caption",
+      "saving": "Saving...",
+      "saveFailed": "Failed to save caption.",
+      "empty": "No saved captions yet. Save ones you like to reuse them later.",
+      "use": "Use"
     }
   },
   "schedule": {
@@ -224,7 +271,8 @@
       "all": "All",
       "posted": "Posted",
       "scheduled": "Scheduled",
-      "failed": "Failed"
+      "failed": "Failed",
+      "draft": "Drafts"
     },
     "status": {
       "draft": "Draft",
@@ -257,7 +305,8 @@
       "retried": "Retrying upload.",
       "retryFailed": "Retry failed.",
       "insightsFailed": "Could not load insights."
-    }
+    },
+    "publishDraft": "Publish now"
   },
   "settings": {
     "title": "Settings",
@@ -286,7 +335,9 @@
       "autoReplyOn": "Auto-post",
       "autoReplyOff": "Approve before posting",
       "autoReplyChanged": "Auto-reply setting updated.",
-      "autoReplyChangeFailed": "Could not update the setting."
+      "autoReplyChangeFailed": "Could not update the setting.",
+      "autoReplyOnHint": "AI replies are published automatically every 30 min",
+      "autoReplyOffHint": "Review AI drafts and publish them yourself"
     },
     "account": {
       "title": "Account",
@@ -404,6 +455,12 @@
       "skipSuccess": "Skipped.",
       "skipFailed": "Failed to update.",
       "loadFailed": "Could not load comments."
+    },
+    "unknownUser": "(unknown user)",
+    "group": {
+      "unknownPost": "Post #{{n}}",
+      "pendingCount": "{{count}} pending",
+      "commentCount": "{{count}} comments"
     }
   },
   "editor": {
@@ -431,7 +488,8 @@
       "warm": "Warm"
     },
     "err": {
-      "uploadFailed": "Upload failed."
+      "uploadFailed": "Upload failed.",
+      "tooLarge": "The edited image exceeds 10MB. Please try a smaller photo."
     }
   },
   "calendar": {
@@ -519,6 +577,24 @@
     "colValidUntil": "Valid until",
     "colPaidAt": "Paid at",
     "prev": "Prev",
-    "next": "Next"
+    "next": "Next",
+    "notices": {
+      "title": "Manage notices",
+      "titlePlaceholder": "Notice title",
+      "contentPlaceholder": "Notice content",
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "created": "Notice published."
+    }
+  },
+  "notices": {
+    "title": "Notices",
+    "empty": "No notices yet.",
+    "contact": {
+      "title": "Contact us",
+      "description": "Questions or suggestions? Send us an email and we'll get back to you.",
+      "subject": "[Taedibear Studio] Inquiry",
+      "button": "Email us"
+    }
   }
 }

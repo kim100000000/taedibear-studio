@@ -34,6 +34,8 @@ public class UserService {
 	private final ScheduledPostRepository scheduledPostRepository;
 	private final InstagramAccountRepository instagramAccountRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final com.taedibear.studio.repository.AuthTokenRepository authTokenRepository;
+	private final com.taedibear.studio.repository.SavedCaptionRepository savedCaptionRepository;
 
 	public User getById(Long id) {
 		return userRepository.findById(id)
@@ -110,6 +112,15 @@ public class UserService {
 		return user.getCredits();
 	}
 
+	// Phase 6: 이메일 인증 게이트 — 크레딧을 소모하는 기능(캡션 생성) 진입 전 호출.
+	// 미인증 다계정으로 무료 크레딧을 수확하는 것을 막는다 (docs/10 8절 리스크).
+	public void assertEmailVerified(Long id) {
+		User user = getById(id);
+		if (!user.isEmailVerified()) {
+			throw ApiException.forbidden("이메일 인증 후 이용할 수 있어요. 메일함(스팸함 포함)을 확인해주세요.");
+		}
+	}
+
 	// Phase 2-1: 캡션 생성 시 크레딧 1개 차감 (Free 플랜만)
 	// 검사(credits > 0)와 차감을 UPDATE 한 문장으로 처리해 동시 요청으로도 음수가 될 수 없다.
 	@Transactional
@@ -141,6 +152,8 @@ public class UserService {
 		postRepository.deleteAllByUserId(userId);
 		instagramAccountRepository.deleteAllByUserId(userId);
 		refreshTokenRepository.deleteAllByUserId(userId);  // C4: 모든 로그인 세션 폐기
+		authTokenRepository.deleteAllByUserId(userId);     // Phase 6: 재설정/인증 토큰 정리
+		savedCaptionRepository.deleteAllByUserId(userId);  // 캡션 보관함 정리
 		userRepository.delete(user);
 
 		log.info("[회원 탈퇴] userId={} 및 연관 데이터 삭제 완료 (결제 내역은 보관)", userId);

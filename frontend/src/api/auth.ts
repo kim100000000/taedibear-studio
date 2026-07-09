@@ -25,3 +25,19 @@ export const refreshAccessToken = () =>
 // C4/M9: 서버측에서 refresh token을 폐기하고 쿠키를 삭제한다.
 export const logoutServer = () =>
   apiClient.post<ApiResponse<null>>('/api/auth/logout', null, { withCredentials: true });
+
+// ── Phase 6: 비밀번호 찾기 / 이메일 인증 ─────────────────────────────────────
+
+// 계정 존재 여부와 무관하게 항상 성공 응답 (이메일 존재 노출 방지)
+export const forgotPassword = (email: string) =>
+  apiClient.post<ApiResponse<null>>('/api/auth/forgot-password', { email });
+
+export const resetPassword = (token: string, password: string) =>
+  apiClient.post<ApiResponse<null>>('/api/auth/reset-password', { token, password });
+
+export const verifyEmail = (token: string) =>
+  apiClient.post<ApiResponse<null>>('/api/auth/verify-email', { token });
+
+// 로그인 상태에서 인증 메일 재발송
+export const resendVerification = () =>
+  apiClient.post<ApiResponse<null>>('/api/auth/resend-verification');

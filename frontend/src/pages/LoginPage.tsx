@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [withdrawn, setWithdrawn] = useState(false);
+  const [resetDone, setResetDone] = useState(false); // Phase 6: 비밀번호 재설정 완료 안내
   const { loginUser } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -33,6 +34,10 @@ export default function LoginPage() {
     }
     if (new URLSearchParams(window.location.search).get('withdrawn') === 'true') {
       setWithdrawn(true);
+    }
+    if (sessionStorage.getItem('password_reset_done')) {
+      setResetDone(true);
+      sessionStorage.removeItem('password_reset_done');
     }
   });
 
@@ -74,6 +79,9 @@ export default function LoginPage() {
       )}
       {withdrawn && (
         <div className="banner banner-info">{t('auth.login.withdrawn')}</div>
+      )}
+      {resetDone && (
+        <div className="banner banner-info">{t('auth.reset.done')}</div>
       )}
       <h1>{t('auth.login.title')}</h1>
 

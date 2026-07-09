@@ -3,6 +3,9 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import DashboardPage from './pages/DashboardPage';
 import UploadPage from './pages/UploadPage';
 import CaptionPage from './pages/CaptionPage';
@@ -15,6 +18,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import ReviewsPage from './pages/ReviewsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
+import NoticesPage from './pages/NoticesPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import TermsPage from './pages/TermsPage';
@@ -29,6 +33,10 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/auth" element={<AuthCallbackPage />} />
+      {/* Phase 6: 비밀번호 찾기/재설정 + 이메일 인증 (메일 링크로 진입 — 인증 불필요) */}
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       <Route
         path="/dashboard"
@@ -115,6 +123,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* 개선백로그 🟡: 공지사항 + 문의 */}
+      <Route
+        path="/notices"
+        element={
+          <ProtectedRoute>
+            <NoticesPage />
           </ProtectedRoute>
         }
       />

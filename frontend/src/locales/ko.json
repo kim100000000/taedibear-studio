@@ -17,7 +17,8 @@
     "reviews": "리뷰",
     "settings": "설정",
     "greeting": "{{name}}님",
-    "admin": "관리자"
+    "admin": "관리자",
+    "notices": "공지"
   },
   "landing": {
     "login": "로그인",
@@ -112,6 +113,34 @@
       "nameMin2": "이름은 2자 이상이어야 해요.",
       "passwordMatch": "비밀번호가 일치하지 않아요.",
       "agreeRequired": "이용약관에 동의해주세요."
+    },
+    "forgot": {
+      "title": "비밀번호 찾기",
+      "description": "가입하신 이메일을 입력하면 비밀번호 재설정 링크를 보내드려요.",
+      "sent": "{{email}}(으)로 재설정 링크를 보냈어요. 메일함(스팸함 포함)을 확인해주세요.",
+      "submit": "재설정 링크 받기",
+      "submitting": "발송 중...",
+      "backToLogin": "로그인으로 돌아가기"
+    },
+    "reset": {
+      "title": "새 비밀번호 설정",
+      "newPassword": "새 비밀번호 (8자 이상)",
+      "confirmPassword": "새 비밀번호 확인",
+      "submit": "비밀번호 변경",
+      "submitting": "변경 중...",
+      "mismatch": "비밀번호가 서로 달라요.",
+      "invalidLink": "유효하지 않은 링크예요. 재설정을 다시 요청해주세요.",
+      "requestAgain": "재설정 다시 요청하기",
+      "done": "비밀번호가 변경됐어요. 새 비밀번호로 로그인해주세요."
+    },
+    "verify": {
+      "verifying": "이메일 인증 중...",
+      "successTitle": "이메일 인증 완료!",
+      "successBody": "이제 AI 캡션 생성을 포함한 모든 기능을 사용할 수 있어요.",
+      "goDashboard": "대시보드로 가기",
+      "invalidLink": "유효하지 않은 링크예요.",
+      "failed": "인증에 실패했어요. 링크가 만료됐을 수 있어요.",
+      "retryHint": "대시보드의 배너에서 인증 메일을 다시 받을 수 있어요."
     }
   },
   "dashboard": {
@@ -132,6 +161,12 @@
       "scheduled": "예약중",
       "posted": "완료",
       "failed": "실패"
+    },
+    "verifyEmail": {
+      "notice": "이메일 인증을 완료해주세요. 인증 전에는 AI 캡션 생성을 사용할 수 없어요.",
+      "resend": "인증 메일 다시 보내기",
+      "resending": "발송 중...",
+      "resent": "인증 메일을 다시 보냈어요. 메일함을 확인해주세요."
     }
   },
   "upload": {
@@ -191,6 +226,18 @@
       "lively": "발랄한",
       "luxury": "고급스러운",
       "friendly": "친근한"
+    },
+    "saveDraft": "임시 저장",
+    "previewAccount": "내 계정",
+    "previewEmpty": "캡션을 생성하면 여기에 미리보기가 표시돼요",
+    "vault": {
+      "title": "캡션 보관함",
+      "open": "보관함",
+      "save": "캡션 저장",
+      "saving": "저장 중...",
+      "saveFailed": "캡션 저장에 실패했어요.",
+      "empty": "저장된 캡션이 없어요. 마음에 든 캡션을 저장해두면 다음 게시물에서 재사용할 수 있어요.",
+      "use": "사용"
     }
   },
   "schedule": {
@@ -224,7 +271,8 @@
       "all": "전체",
       "posted": "완료",
       "scheduled": "예약중",
-      "failed": "실패"
+      "failed": "실패",
+      "draft": "임시 저장"
     },
     "status": {
       "draft": "임시저장",
@@ -257,7 +305,8 @@
       "retried": "다시 업로드를 시도했어요.",
       "retryFailed": "재시도에 실패했어요.",
       "insightsFailed": "인사이트를 불러오지 못했어요."
-    }
+    },
+    "publishDraft": "지금 발행"
   },
   "settings": {
     "title": "설정",
@@ -286,7 +335,9 @@
       "autoReplyOn": "자동 발행",
       "autoReplyOff": "승인 후 발행",
       "autoReplyChanged": "리뷰 답글 설정을 변경했어요.",
-      "autoReplyChangeFailed": "설정 변경에 실패했어요."
+      "autoReplyChangeFailed": "설정 변경에 실패했어요.",
+      "autoReplyOnHint": "AI 답글이 30분마다 자동으로 발행돼요",
+      "autoReplyOffHint": "AI 초안을 확인하고 직접 발행해요"
     },
     "account": {
       "title": "계정 관리",
@@ -404,6 +455,12 @@
       "skipSuccess": "건너뛰었어요.",
       "skipFailed": "처리에 실패했어요.",
       "loadFailed": "댓글을 불러오지 못했어요."
+    },
+    "unknownUser": "(알 수 없는 사용자)",
+    "group": {
+      "unknownPost": "게시물 #{{n}}",
+      "pendingCount": "미답변 {{count}}",
+      "commentCount": "댓글 {{count}}개"
     }
   },
   "editor": {
@@ -431,7 +488,8 @@
       "warm": "따뜻함"
     },
     "err": {
-      "uploadFailed": "업로드에 실패했어요."
+      "uploadFailed": "업로드에 실패했어요.",
+      "tooLarge": "편집된 이미지가 10MB를 넘어요. 더 작은 사진으로 시도해 주세요."
     }
   },
   "calendar": {
@@ -519,6 +577,24 @@
     "colValidUntil": "구독 만료",
     "colPaidAt": "결제일",
     "prev": "이전",
-    "next": "다음"
+    "next": "다음",
+    "notices": {
+      "title": "공지사항 관리",
+      "titlePlaceholder": "공지 제목",
+      "contentPlaceholder": "공지 내용",
+      "publish": "공지 등록",
+      "publishing": "등록 중...",
+      "created": "공지를 등록했어요."
+    }
+  },
+  "notices": {
+    "title": "공지사항",
+    "empty": "아직 공지사항이 없어요.",
+    "contact": {
+      "title": "문의하기",
+      "description": "서비스 이용 중 불편한 점이나 제안이 있다면 편하게 보내주세요. 확인 후 답장드릴게요.",
+      "subject": "[Taedibear Studio] 문의",
+      "button": "이메일로 문의하기"
+    }
   }
 }
