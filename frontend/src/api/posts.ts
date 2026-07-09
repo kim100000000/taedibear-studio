@@ -40,11 +40,15 @@ export interface PostInsights {
 }
 
 // POST /api/posts/upload (multipart/form-data)
-export const uploadImage = (file: File) => {
+// 개선백로그 🟠: onProgress 콜백(0~100)으로 업로드 진행률 표시 지원
+export const uploadImage = (file: File, onProgress?: (percent: number) => void) => {
   const formData = new FormData();
   formData.append('image', file);
   return apiClient.post<ApiResponse<UploadImageResult>>('/api/posts/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) onProgress(Math.round((e.loaded / e.total) * 100));
+    },
   });
 };
 

@@ -2307,3 +2307,346 @@ button {
   font-size: 14px;
   color: var(--text-secondary);
 }
+
+/* ── 개선백로그 🟠: 업로드 진행률 (ImageEditorPage) ─────────────────────────── */
+.upload-progress {
+  margin-top: 12px;
+}
+.upload-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-hover);
+  overflow: hidden;
+}
+.upload-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+.upload-progress-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── 개선백로그 🟠: 토글 스위치 (설정 > 리뷰 자동 답글) ────────────────────── */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--border-color);
+  border-radius: 24px;
+  transition: background 0.2s;
+}
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.switch input:checked + .switch-slider {
+  background: var(--color-primary);
+}
+.switch input:checked + .switch-slider::before {
+  transform: translateX(20px);
+}
+.switch input:disabled + .switch-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auto-reply-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.auto-reply-toggle-text {
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.auto-reply-toggle-text small {
+  font-size: 12px;
+}
+
+/* ── 개선백로그 🟠: 인스타 스타일 미리보기 (CaptionPage) ────────────────────── */
+.ig-preview {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+  overflow: hidden;
+  max-width: 360px;
+  align-self: flex-start;
+}
+.ig-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.ig-preview-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+.ig-preview-image {
+  width: 100%;
+  display: block;
+}
+.ig-preview-actions {
+  padding: 8px 12px 0;
+  font-size: 18px;
+  letter-spacing: 6px;
+}
+.ig-preview-caption {
+  padding: 6px 12px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 140px;
+  overflow-y: auto;
+}
+.ig-preview-hashtags {
+  color: #3b5f8f;
+}
+
+/* ── Phase 6: 미인증 배너 내 재발송 버튼 ─────────────────────────────────────── */
+.banner-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+}
+.banner-link-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── 개선백로그 🟡: 리뷰 게시글별 그룹핑 ────────────────────────────────────── */
+.review-group {
+  margin-bottom: 16px;
+}
+.review-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+}
+.review-group-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.review-group-thumb-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-hover);
+  font-size: 18px;
+}
+.review-group-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.review-group-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.review-group-badge {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+.review-group .history-list {
+  margin-top: 8px;
+}
+
+/* ── 개선백로그 🟡: 캡션 보관함 ─────────────────────────────────────────────── */
+.caption-generate-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.caption-vault-modal {
+  max-width: 480px;
+  width: 92%;
+}
+.caption-vault-title {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.caption-vault-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.caption-vault-item {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.caption-vault-text {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  word-break: break-word;
+}
+.caption-vault-actions {
+  display: flex;
+  gap: 8px;
+}
+.caption-vault-actions .btn-primary,
+.caption-vault-actions .btn-danger {
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+/* ── 개선백로그 🟡: 공지사항 + 문의 ─────────────────────────────────────────── */
+.notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.notice-item {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.notice-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 15px;
+  text-align: left;
+}
+.notice-item-title {
+  font-weight: 600;
+}
+.notice-item-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.notice-item-content {
+  padding: 0 16px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text-secondary);
+}
+.contact-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+.contact-section .btn-outline {
+  display: inline-block;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+/* 관리자 공지 관리 */
+.admin-notice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  max-width: 560px;
+}
+.admin-notice-form input,
+.admin-notice-form textarea {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+.admin-notice-form .btn-primary {
+  align-self: flex-start;
+}
+.admin-notice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-notice-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+.admin-notice-item .admin-notice-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-notice-item .btn-danger {
+  padding: 4px 10px;
+  font-size: 12px;
+}

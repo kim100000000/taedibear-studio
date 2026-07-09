@@ -159,17 +159,26 @@ export default function SettingsPage() {
               {accounts.map((acc) => (
                 <li key={acc.id} className="account-list-item">
                   <span>@{acc.username}</span>
-                  <button
-                    type="button"
-                    className="btn-outline"
-                    title={t('settings.instagram.autoReplyLabel')}
-                    onClick={() => toggleAutoReply(acc)}
-                  >
-                    {t('settings.instagram.autoReplyLabel')}:{' '}
-                    {acc.auto_reply_enabled
-                      ? t('settings.instagram.autoReplyOn')
-                      : t('settings.instagram.autoReplyOff')}
-                  </button>
+                  {/* 개선백로그 🟠: 자동 발행 여부를 ON/OFF 스위치로 명확하게 표시 */}
+                  <div className="auto-reply-toggle">
+                    <label className="switch" title={t('settings.instagram.autoReplyLabel')}>
+                      <input
+                        type="checkbox"
+                        checked={acc.auto_reply_enabled ?? false}
+                        onChange={() => toggleAutoReply(acc)}
+                      />
+                      <span className="switch-slider" />
+                    </label>
+                    <span className="auto-reply-toggle-text">
+                      {t('settings.instagram.autoReplyLabel')}{' '}
+                      <strong>{acc.auto_reply_enabled ? 'ON' : 'OFF'}</strong>
+                      <small className="muted">
+                        {acc.auto_reply_enabled
+                          ? t('settings.instagram.autoReplyOnHint')
+                          : t('settings.instagram.autoReplyOffHint')}
+                      </small>
+                    </span>
+                  </div>
                   <button
                     type="button"
                     className="btn-danger"

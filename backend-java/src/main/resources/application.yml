@@ -24,6 +24,13 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  # 개선백로그 🟠: @Scheduled 잡 5종(예약 발행 1분/자동 답글 30분/팔로워 스냅샷/월간 크레딧/관리자 리포트)이
+  # 기본 단일 스레드를 공유하면 오래 걸리는 잡이 예약 발행을 지연시킬 수 있어 풀을 확장한다.
+  task:
+    scheduling:
+      pool:
+        size: 4
+
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}

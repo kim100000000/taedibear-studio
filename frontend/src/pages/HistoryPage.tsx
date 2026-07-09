@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import NavBar from '../components/NavBar';
 import Spinner from '../components/Spinner';
@@ -15,7 +15,9 @@ import type { Post, PostStatus, ToastData, InstagramAccount } from '../types';
 export default function HistoryPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [tab, setTab] = useState('');
+  // 개선백로그 🟠: 캡션 화면 "임시 저장" 후 draft 탭으로 바로 진입할 수 있게 초기 탭 지원
+  const { state: navState } = useLocation() as { state: { initialTab?: string } | null };
+  const [tab, setTab] = useState(navState?.initialTab ?? '');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -34,6 +36,7 @@ export default function HistoryPage() {
     { key: '', label: t('history.tabs.all') },
     { key: 'posted', label: t('history.tabs.posted') },
     { key: 'scheduled', label: t('history.tabs.scheduled') },
+    { key: 'draft', label: t('history.tabs.draft') }, // 개선백로그 🟠: 임시 저장 보관함
     { key: 'failed', label: t('history.tabs.failed') },
   ];
 
@@ -210,6 +213,17 @@ export default function HistoryPage() {
                           onClick={() => retry(post.id)}
                         >
                           {t('common.retry')}
+                        </button>
+                      )}
+                      {/* 개선백로그 🟠: 임시 저장(draft) 게시물을 보관함에서 바로 발행 */}
+                      {post.status === 'draft' && (
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          disabled={busyId === post.id}
+                          onClick={() => retry(post.id)}
+                        >
+                          {t('history.publishDraft')}
                         </button>
                       )}
                       {/* Phase 2-4: 이 스타일로 다시 생성 */}

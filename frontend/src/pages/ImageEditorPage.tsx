@@ -65,6 +65,9 @@ function getCropBox(
   return { sx: 0, sy: (imgH - sh) / 2, sw: imgW, sh };
 }
 
+// 서버 multipart 한도(application.yml max-file-size: 10MB)와 동일하게 유지
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
 export default function ImageEditorPage() {
   const { state } = useLocation() as { state: EditorPageState | null };
   const navigate = useNavigate();
@@ -77,6 +80,7 @@ export default function ImageEditorPage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [imgLoaded, setImgLoaded]   = useState(false);
   const [uploading, setUploading]   = useState(false);
+  const [uploadPercent, setUploadPercent] = useState(0);
   const [toast, setToast]           = useState<ToastData | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -162,21 +166,39 @@ export default function ImageEditorPage() {
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
 
     setUploading(true);
+    setUploadPercent(0);
     try {
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        exportCanvas.toBlob(
-          (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
-          'image/jpeg',
-          0.92,
-        );
-      });
+      const toJpeg = (quality: number) =>
+        new Promise<Blob>((resolve, reject) => {
+          exportCanvas.toBlob(
+            (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),
+            'image/jpeg',
+            quality,
+          );
+        });
+
+      // 개선백로그 🟠: 서버 multipart 한도(10MB) 초과로 즉시 실패하던 문제 —
+      // 편집본이 10MB를 넘으면 품질을 낮춰 재인코딩, 그래도 크면 명확한 안내
+      let blob = await toJpeg(0.92);
+      if (blob.size > MAX_UPLOAD_BYTES) blob = await toJpeg(0.75);
+      if (blob.size > MAX_UPLOAD_BYTES) {
+        setToast({ type: 'error', message: t('editor.err.tooLarge') });
+        return;
+      }
+
       const editedFile = new File([blob], 'edited.jpg', { type: 'image/jpeg' });
-      const { data } = await uploadImage(editedFile);
+      const { data } = await uploadImage(editedFile, setUploadPercent);
       navigate('/upload/caption', {
         state: { imageUrl: data.data.image_url, instagramAccountId: state.accountId },
       });
     } catch (err: any) {
-      setToast({ type: 'error', message: err.response?.data?.error ?? t('editor.err.uploadFailed') });
+      // 개선백로그 🟠: 실패 원인을 구분해 안내 (네트워크 / 파일 크기 / 서버 메시지)
+      const message = err.isNetworkError
+        ? t('error.network')
+        : err.response?.status === 413
+          ? t('editor.err.tooLarge')
+          : err.response?.data?.error ?? t('editor.err.uploadFailed');
+      setToast({ type: 'error', message });
     } finally {
       setUploading(false);
     }
@@ -277,6 +299,17 @@ export default function ImageEditorPage() {
                 {uploading ? t('editor.uploading') : t('editor.next')}
               </button>
             </div>
+            {/* 개선백로그 🟠: 업로드 진행률 표시 */}
+            {uploading && (
+              <div className="upload-progress" role="progressbar" aria-valuenow={uploadPercent}>
+                <div className="upload-progress-track">
+                  <div className="upload-progress-fill" style={{ width: `${uploadPercent}%` }} />
+                </div>
+                <span className="upload-progress-label">
+                  {t('editor.uploading')} {uploadPercent}%
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

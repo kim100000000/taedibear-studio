@@ -6,11 +6,12 @@ import EmptyState from '../components/EmptyState';
 import Toast from '../components/Toast';
 import ConfirmModal from '../components/ConfirmModal';
 import { listSchedules, updateSchedule, deleteSchedule } from '../api/scheduled';
-import type { ScheduledPost, ToastData } from '../types';
+import { listPosts } from '../api/posts';
+import type { Post, ScheduledPost, ToastData } from '../types';
 
 // P-11 콘텐츠 캘린더 (/calendar) — Phase 1-1
 // 기존 GET /api/scheduled, PUT /api/scheduled/:id, DELETE /api/scheduled/:id 활용.
-// 새 백엔드 API 없음.
+// 개선백로그 🟠: 예약뿐 아니라 즉시 발행된 게시물(posted_at)도 함께 표시 — "콘텐츠 달력"
 export default function CalendarPage() {
   const { t } = useTranslation();
 
@@ -19,6 +20,7 @@ export default function CalendarPage() {
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [items, setItems] = useState<ScheduledPost[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ScheduledPost | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
@@ -33,8 +35,12 @@ export default function CalendarPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await listSchedules();
-      setItems(res.data.data);
+      const [schedRes, postsRes] = await Promise.all([
+        listSchedules(),
+        listPosts({ status: 'posted', limit: 100 }),
+      ]);
+      setItems(schedRes.data.data);
+      setPosts(postsRes.data.data.posts);
     } catch (err: any) {
       const msg = err.isNetworkError
         ? t('error.network')
@@ -71,6 +77,13 @@ export default function CalendarPage() {
 
   const getItemsForDate = (d: Date) =>
     items.filter((item) => item.scheduled_at.startsWith(toDateStr(d)));
+
+  // 즉시 발행 게시물 — 예약을 통해 발행된 게시물(예약 아이템으로 이미 표시됨)은 제외해 중복 방지
+  const scheduledPostIds = new Set(items.map((item) => item.post_id));
+  const getPostedForDate = (d: Date) =>
+    posts.filter(
+      (p) => p.posted_at?.startsWith(toDateStr(d)) && !scheduledPostIds.has(p.id),
+    );
 
   // ── 월 이동 ──────────────────────────────────────────────────────────────
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
@@ -166,8 +179,8 @@ export default function CalendarPage() {
     month: 'long',
   });
 
-  // 전체 예약이 하나도 없을 때 빈 상태 표시
-  if (!loading && items.length === 0) {
+  // 예약도 발행물도 하나도 없을 때 빈 상태 표시
+  if (!loading && items.length === 0 && posts.length === 0) {
     return (
       <div className="page-with-nav">
         <NavBar />
@@ -246,6 +259,7 @@ export default function CalendarPage() {
               }
               const dateStr = toDateStr(day);
               const dayItems = getItemsForDate(day);
+              const dayPosted = getPostedForDate(day);
               const isOver = dragOverDate === dateStr;
 
               return (
@@ -281,6 +295,27 @@ export default function CalendarPage() {
                           <img src={item.post.image_url} alt="" className="calendar-item-thumb" />
                         )}
                         <span className="calendar-item-time">{formatTime(item.scheduled_at)}</span>
+                      </button>
+                    ))}
+                    {/* 즉시 발행된 게시물 (드래그 불가, 클릭 시 상세) */}
+                    {dayPosted.map((p) => (
+                      <button
+                        key={`post-${p.id}`}
+                        type="button"
+                        className="calendar-item calendar-item-done"
+                        onClick={() =>
+                          setSelectedItem({
+                            id: -p.id, // 예약 아이템과 key 충돌 방지용 음수 (모달 표시 전용)
+                            post_id: p.id,
+                            scheduled_at: p.posted_at!,
+                            status: 'done',
+                            post: { image_url: p.image_url, caption: p.caption },
+                          })
+                        }
+                        title={`${formatTime(p.posted_at!)} — ${p.caption?.slice(0, 30) ?? ''}`}
+                      >
+                        <img src={p.image_url} alt="" className="calendar-item-thumb" />
+                        <span className="calendar-item-time">{formatTime(p.posted_at!)}</span>
                       </button>
                     ))}
                   </div>
