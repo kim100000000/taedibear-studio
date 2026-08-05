@@ -102,6 +102,8 @@ taedibear-studio/
 - Google / Kakao / Naver OAuth 앱 키
 - Meta 앱 (Facebook Page + Instagram Business 계정 연결)
 - AWS S3 버킷 (이미지 저장)
+- 토스페이먼츠 API 키 (결제)
+- SMTP 계정 (비밀번호 재설정/이메일 인증 발송 — Gmail 사용 시 앱 비밀번호 필요)
 
 ### 백엔드
 
