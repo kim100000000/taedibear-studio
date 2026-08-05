@@ -3,6 +3,18 @@
 > 사용법: 세션이 끝날 때마다 "오늘 한 일 / 결정한 것 / 다음 할 일"을 여기에 추가.
 > Claude에게 "memory.md 읽고 이어서 하자"라고 하면 맥락이 이어짐.
 
+## 2026-08-06
+- 한 일:
+  - S3 과금 폭탄 방지: 하루 총 업로드 100MB 한도 추가 (`domain/DailyUploadQuota`, `repository/DailyUploadQuotaRepository`, `post/UploadQuotaService`) — `S3Service.uploadImage()`가 S3에 닿기 전 `reserve()`로 먼저 체크, 초과 시 429
+    - 날짜가 PK라 자정 지나면 자동 리셋, `tryReserve` JPQL로 원자적 증가(동시 요청 레이스 방지)
+    - 버그 발견·수정: JPQL bulk UPDATE가 영속성 컨텍스트를 안 거쳐서 같은 트랜잭션 내 재조회 시 stale 값 반환 — `@Modifying(clearAutomatically = true)`로 해결
+    - 테스트 추가: `UploadQuotaServiceTest`(Mockito, 한도 통과/초과/동시생성 케이스), `DailyUploadQuotaRepositoryTest`(로컬 MySQL 대상 `@DataJpaTest`, 경계값 포함) — 전체 통과 확인, `./gradlew bootRun`으로 앱 정상 기동도 확인
+    - `docs/05_API명세서.md`에 `/api/posts/upload` 429 에러 케이스 추가
+  - 브랜치 `feat/daily-upload-quota`에서 작업 (develop이 기본 브랜치라 분리)
+- 다음:
+  - rate limit(요청 빈도 제한) 자체는 아직 없음 — 이번 건은 하루 총 용량 상한이라는 최후 안전장치일 뿐, 근본적인 rate limit 도입은 별도 작업
+  - PR 올리고 develop 머지 검토
+
 ## 2026-07-09
 - 한 일:
   - 🔴 버그 수정: 리뷰 "@?" → "(알 수 없는 사용자)" 문구 / 인스타에서 삭제된 댓글을 동기화 시 정리(`ReviewService`, 조회 실패 게시물은 오삭제 방지로 건너뜀)

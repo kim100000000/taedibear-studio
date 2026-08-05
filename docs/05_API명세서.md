@@ -420,6 +420,11 @@ image: <File>  (JPG, PNG, WEBP, 최대 10MB)
 { "success": false, "error": "지원하지 않는 파일 형식이에요. JPG, PNG, WEBP만 가능해요." }
 ```
 
+**Error 429:** 대량 업로드 방지용 안전장치. 하루 총 업로드 용량(전체 사용자 합산 100MB)을 넘으면 발생, 자정에 자동 리셋.
+```json
+{ "success": false, "error": "오늘 업로드 가능한 용량(100MB)을 모두 사용했어요. 내일 다시 시도해주세요." }
+```
+
 ---
 
 ### POST /api/posts/caption

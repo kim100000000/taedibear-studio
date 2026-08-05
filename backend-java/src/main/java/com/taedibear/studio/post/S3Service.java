@@ -31,14 +31,17 @@ public class S3Service {
 	private final String bucket;
 	private final String region;
 	private final String urlPrefix;
+	private final UploadQuotaService uploadQuotaService;
 
 	public S3Service(
 			@Value("${app.aws.region}") String region,
 			@Value("${app.aws.access-key-id}") String accessKeyId,
 			@Value("${app.aws.secret-access-key}") String secretAccessKey,
-			@Value("${app.aws.s3-bucket}") String bucket) {
+			@Value("${app.aws.s3-bucket}") String bucket,
+			UploadQuotaService uploadQuotaService) {
 		this.region = region;
 		this.bucket = bucket;
+		this.uploadQuotaService = uploadQuotaService;
 		this.urlPrefix = String.format("https://%s.s3.%s.amazonaws.com/", bucket, region);
 		this.s3Client = S3Client.builder()
 				.region(Region.of(region))
@@ -57,6 +60,9 @@ public class S3Service {
 		if (ext == null) {
 			throw ApiException.badRequest("지원하지 않는 파일 형식이에요. JPG, PNG, WEBP만 가능해요.");
 		}
+
+		// 대량 업로드로 인한 S3 과금 폭주 방지 — rate limit이 갖춰지기 전까지의 임시 안전장치.
+		uploadQuotaService.reserve(file.getSize());
 
 		String key = "images/" + UUID.randomUUID() + "." + ext;
 
